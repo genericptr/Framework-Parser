@@ -1,0 +1,66 @@
+{$mode delphi}
+{$modeswitch objectivec1}
+{$modeswitch cvar}
+
+[AVAILABILITY_MACROS]
+
+unit [NAME];
+interface
+
+[LINK_FRAMEWORK]
+
+uses
+	CTypes, MacTypes, AEDataModel, IconsCore, CFBase, CFArray, CFBag, CFCharacterSet, CFData, CFDate, CFDictionary, CFNumber, 
+	CFPropertyList, CFSet, CFString, CFStringEncodingExt, CFTimeZone, CFTree, CFURL, CFXMLNode, CFXMLParser, CFMachPort, 
+	CFMessagePort, CFRunLoop, CFSocket, CFBinaryHeap, CFBitVector, CFBundle, CFByteOrders, CFPlugIn, CFPreferences, 
+	CFURLAccess, CFUUID, CFLocale, CFStream, CFDateFormatter, CFNumberFormatter, CFCalendar, CFUserNotification, 
+	CFNotificationCenter, CFAttributedString, CFNetworkErrorss, CGBase, CGAffineTransforms, CGBitmapContext, CGColor, 
+	CGColorSpace, CGContext, CGDataConsumer, CGDataProvider, CGDirectDisplay, CGDirectPalette, CGDisplayConfiguration, 
+	CGDisplayFades, CGErrors, CGEvent, CGEventSource, CGEventTypes, CGFont, CGFunction, CGGLContext, CGGeometry, CGImage, 
+	CGLayer, CGPDFArray, CGPDFContentStream, CGPDFContext, CGPDFDictionary, CGPDFDocument, CGPDFObject, CGPDFOperatorTable,
+	CGPDFPage, CGPDFScanner, CGPDFStream, CGPDFString, CGPSConverter, CGPath, CGPattern, CGRemoteOperation, CGSession, 
+	CGShading, CGWindowLevels, CVBase, CVImageBuffer, IOSurfaceAPI, SecBase, SecTrust, MacOSXPosix, macgl, CGLTypes,
+  [USES];
+
+{$define INTERFACE}
+[COMMON_MACROS]
+
+[COMMON_TYPES]
+
+[LOADED_MACROS]
+
+{$include UndefinedTypes.inc}
+[UNDEFINED_TYPES]
+
+{$define TYPES}
+[INCLUDE]
+{$undef TYPES}
+
+{$define RECORDS}
+[INCLUDE]
+{$undef RECORDS}
+
+{$define PROTOCOLS}
+[INCLUDE]
+{$undef PROTOCOLS}
+
+{$define CLASSES}
+[INCLUDE]
+{$undef CLASSES}
+
+{$define FUNCTIONS}
+[INCLUDE]
+{$undef FUNCTIONS}
+
+{$define EXTERNAL_SYMBOLS}
+[INCLUDE]
+{$undef EXTERNAL_SYMBOLS}
+
+[INLINE_FUNCTIONS]
+
+{$undef INTERFACE}
+implementation
+{$define IMPLEMENTATION}
+[INLINE_FUNCTIONS]
+{$undef IMPLEMENTATION}
+end.

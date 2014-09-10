@@ -1,0 +1,172 @@
+Binary files iPhoneAll_old/.DS_Store and iPhoneAll/.DS_Store differ
+
+Binary files iPhoneAll_old/audiounit/.DS_Store and iPhoneAll/audiounit/.DS_Store differ
+diff -rupN iPhoneAll_old/audiounit/AudioUnitProperties.inc iPhoneAll/audiounit/AudioUnitProperties.inc
+--- iPhoneAll_old/audiounit/AudioUnitProperties.inc	2012-03-23 10:23:39.000000000 +0700
++++ iPhoneAll/audiounit/AudioUnitProperties.inc	2012-03-23 10:43:21.000000000 +0700
+@@ -595,9 +595,8 @@ const
+   kScheduledAudioSliceFlag_BeganToRenderLate = 4;
+ 
+ type
++	ScheduledAudioSlicePtr = ^ScheduledAudioSlice;
+   ScheduledAudioSliceCompletionProc = procedure (userData: pointer; bufferList: ScheduledAudioSlicePtr); cdecl;
+-
+-type
+   ScheduledAudioSlice = record
+     mTimeStamp: AudioTimeStamp;
+     mCompletionProc: ScheduledAudioSliceCompletionProc;
+@@ -608,8 +607,6 @@ type
+     mNumberFrames: UInt32;
+     mBufferList: AudioBufferListPtr;
+   end;
+-type
+-  ScheduledAudioSlicePtr = ^ScheduledAudioSlice;
+ 
+ const
+   kAudioUnitProperty_ScheduledFileIDs = 3310;
+@@ -619,9 +616,8 @@ const
+   kAudioUnitProperty_ScheduledFileNumberBuffers = 3314;
+ 
+ type
++	ScheduledAudioFileRegionPtr = ^ScheduledAudioFileRegion;
+   ScheduledAudioFileRegionCompletionProc = procedure (userData: pointer; fileRegion: ScheduledAudioFileRegionPtr; result_: OSStatus); cdecl;
+-
+-type
+   ScheduledAudioFileRegion = record
+     mTimeStamp: AudioTimeStamp;
+     mCompletionProc: ScheduledAudioFileRegionCompletionProc;
+@@ -631,8 +627,6 @@ type
+     mStartFrame: SInt64;
+     mFramesToPlay: UInt32;
+   end;
+-type
+-  ScheduledAudioFileRegionPtr = ^ScheduledAudioFileRegion;
+ {$endif}
+ 
+ {$if  not defined(TARGET_OS_IPHONE)}
+diff -rupN iPhoneAll_old/coredata/NSManagedObjectContext.inc iPhoneAll/coredata/NSManagedObjectContext.inc
+--- iPhoneAll_old/coredata/NSManagedObjectContext.inc	2012-03-23 10:23:58.000000000 +0700
++++ iPhoneAll/coredata/NSManagedObjectContext.inc	2012-03-23 10:36:01.000000000 +0700
+@@ -24,11 +24,6 @@ var
+   NSRefreshedObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+   NSInvalidatedObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+   NSInvalidatedAllObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+-  NSErrorMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSMergeByPropertyStoreTrumpMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSMergeByPropertyObjectTrumpMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSOverwriteMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSRollbackMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+ {$endif}
+ 
+ {$ifdef TYPES}
+diff -rupN iPhoneAll_old/coregraphics/Sources.inc iPhoneAll/coregraphics/Sources.inc
+--- iPhoneAll_old/coregraphics/Sources.inc	2012-03-23 10:21:56.000000000 +0700
++++ iPhoneAll/coregraphics/Sources.inc	2012-03-23 10:37:17.000000000 +0700
+@@ -1,6 +1,7 @@
+ {$define FRAMEWORK_LOADED_COREGRAPHICS}
+ {$include CoreGraphics.inc}
+ {$include CGGeometry.inc}
++{$include CGContext.inc}
+ {$include CGAffineTransform.inc}
+ {$include CGDataProvider.inc}
+ {$include CGColorSpace.inc}
+@@ -19,7 +20,6 @@
+ {$include CGPDFDocument.inc}
+ {$include CGFunction.inc}
+ {$include CGShading.inc}
+-{$include CGContext.inc}
+ {$include CGBitmapContext.inc}
+ {$include CGDataConsumer.inc}
+ {$include CGError.inc}
+diff -rupN iPhoneAll_old/coremidi/MIDIDriver.inc iPhoneAll/coremidi/MIDIDriver.inc
+--- iPhoneAll_old/coremidi/MIDIDriver.inc	2012-03-23 10:23:38.000000000 +0700
++++ iPhoneAll/coremidi/MIDIDriver.inc	2012-03-23 10:42:50.000000000 +0700
+@@ -1,11 +1,6 @@
+ { Parsed from CoreMIDI.framework (iPhoneOS5.0) MIDIDriver.h }
+ { Created on Fri Mar 23 10:23:38 2012 }
+ 
+-{$ifdef TYPES}
+-type
+-  MIDIDriverRef = ^MIDIDriverInterfacePtr;
+-{$endif}
+-
+ {$if defined(__LP64__)}
+ {$ifdef TYPES}
+ type
+@@ -22,6 +17,8 @@ type
+ {$endif}
+ {$ifdef TYPES}
+ type
++	MIDIDriverInterfacePtr = ^MIDIDriverInterface;
++	MIDIDriverRef = ^MIDIDriverInterfacePtr;
+   MIDIDriverInterface = record
+     FindDevices: function (self_: MIDIDriverRef; devList: MIDIDeviceListRef): OSStatus; cdecl;
+     Start: function (self_: MIDIDriverRef; devList: MIDIDeviceListRef): OSStatus; cdecl;
+@@ -32,8 +29,6 @@ type
+     Flush: function (self_: MIDIDriverRef; dest: MIDIEndpointRef; destRefCon1: pointer; destRefCon2: pointer): OSStatus; cdecl;
+     Monitor: function (self_: MIDIDriverRef; dest: MIDIEndpointRef; pktlist: MIDIPacketListPtr): OSStatus; cdecl;
+   end;
+-type
+-  MIDIDriverInterfacePtr = ^MIDIDriverInterface;
+ {$endif}
+ 
+ {$ifdef EXTERNAL_SYMBOLS}
+diff -rupN iPhoneAll_old/coremidi/MIDIServices.inc iPhoneAll/coremidi/MIDIServices.inc
+--- iPhoneAll_old/coremidi/MIDIServices.inc	2012-03-23 10:23:38.000000000 +0700
++++ iPhoneAll/coremidi/MIDIServices.inc	2012-03-23 10:42:19.000000000 +0700
+@@ -75,11 +75,6 @@ const
+   kMIDIInvalidUniqueID = 0;
+ 
+ type
+-  MIDINotifyProc = procedure (message_: MIDINotificationPtr; refCon: pointer); cdecl;
+-  MIDIReadProc = procedure (pktlist: MIDIPacketListPtr; readProcRefCon: pointer; srcConnRefCon: pointer); cdecl;
+-  MIDICompletionProc = procedure (request: MIDISysexSendRequestPtr); cdecl;
+-
+-type
+   MIDIPacket = record
+     timeStamp: MIDITimeStamp;
+     length: UInt16;
+@@ -88,13 +83,16 @@ type
+ type
+   MIDIPacketPtr = ^MIDIPacket;
+ type
++	MIDIPacketListPtr = ^MIDIPacketList;
++	MIDIReadProc = procedure (pktlist: MIDIPacketListPtr; readProcRefCon: pointer; srcConnRefCon: pointer); cdecl;
+   MIDIPacketList = record
+     numPackets: UInt32;
+     packet:array[0..0] of MIDIPacket;
+   end;
++
+ type
+-  MIDIPacketListPtr = ^MIDIPacketList;
+-type
++	MIDISysexSendRequestPtr = ^MIDISysexSendRequest;
++	MIDICompletionProc = procedure (request: MIDISysexSendRequestPtr); cdecl;
+   MIDISysexSendRequest = record
+     destination: MIDIEndpointRef;
+     data: BytePtr;
+@@ -104,8 +102,6 @@ type
+     completionProc: MIDICompletionProc;
+     completionRefCon: pointer;
+   end;
+-type
+-  MIDISysexSendRequestPtr = ^MIDISysexSendRequest;
+ 
+ const
+   kMIDIMsgSetupChanged = 1;
+@@ -121,12 +117,13 @@ type
+   MIDINotificationMessageIDPtr = ^MIDINotificationMessageID;
+ 
+ type
++	MIDINotificationPtr = ^MIDINotification;
++	MIDINotifyProc = procedure (message_: MIDINotificationPtr; refCon: pointer); cdecl;
+   MIDINotification = record
+     messageID: MIDINotificationMessageID;
+     messageSize: UInt32;
+   end;
+-type
+-  MIDINotificationPtr = ^MIDINotification;
++
+ type
+   MIDIObjectAddRemoveNotification = record
+     messageID: MIDINotificationMessageID;

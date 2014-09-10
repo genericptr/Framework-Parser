@@ -1,0 +1,476 @@
+diff -rupN CocoaAll_old/DefinedClassesFoundation.pas CocoaAll/DefinedClassesFoundation.pas
+--- CocoaAll_old/DefinedClassesFoundation.pas	2012-09-10 11:48:00.000000000 +0700
++++ CocoaAll/DefinedClassesFoundation.pas	2012-09-10 11:49:50.000000000 +0700
+@@ -113,7 +113,7 @@ type
+   NSNull = objcclass external;
+   NSNumber = objcclass external;
+   NSNumberFormatter = objcclass external;
+-  NSObject = objcclass external;
++  //NSObject = objcclass external;
+   NSOperation = objcclass external;
+   NSOperationQueue = objcclass external;
+   NSOrderedSet = objcclass external;
+@@ -219,7 +219,7 @@ type
+   NSMutableCopyingProtocol = objcprotocol external name 'NSMutableCopying';
+   NSNetServiceBrowserDelegateProtocol = objcprotocol external name 'NSNetServiceBrowserDelegate';
+   NSNetServiceDelegateProtocol = objcprotocol external name 'NSNetServiceDelegate';
+-  NSObjectProtocol = objcprotocol external name 'NSObject';
++  //NSObjectProtocol = objcprotocol external name 'NSObject';
+   NSPortDelegateProtocol = objcprotocol external name 'NSPortDelegate';
+   NSSecureCodingProtocol = objcprotocol external name 'NSSecureCoding';
+   NSSpellServerDelegateProtocol = objcprotocol external name 'NSSpellServerDelegate';
+diff -rupN CocoaAll_old/appkit/NSCustomImageRep.inc CocoaAll/appkit/NSCustomImageRep.inc
+--- CocoaAll_old/appkit/NSCustomImageRep.inc	2012-09-10 11:47:56.000000000 +0700
++++ CocoaAll/appkit/NSCustomImageRep.inc	2012-09-10 11:51:32.000000000 +0700
+@@ -16,8 +16,8 @@ type
+     _drawObject: id;
+     _reserved: cuint;
+   public
+-    function initWithSize_flipped_drawingHandler (size_: NSSize; drawingHandlerShouldBeCalledWithFlippedContext: boolean; drawingHandler: OpaqueCBlock): id; message 'initWithSize:flipped:drawingHandler:'; { available in 10_8 }
+-    function (NSRect dstRect))drawingHandler: BOOL (^; message '(NSRect dstRect))drawingHandler'; { available in 10_8 }
++		function initWithSize_flipped_drawingHandler (size_: NSSize; drawingHandlerShouldBeCalledWithFlippedContext: boolean; drawingHandler: OpaqueCBlock): id; message 'initWithSize:flipped:drawingHandler:'; { available in 10_8 }
++		function drawingHandler: OpaqueCBlock; message 'drawingHandler'; { available in 10_8 }
+     function initWithDrawSelector_delegate (aMethod: SEL; anObject: id): id; message 'initWithDrawSelector:delegate:';
+     function drawSelector: SEL; message 'drawSelector';
+     function delegate: id; message 'delegate';
+diff -rupN CocoaAll_old/appkit/NSSplitView.inc CocoaAll/appkit/NSSplitView.inc
+--- CocoaAll_old/appkit/NSSplitView.inc	2012-09-10 11:47:56.000000000 +0700
++++ CocoaAll/appkit/NSSplitView.inc	2012-09-10 11:50:09.000000000 +0700
+@@ -13,7 +13,7 @@ type
+ const
+   NSSplitViewDividerStyleThick = 1;
+   NSSplitViewDividerStyleThin = 2;
+-  {$if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAX_OS_X_VERSION_10_6)}
++  {$if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)}
+   NSSplitViewDividerStylePaneSplitter = 3;
+   {$endif}
+ {$endif}
+diff -rupN CocoaAll_old/appkit/Sources.inc CocoaAll/appkit/Sources.inc
+--- CocoaAll_old/appkit/Sources.inc	2012-09-10 11:44:36.000000000 +0700
++++ CocoaAll/appkit/Sources.inc	2012-09-10 11:51:45.000000000 +0700
+@@ -158,8 +158,8 @@
+ {$include NSStepperCell.inc}
+ {$include NSGlyphInfo.inc}
+ {$include NSShadow.inc}
+-{$include NSSimpleHorizontalTypesetter.inc}
+ {$include NSTypesetter.inc}
++{$include NSSimpleHorizontalTypesetter.inc}
+ {$include NSATSTypesetter.inc}
+ {$include NSSearchField.inc}
+ {$include NSSearchFieldCell.inc}
+diff -rupN CocoaAll_old/audiovideobridging/AVB17221EntityDiscovery.inc CocoaAll/audiovideobridging/AVB17221EntityDiscovery.inc
+--- CocoaAll_old/audiovideobridging/AVB17221EntityDiscovery.inc	2012-09-10 11:45:16.000000000 +0700
++++ CocoaAll/audiovideobridging/AVB17221EntityDiscovery.inc	2012-09-10 11:52:43.000000000 +0700
+@@ -15,7 +15,7 @@ type
+     connection: io_connect_t;
+     {$ifndef _LP64}
+     interfaceName: NSString;
+-    interface_: AVBInterface;
++    interface__: AVBInterface;
+     discoveryDelegate: AVB17221EntityDiscoveryDelegateProtocol;
+     {$endif}
+     notificationPort: IONotificationPortRef;
+diff -rupN CocoaAll_old/audiovideobridging/AVB1722ControlInterface.inc CocoaAll/audiovideobridging/AVB1722ControlInterface.inc
+--- CocoaAll_old/audiovideobridging/AVB1722ControlInterface.inc	2012-09-10 11:45:16.000000000 +0700
++++ CocoaAll/audiovideobridging/AVB1722ControlInterface.inc	2012-09-10 11:52:35.000000000 +0700
+@@ -25,7 +25,7 @@ type
+     notification: io_object_t;
+     {$ifndef _LP64}
+     interfaceName: NSString;
+-    interface_: AVBInterface;
++    interface__: AVBInterface;
+     {$endif}
+   public
+     procedure setInterfaceName(newValue: NSString); message 'setInterfaceName:';
+diff -rupN CocoaAll_old/coreaudio/CoreAudioTypes.inc CocoaAll/coreaudio/CoreAudioTypes.inc
+--- CocoaAll_old/coreaudio/CoreAudioTypes.inc	2012-09-10 11:47:32.000000000 +0700
++++ CocoaAll/coreaudio/CoreAudioTypes.inc	2012-09-10 11:55:35.000000000 +0700
+@@ -69,16 +69,8 @@ type
+   AudioBufferList = record
+     mNumberBuffers: UInt32;
+     mBuffers:array[0..0] of AudioBuffer;
+-    {$if (defined(__cplusplus)) and defined(CA_STRICT)}
+-    AudioBufferList&): AudioBufferList(;
+-    AudioBufferList&)_: AudioBufferList& operator=(;
+-    {$endif}
+   end;
+ type
+-  private:AudioBufferList(AudioBufferList&) = AudioBufferList;
+-type
+-  private:AudioBufferList(AudioBufferList&)Ptr = ^AudioBufferList;
+-type
+   AudioBufferListPtr = ^AudioBufferList;
+ {$endif}
+ 
+@@ -300,16 +292,8 @@ type
+     mChannelBitmap: UInt32;
+     mNumberChannelDescriptions: UInt32;
+     mChannelDescriptions:array[0..0] of AudioChannelDescription;
+-    {$if (defined(__cplusplus)) and defined(CA_STRICT)}
+-    AudioChannelLayout&): AudioChannelLayout(;
+-    AudioChannelLayout&)_: AudioChannelLayout& operator=(;
+-    {$endif}
+   end;
+ type
+-  private:AudioChannelLayout(AudioChannelLayout&) = AudioChannelLayout;
+-type
+-  private:AudioChannelLayout(AudioChannelLayout&)Ptr = ^AudioChannelLayout;
+-type
+   AudioChannelLayoutPtr = ^AudioChannelLayout;
+ 
+ const
+diff -rupN CocoaAll_old/coredata/NSAtomicStore.inc CocoaAll/coredata/NSAtomicStore.inc
+--- CocoaAll_old/coredata/NSAtomicStore.inc	2012-09-10 11:47:23.000000000 +0700
++++ CocoaAll/coredata/NSAtomicStore.inc	2012-09-10 11:49:55.000000000 +0700
+@@ -20,7 +20,7 @@ type
+     _reserved5: pointer;
+   public
+     function initWithPersistentStoreCoordinator_configurationName_URL_options (coordinator: NSPersistentStoreCoordinator; configurationName_: NSString; url_: NSURL; options_: NSDictionary): id; message 'initWithPersistentStoreCoordinator:configurationName:URL:options:';
+-    function load (error: NSErrorPtr): boolean; message 'load:';
++    function load_ (error: NSErrorPtr): boolean; message 'load:';
+     function save (error: NSErrorPtr): boolean; message 'save:';
+     function newCacheNodeForManagedObject (managedObject: NSManagedObject): NSAtomicStoreCacheNode; message 'newCacheNodeForManagedObject:';
+     procedure updateCacheNode_fromManagedObject (node: NSAtomicStoreCacheNode; managedObject: NSManagedObject); message 'updateCacheNode:fromManagedObject:';
+diff -rupN CocoaAll_old/coredata/NSManagedObjectContext.inc CocoaAll/coredata/NSManagedObjectContext.inc
+--- CocoaAll_old/coredata/NSManagedObjectContext.inc	2012-09-10 11:47:23.000000000 +0700
++++ CocoaAll/coredata/NSManagedObjectContext.inc	2012-09-10 11:50:03.000000000 +0700
+@@ -24,11 +24,6 @@ var
+   NSRefreshedObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+   NSInvalidatedObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+   NSInvalidatedAllObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+-  NSErrorMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSMergeByPropertyStoreTrumpMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSMergeByPropertyObjectTrumpMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSOverwriteMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSRollbackMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+ {$endif}
+ 
+ {$ifdef TYPES}
+diff -rupN CocoaAll_old/coreimage/Sources.inc CocoaAll/coreimage/Sources.inc
+--- CocoaAll_old/coreimage/Sources.inc	2012-09-10 11:44:35.000000000 +0700
++++ CocoaAll/coreimage/Sources.inc	2012-09-10 11:49:07.000000000 +0700
+@@ -5,9 +5,9 @@
+ {$include CIColor.inc}
+ {$include CIImage.inc}
+ {$include CIContext.inc}
++{$include CIFilterGenerator.inc}
+ {$include CIFilterConstructor.inc}
+ {$include CIFilter.inc}
+-{$include CIFilterGenerator.inc}
+ {$include CIFilterShape.inc}
+ {$include CIImageAccumulator.inc}
+ {$include CIImageProvider.inc}
+diff -rupN CocoaAll_old/coremediaio/CMIOHardwarePlugIn.inc CocoaAll/coremediaio/CMIOHardwarePlugIn.inc
+--- CocoaAll_old/coremediaio/CMIOHardwarePlugIn.inc	2012-09-10 11:46:35.000000000 +0700
++++ CocoaAll/coremediaio/CMIOHardwarePlugIn.inc	2012-09-10 11:53:28.000000000 +0700
+@@ -6,8 +6,7 @@
+ {$ifdef TYPES}
+ type
+   CMIOHardwarePlugInRef = ^CMIOHardwarePlugInInterfacePtr;
+-
+-type
++  CMIOHardwarePlugInInterfacePtr = ^CMIOHardwarePlugInInterface;
+   CMIOHardwarePlugInInterface = record
+     _reserved: pointer;
+     QueryInterface: function (self_: pointer; uuid: CFUUIDBytes; interface_: pointer): SInt32; cdecl;
+@@ -34,8 +33,6 @@ type
+     StreamDeckJog: function (self_: CMIOHardwarePlugInRef; stream: CMIOStreamID; speed: SInt32): OSStatus; cdecl;
+     StreamDeckCueTo: function (self_: CMIOHardwarePlugInRef; stream: CMIOStreamID; frameNumber: Float64; playOnCue: Boolean): OSStatus; cdecl;
+   end;
+-type
+-  CMIOHardwarePlugInInterfacePtr = ^CMIOHardwarePlugInInterface;
+ {$endif}
+ 
+ {$ifdef FUNCTIONS}
+diff -rupN CocoaAll_old/coremediaio/Sources.inc CocoaAll/coremediaio/Sources.inc
+--- CocoaAll_old/coremediaio/Sources.inc	2012-09-10 11:44:39.000000000 +0700
++++ CocoaAll/coremediaio/Sources.inc	2012-09-10 11:53:13.000000000 +0700
+@@ -1,9 +1,9 @@
+ {$define FRAMEWORK_LOADED_COREMEDIAIO}
+ {$include CMIOHardware.inc}
++{$include CMIOHardwareObject.inc}
+ {$include CMIOHardwareControl.inc}
+ {$include CMIOHardwareDevice.inc}
+-{$include CMIOHardwareObject.inc}
+-{$include CMIOHardwarePlugIn.inc}
+ {$include CMIOHardwareStream.inc}
++{$include CMIOHardwarePlugIn.inc}
+ {$include CMIOHardwareSystem.inc}
+ {$include CMIOSampleBuffer.inc}
+diff -rupN CocoaAll_old/foundation/NSGeometry.inc CocoaAll/foundation/NSGeometry.inc
+--- CocoaAll_old/foundation/NSGeometry.inc	2012-09-10 11:48:03.000000000 +0700
++++ CocoaAll/foundation/NSGeometry.inc	2012-09-10 11:52:16.000000000 +0700
+@@ -1,21 +1,18 @@
+ { Parsed from Foundation.framework (MacOSX10.8) NSGeometry.h }
+ { Created on Mon Sep 10 11:48:03 2012 }
+ 
+-{$if defined(__LP64__) or defined(TARGET_OS_EMBEDDED) or defined(TARGET_OS_IPHONE) or defined(TARGET_OS_WIN32) or defined(NS_BUILD_32_LIKE_64)}
++{$if defined(__LP64__) or defined(TARGET_OS_EMBEDDED) or defined(TARGET_OS_IPHONE) or defined(TARGET_OS_WIN32) or defined(NS_BUILD_32_LIKE_64) or defined(NSGEOMETRY_TYPES_SAME_AS_CGGEOMETRY_TYPES)}
+ {$ifdef TYPES}
+ type
+   NSPoint = CGPoint;
+   NSPointPtr = ^NSPoint;
+   NSPointPointer = ^NSPoint;
+-  NSPointArray = ^NSPoint;
+   NSSize = CGSize;
+   NSSizePtr = ^NSSize;
+   NSSizePointer = ^NSSize;
+-  NSSizeArray = ^NSSize;
+   NSRect = CGRect;
+   NSRectPtr = ^NSRect;
+   NSRectPointer = ^NSRect;
+-  NSRectArray = ^NSRect;
+ 
+ const
+   NSMinXEdge = CGRectMinXEdge;
+@@ -47,7 +44,6 @@ type
+ 
+ type
+   NSPointPointer = ^NSPoint;
+-  NSPointArray = ^NSPoint;
+ 
+ type
+   _NSSize = record
+@@ -63,7 +59,6 @@ type
+ 
+ type
+   NSSizePointer = ^NSSize;
+-  NSSizeArray = ^NSSize;
+ 
+ type
+   _NSRect = record
+@@ -79,7 +74,6 @@ type
+ 
+ type
+   NSRectPointer = ^NSRect;
+-  NSRectArray = ^NSRect;
+ 
+ const
+   NSMinXEdge = 0;
+@@ -88,6 +82,7 @@ const
+   NSMaxYEdge = 3;
+ type
+   NSRectEdge = clong;
++	NSRectEdgePtr = ^NSRectEdge;
+ {$endif}
+ 
+ {$endif}
+@@ -121,6 +116,16 @@ const
+   NSAlignAllEdgesNearest = NSAlignMinXNearest + NSAlignMaxXNearest + NSAlignMinYNearest + NSAlignMaxYNearest;
+ {$endif}
+ 
++{$ifdef TYPES}
++type
++	TNSPointArray = array[word] of NSPoint;
++	NSPointArray = ^TNSPointArray;
++	TNSSizeArray = array[word] of NSSize;
++	NSSizeArray = ^TNSSizeArray;
++	TNSRectArray = array[word] of NSRect;
++	NSRectArray = ^TNSRectArray;
++{$endif}
++
+ {$ifdef EXTERNAL_SYMBOLS}
+ var
+   NSZeroPoint: NSPoint; cvar; external;
+diff -rupN CocoaAll_old/foundation/NSObject.inc CocoaAll/foundation/NSObject.inc
+--- CocoaAll_old/foundation/NSObject.inc	2012-09-10 11:48:03.000000000 +0700
++++ CocoaAll/foundation/NSObject.inc	2012-09-10 11:49:33.000000000 +0700
+@@ -20,7 +20,7 @@ type
+ {$endif}
+ 
+ {$ifdef PROTOCOLS}
+-
++(*
+ type
+   NSObjectProtocol = objcprotocol external name 'NSObject'
+     function isEqual (object_: id): boolean; message 'isEqual:';
+@@ -45,7 +45,7 @@ type
+   optional
+     function debugDescription: NSString; message 'debugDescription';
+   end;
+-
++*)
+ type
+   NSCopyingProtocol = objcprotocol external name 'NSCopying'
+     function copyWithZone (zone: NSZonePtr): id; message 'copyWithZone:';
+@@ -70,7 +70,7 @@ type
+ {$endif}
+ 
+ {$ifdef CLASSES}
+-
++(*
+ type
+   NSObject = objcclass external (NSObjectProtocol)
+   private
+@@ -128,7 +128,7 @@ type
+     function superclass: pobjc_class; message 'superclass';
+     function zone: NSZonePtr; message 'zone';
+   end;
+-
++*)
+ 
+ type
+   NSCoderMethods = objccategory external (NSObject)
+diff -rupN CocoaAll_old/foundation/NSZone.inc CocoaAll/foundation/NSZone.inc
+--- CocoaAll_old/foundation/NSZone.inc	2012-09-10 11:48:03.000000000 +0700
++++ CocoaAll/foundation/NSZone.inc	2012-09-10 14:07:22.000000000 +0700
+@@ -2,9 +2,9 @@
+ { Created on Mon Sep 10 11:48:03 2012 }
+ 
+ {$ifdef TYPES}
+-type
+-  NSZone = OpaqueType;
+-  NSZonePtr = ^NSZone;
++//type
++//  NSZone = OpaqueType;
++//  NSZonePtr = ^NSZone;
+ {$endif}
+ 
+ {$ifdef FUNCTIONS}
+diff -rupN CocoaAll_old/gamekit/GKAchievementViewController.inc CocoaAll/gamekit/GKAchievementViewController.inc
+--- CocoaAll_old/gamekit/GKAchievementViewController.inc	2012-09-10 11:45:59.000000000 +0700
++++ CocoaAll/gamekit/GKAchievementViewController.inc	2012-09-10 11:54:47.000000000 +0700
+@@ -5,23 +5,9 @@
+ {$ifdef TYPES}
+ type
+   GKAchievementViewControllerPtr = ^GKAchievementViewController;
+-  GKAchievementViewControllerPtr = ^GKAchievementViewController;
+   GKAchievementViewControllerDelegateProtocolPtr = ^GKAchievementViewControllerDelegateProtocol;
+ {$endif}
+ 
+-{$if defined(TARGET_OS_IPHONE)defined(interface)defined(GKAchievementViewController)defined(UINavigationController)}
+-
+-{$else}
+-{$ifdef CLASSES}
+-
+-type
+-  GKAchievementViewController = objcclass external (NSViewController, GKViewControllerProtocol)
+-  private
+-    _internal1, _internal2, _internal3, _internal4: id;
+-  end;
+-{$endif}
+-
+-{$endif}
+ {$ifdef CLASSES}
+ 
+ type
+diff -rupN CocoaAll_old/gamekit/GKFriendRequestComposeViewController.inc CocoaAll/gamekit/GKFriendRequestComposeViewController.inc
+--- CocoaAll_old/gamekit/GKFriendRequestComposeViewController.inc	2012-09-10 11:45:59.000000000 +0700
++++ CocoaAll/gamekit/GKFriendRequestComposeViewController.inc	2012-09-10 11:54:55.000000000 +0700
+@@ -5,23 +5,9 @@
+ {$ifdef TYPES}
+ type
+   GKFriendRequestComposeViewControllerPtr = ^GKFriendRequestComposeViewController;
+-  GKFriendRequestComposeViewControllerPtr = ^GKFriendRequestComposeViewController;
+   GKFriendRequestComposeViewControllerDelegateProtocolPtr = ^GKFriendRequestComposeViewControllerDelegateProtocol;
+ {$endif}
+ 
+-{$if defined(TARGET_OS_IPHONE)defined(interface)defined(GKFriendRequestComposeViewController)defined(UINavigationController)}
+-
+-{$else}
+-{$ifdef CLASSES}
+-
+-type
+-  GKFriendRequestComposeViewController = objcclass external (NSViewController, GKViewControllerProtocol)
+-  private
+-    _internal1, _internal2, _internal3, _internal4: id;
+-  end;
+-{$endif}
+-
+-{$endif}
+ {$ifdef CLASSES}
+ 
+ type
+diff -rupN CocoaAll_old/gamekit/GKLeaderboardViewController.inc CocoaAll/gamekit/GKLeaderboardViewController.inc
+--- CocoaAll_old/gamekit/GKLeaderboardViewController.inc	2012-09-10 11:45:59.000000000 +0700
++++ CocoaAll/gamekit/GKLeaderboardViewController.inc	2012-09-10 11:55:41.000000000 +0700
+@@ -5,23 +5,9 @@
+ {$ifdef TYPES}
+ type
+   GKLeaderboardViewControllerPtr = ^GKLeaderboardViewController;
+-  GKLeaderboardViewControllerPtr = ^GKLeaderboardViewController;
+   GKLeaderboardViewControllerDelegateProtocolPtr = ^GKLeaderboardViewControllerDelegateProtocol;
+ {$endif}
+ 
+-{$if defined(TARGET_OS_IPHONE)defined(interface)defined(GKLeaderboardViewController)defined(UINavigationController)}
+-
+-{$else}
+-{$ifdef CLASSES}
+-
+-type
+-  GKLeaderboardViewController = objcclass external (NSViewController, GKViewControllerProtocol)
+-  private
+-    _internal1, _internal2, _internal3, _internal4: id;
+-  end;
+-{$endif}
+-
+-{$endif}
+ {$ifdef CLASSES}
+ 
+ type
+diff -rupN CocoaAll_old/gamekit/GKMatchmakerViewController.inc CocoaAll/gamekit/GKMatchmakerViewController.inc
+--- CocoaAll_old/gamekit/GKMatchmakerViewController.inc	2012-09-10 11:45:59.000000000 +0700
++++ CocoaAll/gamekit/GKMatchmakerViewController.inc	2012-09-10 11:54:02.000000000 +0700
+@@ -5,23 +5,9 @@
+ {$ifdef TYPES}
+ type
+   GKMatchmakerViewControllerPtr = ^GKMatchmakerViewController;
+-  GKMatchmakerViewControllerPtr = ^GKMatchmakerViewController;
+   GKMatchmakerViewControllerDelegateProtocolPtr = ^GKMatchmakerViewControllerDelegateProtocol;
+ {$endif}
+ 
+-{$if defined(TARGET_OS_IPHONE)defined(interface)defined(GKMatchmakerViewController)defined(UINavigationController)}
+-
+-{$else}
+-{$ifdef CLASSES}
+-
+-type
+-  GKMatchmakerViewController = objcclass external (NSViewController, GKViewControllerProtocol)
+-  private
+-    _internal1, _internal2, _internal3, _internal4: id;
+-  end;
+-{$endif}
+-
+-{$endif}
+ {$ifdef CLASSES}
+ 
+ type
+diff -rupN CocoaAll_old/gamekit/GKTurnBasedMatchmakerViewController.inc CocoaAll/gamekit/GKTurnBasedMatchmakerViewController.inc
+--- CocoaAll_old/gamekit/GKTurnBasedMatchmakerViewController.inc	2012-09-10 11:45:59.000000000 +0700
++++ CocoaAll/gamekit/GKTurnBasedMatchmakerViewController.inc	2012-09-10 11:55:06.000000000 +0700
+@@ -5,23 +5,9 @@
+ {$ifdef TYPES}
+ type
+   GKTurnBasedMatchmakerViewControllerPtr = ^GKTurnBasedMatchmakerViewController;
+-  GKTurnBasedMatchmakerViewControllerPtr = ^GKTurnBasedMatchmakerViewController;
+   GKTurnBasedMatchmakerViewControllerDelegateProtocolPtr = ^GKTurnBasedMatchmakerViewControllerDelegateProtocol;
+ {$endif}
+ 
+-{$if defined(TARGET_OS_IPHONE)defined(interface)defined(GKTurnBasedMatchmakerViewController)defined(UINavigationController)}
+-
+-{$else}
+-{$ifdef CLASSES}
+-
+-type
+-  GKTurnBasedMatchmakerViewController = objcclass external (NSViewController, GKViewControllerProtocol)
+-  private
+-    _internal1, _internal2, _internal3, _internal4: id;
+-  end;
+-{$endif}
+-
+-{$endif}
+ {$ifdef CLASSES}
+ 
+ type
+diff -rupN CocoaAll_old/scenekit/SCNLayer.inc CocoaAll/scenekit/SCNLayer.inc
+--- CocoaAll_old/scenekit/SCNLayer.inc	2012-09-10 11:46:01.000000000 +0700
++++ CocoaAll/scenekit/SCNLayer.inc	2012-09-10 11:55:15.000000000 +0700
+@@ -18,6 +18,8 @@ type
+     function scene: SCNScene; message 'scene';
+ 
+     { Adopted protocols }
++    procedure setDelegate(newValue: SCNSceneRendererDelegateProtocol); message 'setDelegate:';
++    function delegate: SCNSceneRendererDelegateProtocol; message 'delegate';
+     procedure setAutoenablesDefaultLighting(newValue: boolean); message 'setAutoenablesDefaultLighting:';
+     function autoenablesDefaultLighting: boolean; message 'autoenablesDefaultLighting';
+     function autorelease: id; message 'autorelease';

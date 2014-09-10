@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<frameworks>
+	
+	<framework>
+		<parent>foundation_base</parent>
+		<name>Foundation</name>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>ios</name>
+		<static>1</static>
+		<external_macros>%%UC_NAME%%_EXTERN_CLASS</external_macros>
+		<ignore_types>
+			%%UC_NAME%%_CLASS_AVAILABLE,
+			__AVAILABILITY_INTERNAL__IPHONE_\d+_\d+_DEP__IPHONE_\d+_\d+,
+		</ignore_types>
+		<remove_macros>
+			<!-- pesky macros to prevent reloading headers we don't want to redefine in pascal -->
+			<value>/#\s*if\s*!defined\(__\w+_H__\)/i</value>
+			<value>/#\s*if[n]*def\s*__\w+_H__/i</value>
+			<value>/#\s*define\s*__\w+_H__\s+\d+/i</value>
+		</remove_macros>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>UIKit</name>
+		<external_macros>UIKIT_EXTERN</external_macros>
+		<inline_macros>UIKIT_STATIC_INLINE</inline_macros>			
+		<ignore_types>
+			UIKIT_EXTERN, UIKIT_STATIC_INLINE,
+			instancetype,
+		</ignore_types>
+		<remove_macros>
+			<value>/(UIKIT_EXTERN_CLASS|UI_APPEARANCE_SELECTOR|UITOUCH_IVARS_PRIVATE)/i</value>
+			<value>/UIKIT_CLASS_AVAILABLE\s*\(.*\)/i</value>
+		</remove_macros>
+		<implicit_pointers>CIColor, CIImage</implicit_pointers>
+		<support_frameworks>Foundation, CoreFoundation</support_frameworks>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>AddressBookUI</name>
+		<support_frameworks>Foundation, CoreFoundation</support_frameworks>
+	</framework>
+			
+	<framework>
+		<parent>ios</parent>
+		<name>ExternalAccessory</name>
+		<support_frameworks>Foundation</support_frameworks>
+	</framework>
+			
+	<framework>
+		<parent>ios</parent>
+		<name>MessageUI</name>
+		<support_frameworks>Foundation</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>EventKitUI</name>
+		<support_frameworks>Foundation, EventKit</support_frameworks>
+	</framework>
+		
+	<framework>
+		<parent>ios</parent>
+		<name>OpenGLES</name>
+		<imports>EAGL.h, EAGLDrawable.h, /ES1/gl.h, /ES1/glext.h</imports>
+		<remove_macros>
+			<value>/GL_APIENTRY/i</value>
+		</remove_macros>
+		<external_macros>GL_API</external_macros>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>MediaToolbox</name>
+		<support_frameworks>CoreAudio</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>CoreBluetooth</name>
+		<support_frameworks>CoreFoundation</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>CoreText</name>
+		<ignore_types>__has_extension, CT_DEPRECATED_ENUMERATOR</ignore_types>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>CoreTelephony</name>
+		<imports>
+				CoreTelephonyDefines.h, CTCall.h, CTCallCenter.h, CTCarrier.h, CTTelephonyNetworkInfo.h
+		</imports>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>iAd</name>
+		<support_frameworks>CoreGraphics</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>ios</parent>
+		<name>MapKit</name>
+		<support_frameworks>CoreFoundation</support_frameworks>
+	</framework>
+				
+</frameworks>

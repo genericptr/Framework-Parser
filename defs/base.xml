@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<frameworks>
+	
+	<framework>
+		<name>base</name>
+		<static>1</static>
+		<root>/%%LC_NAME%%/Sources.inc</root>
+		<umbrella>%%NAME%%.h</umbrella>
+		<external_macros>EXTERN, extern</external_macros>
+		<inline_macros>inline, static inline, static __inline__, __inline__</inline_macros>
+		<ignore_types>
+			IBOutlet, IBAction, extern, static, inline,
+			MAC_OS_X_VERSION_\w+, AVAILABLE_\w+_VERSION_\w+, DEPRECATED_IN_\w+,
+			UNAVAILABLE_ATTRIBUTE, DEPRECATED_ATTRIBUTE,
+			boolean, integer, longint, string, type, pointer,
+		</ignore_types>
+		<uses>CTypes</uses>
+		<include_imported_frameworks>1</include_imported_frameworks>
+		
+		<!--	replacement patterns for defines -->
+		<define_replacements>
+			<define>
+				<pattern>/CFSTR\(\s*"(.*)"\s*\)/i</pattern>
+				<replacement>'$1'</replacement>
+			</define>
+		</define_replacements>
+			
+		<!-- these types by default are implicit pointers and will not be suffixed when referenced using * -->
+		<implicit_pointers>idPtr, pointer, ptr</implicit_pointers>
+				
+		<replace_types>
+			
+			<value>void=pointer</value>
+			
+			<!-- basic c types -->
+			<value>/^bool$/=cbool</value>
+			<value>/^BOOL$/=boolean</value>
+			<value>long=clong</value>
+			<value>signed long=clong</value>
+			<value>unsigned long=culong</value>
+			<value>short=cshort</value>
+			<value>signed short=cshort</value>
+			<value>unsigned short=cushort</value>
+			<value>long long=clonglong</value>
+			<value>signed long long=culonglong</value>
+			<value>unsigned long long=culonglong</value>
+			<value>unsigned char=char</value>
+			<value>signed char=char</value>
+			<value>int=cint</value>
+			<value>long int=clong</value>
+			<value>short int=cshort</value>
+			<value>signed int=cint</value>
+			<value>unsigned int=cuint</value>
+			<value>signed=cint</value>
+			<value>unsigned=cuint</value>
+			
+			<value>float=single</value>
+			
+			<!-- library types -->
+			<value>uint=cuint</value>
+			<value>sint=cint</value>
+			<value>uint8_t=cuint8</value>
+			<value>int32_t=cint32</value>
+			<value>int64_t=cint64</value>
+			<value>uint32_t=cuint32</value>
+			<value>uint16_t=cuint16</value>
+			<value>uintptr_t=culong</value>
+			<value>intptr_t=clong</value>
+			<value>uint64_t=cuint64</value>
+			<value>int8_t=cint8</value>
+			<value>int16_t=cint16</value>
+			
+			<!-- objective-c runtime types -->
+			<value>class=pobjc_class</value>
+			
+			<!-- other -->
+			<value>IBAction=void</value>
+			<value>FILE=pointer</value>
+			
+			<!-- never allow "pointer" to be modified as a pointer (void **ref) -->
+			<value>pointerPtr=pointer</value>
+			
+		</replace_types>
+		
+		<!-- types which have declared pointer equivalents -->
+		<pointer_types>
+			
+			<!-- c-types -->
+			<value>void=pointer</value>
+			<value>boolean=pboolean</value>
+			<value>clong=pclong</value>
+			<value>cshort=pcshort</value>
+			<value>cint=pcint</value>
+			<value>cuint=pcuint</value>
+			<value>culong=pculong</value>
+			<value>cushort=pcushort</value>
+			<value>char=PChar</value>
+			<value>clonglong=pclonglong</value>
+			<value>culonglong=pculonglong</value>
+			<value>cint8=pbyte</value>
+			<value>cuint8=pbyte</value>
+			<value>cint16=pcint16</value>
+			<value>cuint16=pcuint16</value>
+			<value>cint16=pcint16</value>
+			<value>cuint16=pcuint16</value>
+			<value>cint32=pcint32</value>
+			<value>cuint32=pcuint32</value>
+			<value>cint64=pcint64</value>
+			<value>cuint64=pcuint64</value>
+			<value>single=psingle</value>
+			<value>double=pdouble</value>
+			
+			<!-- pointers to pointers -->
+			<value>pointer=ppointer</value>
+			<value>pchar=ppchar</value>
+		</pointer_types>
+		
+		<!-- null defined or invalid macros defined in low-level headers-->
+		<remove_macros>
+			<value>/__attribute__\s*\(\((.*)\)\)/i</value>
+			<value>/IBOutlet/i</value>
+			<value>/__unsafe_unretained/i</value>
+			<value>/__unused/i</value>
+		</remove_macros>
+				
+		<availability_macros>
+			<macro>
+				<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER\b/i</pattern>
+				<replacement>{ available in $1.$2 and later }</replacement>
+			</macro>
+			<macro>
+				<pattern>/DEPRECATED_IN_\w+_VERSION_(\d+)_(\d+)_AND_LATER\b/i</pattern>
+				<replacement>deprecated 'in $1.$2 and later';</replacement>
+			</macro>
+			<macro>
+				<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER\b/i</pattern>
+				<replacement>{ available in $1.$2 and later }</replacement>
+			</macro>
+			<macro>
+				<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER_BUT_DEPRECATED_IN_\w+_VERSION_(\d+)_(\d+)\b/i</pattern>
+				<replacement>deprecated 'available in $1.$2 and later but deprecated in $3.$4';</replacement>
+			</macro>
+			<macro>
+				<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER_BUT_DEPRECATED\b/i</pattern>
+				<replacement>deprecated 'available in $1.$2 and later but deprecated';</replacement>
+			</macro>
+			<macro>
+				<pattern>/\s*[_]*\w+_AVAILABLE_BUT_DEPRECATED\s*\((.*?)\)/is</pattern>
+				<replacement>deprecated 'in $1';</replacement>
+			</macro>
+			<macro>
+				<pattern>/\s*[_]*\w+_AVAILABLE_STARTING\s*\((.*?)\)/is</pattern>
+				<replacement>{ available starting in $1 }</replacement>
+			</macro>
+			<macro>
+				<pattern>/\s*[_]*\w+_AVAILABLE(_\w+)*\s*\((.*?)\)/is</pattern>
+				<replacement>{ available in $2 }</replacement>
+			</macro>
+			<macro>
+				<pattern>/\s*[_]*\w+_DEPRECATED(_\w+)*\s*\((.*?)\)/is</pattern>
+				<replacement>deprecated 'in $2';</replacement>
+			</macro>
+			<macro>
+				<pattern>/(NS|CF)+_DEPRECATED[^(]*\(([^;]*)\)\s*/is</pattern>
+				<replacement>deprecated '$2';</replacement>
+			</macro>
+			<macro>
+				<pattern>/(NS|CF)+_AVAILABLE[^(]*\(([^;]*)\)\s*/is</pattern>
+				<replacement>{ available in $2 }</replacement>
+			</macro>
+			<macro>
+				<pattern>/(NS|CF)+_UNAVAILABLE[^(]*\(([^;]*)\)\s*/is</pattern>
+				<replacement>{ unavailable in $2 }</replacement>
+			</macro>
+		</availability_macros>
+		
+		<replacement_patterns>
+			<!-- NS_ENUM macro from NSObjCRuntime.h starting in the 10.8 SDK -->
+			<pattern>
+				<pattern>/(NS|CF)+_(ENUM|OPTIONS)\((.*),\s*(.*)\)/i</pattern>
+				<replacement>$3 $4; enum</replacement>
+			</pattern>
+		</replacement_patterns>
+		
+		
+		<!--
+		<skip_block>
+			<block>
+				<start></start>
+				<end></end>
+			</block>
+		</skip_block>
+		-->
+		
+		<!--
+		<ignore_lines>
+			<line></line>
+		</ignore_lines>
+		-->
+		
+	</framework>
+	
+	<framework>
+		<parent>base</parent>
+		<name>carbon_base</name>
+		<static>1</static>
+		<external_macros>%%ABBRV_NAME%%_OBSOLETE, %%UC_NAME%%_OBSOLETE</external_macros>
+		<ignore_types>%%ABBRV_NAME%%_OBSOLETE, %%UC_NAME%%_OBSOLETE, TRUE, FALSE, NULL</ignore_types>
+
+		<replacement_patterns>
+			<!-- Calling conventions from CarbonCore/ConditionalMacros.h -->
+			<pattern>
+				<pattern>/CALLBACK_API(_C|_STDCALL|_C_STDCALL)*\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/i</pattern>
+				<replacement>$2 (* $3)</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/STACK_UPP_TYPE\s*\((.*?)\)/i</pattern>
+				<replacement>$1</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/(EXTERN|DEFINE)+_API(_C|_STDCALL|_C_STDCALL)*\s*\((.*?)\)/i</pattern>
+				<replacement>$3</replacement>
+			</pattern>
+			<!-- From CFPlugInCOM.h and used in a few plugin related headers -->
+			<pattern>
+				<pattern>/\bHRESULT\b/</pattern>
+				<replacement>SInt32</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/\bULONG\b/</pattern>
+				<replacement>UInt32</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/\bLPVOID\b/</pattern>
+				<replacement>pointer</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/\bREFIID\b/</pattern>
+				<replacement>CFUUIDBytes</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/\bSTDMETHODCALLTYPE\b/</pattern>
+				<replacement></replacement>
+			</pattern>
+		</replacement_patterns>
+		
+		<!-- uses which all units should have -->
+		<uses>
+			MacTypes, MacOSXPosix,
+		</uses>
+		
+	</framework>
+	
+	<framework>
+		<parent>carbon_base</parent>
+		<name>cocoa_base</name>
+		<static>1</static>
+		<external_macros>%%ABBRV_NAME%%_EXTERN, %%UC_NAME%%_EXTERN, %%UC_NAME%%_PRIVATE_EXTERN, %%UC_NAME%%_EXPORT, %%ABBRV_NAME%%_EXPORT, %%UC_NAME%%_IMPORT, %%ABBRV_NAME%%_IMPORT</external_macros>
+		<inline_macros>%%ABBRV_NAME%%_INLINE, NS_INLINE</inline_macros>
+		<ignore_types>
+			%%ABBRV_NAME%%_EXTERN, %%UC_NAME%%_EXTERN, %%UC_NAME%%_CLASS_AVAILABLE, %%ABBRV_NAME%%_CLASS_AVAILABLE, %%UC_NAME%%_EXPORT, %%ABBRV_NAME%%_EXPORT, %%UC_NAME%%_IMPORT, %%ABBRV_NAME%%_IMPORT, 
+			%%ABBRV_NAME%%_AVAILABLE_STARTING, %%ABBRV_NAME%%_AVAILABLE_BUT_DEPRECATED, %%UC_NAME%%_AVAILABLE_STARTING, %%UC_NAME%%_AVAILABLE_BUT_DEPRECATED,
+			__AVAILABILITY_INTERNAL_DEPRECATED, __AVAILABILITY_INTERNAL_UNAVAILABLE, __AVAILABILITY_INTERNAL_WEAK_IMPORT, __AVAILABILITY_INTERNAL_REGULAR,
+			</ignore_types>
+		<remove_macros>
+			<value>/\s*(NS_CLASS_AVAILABLE|NS_FORMAT_FUNCTION)\s*\(.*?\)\s*/i</value>
+			<value>/(NS_REQUIRES_NIL_TERMINATION|NS_AUTOMATED_REFCOUNT_UNAVAILABLE|NS_UNAVAILABLE|NS_RETURNS_RETAINED|NS_RETURNS_NOT_RETAINED|NS_RETURNS_INNER_POINTER|NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE|NS_REQUIRES_PROPERTY_DEFINITIONS|NS_REPLACES_RECEIVER|NS_RELEASES_ARGUMENT|NS_VALID_UNTIL_END_OF_SCOPE|NS_ROOT_CLASS)/i</value>
+			<value>/%%PREGEX_NAMES%%_CLASS_AVAILABLE\s*\(.*\)/i</value>
+			<value>/%%PREGEX_NAMES%%_EXTERN_C_(BEGIN|END)/i</value>
+			<value>/\bAVAILABLE_\w+_VERSION_\d+_\d+_AND_LATER\b/i</value>
+		</remove_macros>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>foundation_base</name>
+		<ignore_types>
+			FOUNDATION_EXTERN, FOUNDATION_EXTERN, FOUNDATION_IMPORT, FOUNDATION_EXPORT, FOUNDATION_STATIC_INLINE, FOUNDATION_EXTERN_INLINE, 
+			YES, NO, NS_VOIDRETURN, NS_INLINE, NS_NONATOMIC_IPHONEONLY, NS_BLOCKS_AVAILABLE, NSINTEGER_DEFINED, 
+			NSURLResponseUnknownLength, NSNotAnIntMapKey, NSNotAnIntegerMapKey, NSNotAPointerMapKey,
+			NS_NONATOMIC_IOSONLY, NS_AUTOMATED_REFCOUNT_UNAVAILABLE, NS_UNAVAILABLE, AVAILABLE_MAC_OS_X_VERSION_NA_AND_LATER_BUT_DEPRECATED_IN_MAC_OS_X_VERSION_NA,
+		</ignore_types>
+		<inline_macros>FOUNDATION_STATIC_INLINE, FOUNDATION_EXTERN_INLINE</inline_macros>		
+	</framework>
+					
+</frameworks>

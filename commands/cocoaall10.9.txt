@@ -1,0 +1,16 @@
+-frameworks="Accounts, AudioVideoBridging, EventKit, GLKit, GameKit, SceneKit, Social, VideoToolbox, AVFoundation, AppleScriptObjC, AddressBook, Automator, CalendarStore, Collaboration, CoreAudio, CoreAudioKit, CoreImage, CoreLocation, CoreMedia, CoreMediaIO, CoreVideo, DiscRecording, DiscRecordingUI, ImageKit, PDFKit, ImageCaptureCore, InputMethodKit, IOBluetooth, IOBluetoothUI, OSAKit, PreferencePanes, Foundation, AppKit, CoreData, QuartzCore, WebKit, SyncServices, StoreKit, ServiceManagement, ServerNotification, SecurityInterface, SecurityFoundation, QuartzFilters, QuickLook, QuickLookUI, QTKit, QuartzComposer, Message, CFOpenDirectory, OpenDirectory, PubSub, ScreenSaver, ScriptingBridge, InstallerPlugins, InstantMessage, CoreBluetooth, AVKit, GameController, MapKit, MediaAccessibility, MediaLibrary, SpriteKit, iTunesLibrary"
+-default_framework=cocoa_base
+-__sdk=MacOSX10.9.sdk
+-search_paths="/Users/ryanjoseph/Desktop/MacOSX10.9.sdk/System/Library/Frameworks"
+-group=CocoaAll
+-group_frameworks="Foundation, CoreImage, QuartzCore, CoreData, AppKit"
+-all_units="@/templates/mac-unit-template.txt"
+-xcode="/Applications/Xcode.app"
+-template="@/templates/cocoaall-template.txt"
+-skeleton="@/skeletons/CocoaAll_10_9"
+-__patch="@/patches/cocoaall-10.9.patch"
+-macos
+-all
+-class_definitions
+-build_skeletons
+-build_commands="i386/2.7.1"

@@ -1,0 +1,13 @@
+-batch="ios:%%XCODE%%/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/System/Library/Frameworks"
+-ignore="vecLib.framework,vImage.framework,GSS.framework,OpenAL.framework"
+-group=iPhoneAll
+-group_frameworks="^CoreFoundation, ^CoreGraphics, ^MobileCoreServices, +CFNetwork, Foundation, UIKit, Security, QuartzCore, OpenGLES, CoreImage, CoreText"
+-all_units
+-xcode="/Applications/Xcode45-DP3.app"
+-template="@/templates/iphoneall-template.txt"
+-skeleton="@/skeletons/iPhoneAll_6_0"
+-patch="@/patches/iphoneall-6.0.patch"
+-ios
+-class_definitions
+-build_skeletons
+-__build_commands=arm/2.7.1

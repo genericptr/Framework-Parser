@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<frameworks>
+		
+	<framework>
+		<parent>foundation_base</parent>
+		<name>QuartzCore</name>
+		<external_macros>CA_EXTERN</external_macros>
+		<inline_macros>CA_INLINE</inline_macros>
+		<ignore_types>
+			CA_EXTERN_C_BEGIN, CA_EXTERN, CA_INLINE, CA_HIDDEN, CA_WARN_DEPRECATED
+		</ignore_types>
+		<remove_macros>
+			<value>/CA_EXTERN_C_(BEGIN|END)/</value>
+			<value>/CA_DEPRECATED/</value>
+		</remove_macros>
+		<support_frameworks>Foundation, CoreImage</support_frameworks>
+	</framework>
+			
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreFoundation</name>
+		<remove_macros>
+			<value>/CF_FORMAT_FUNCTION\s*\(.*?\)/</value>
+			<value>/CF_FORMAT_ARGUMENT\s*\(.*?\)/</value>
+		</remove_macros>
+		<ignore_types>
+			__COREFOUNDATION_CFBASE__, __WIN32__, __WIN64__, __LLP64__, __LITTLE_ENDIAN__,
+			__IPHONE_5_0, __IPHONE_6_0
+		</ignore_types>
+		<pointer_types>
+			<!-- UInt8Ptr needs to be changed to pointer for universal interface compatibility -->
+			<value>uint8=pointer</value>
+		</pointer_types>
+	</framework>
+	
+	<framework>
+		<parent>CoreFoundation</parent>
+		<name>CFNetwork</name>
+		<remove_macros>
+			<value>/__OSX_STREAM_PROPERTIES_DEPRECATED_\d+_\d+/</value>
+		</remove_macros>
+	</framework>
+	
+	<framework>
+		<parent>CoreFoundation</parent>
+		<name>CoreGraphics</name>
+		<ignore_headers>CGBase.h</ignore_headers>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreImage</name>
+		<support_frameworks>Foundation</support_frameworks>
+		<uses>CoreFoundation</uses>
+		<!-- in development -->
+		<minimum_sdk_version>5.0</minimum_sdk_version>
+		<link_framework>QuartzCore</link_framework>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreVideo</name>
+		<ignore_types>COREVIDEO_SUPPORTS_DIRECT3D, CV_INLINE, snprintf</ignore_types>
+	</framework>
+		
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>AddressBook</name>
+		<ignore_headers>ABGlobalsC.h, ABAddressBookC.h</ignore_headers>
+	</framework>
+		
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>EventKit</name>
+		<support_frameworks>Foundation</support_frameworks>
+	</framework>
+			
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>GameKit</name>
+		<external_macros>GK_EXTERN_WEAK</external_macros>
+		<ignore_types>GK_EXTERN_WEAK</ignore_types>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreLocation</name>
+		<ignore_types>__MAC_TBD</ignore_types>
+	</framework>
+			
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>AudioUnit</name>
+		<support_frameworks>CoreMIDI</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>AudioToolbox</name>
+		<remove_macros>
+			<value>/ATTRIBUTE_PACKED/</value>
+		</remove_macros>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreAudio</name>
+		<imports>CoreAudioTypes.h</imports>
+	</framework>
+		
+	<!--
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>OpenGL</name>
+		// we need to make this option so we can get all headers
+		<import_all_headers>1</import_all_headers>
+	</framework>
+	-->
+			
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>QuickLook</name>
+		<external_macros>QL_EXPORT</external_macros>
+		<support_frameworks>CoreGraphics</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>carbon_base</parent>
+		<name>OpenGL</name>
+		<imports>
+			CGLContext.h, CGLCurrent.h, CGLDevice.h, CGLIOSurface.h, CGLMacro.h, CGLProfiler.h, CGLProfilerFunctionEnum.h, CGLRenderers.h, CGLTypes.h,
+			gl.h, gl3.h, gl3ext.h, glext.h, gliContext.h, gliDispatch.h, gltypes.h, glu.h, gluContext.h, gluMacro.h
+		</imports>
+	</framework>
+							
+</frameworks>

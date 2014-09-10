@@ -1,0 +1,102 @@
+Binary files CocoaAll_old/.DS_Store and CocoaAll/.DS_Store differ
+diff -rupN CocoaAll_old/appkit/NSSplitView.inc CocoaAll/appkit/NSSplitView.inc
+--- CocoaAll_old/appkit/NSSplitView.inc	2012-04-04 07:24:06.000000000 +0700
++++ CocoaAll/appkit/NSSplitView.inc	2012-04-04 07:45:15.000000000 +0700
+@@ -13,7 +13,7 @@ type
+ const
+   NSSplitViewDividerStyleThick = 1;
+   NSSplitViewDividerStyleThin = 2;
+-  {$if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAX_OS_X_VERSION_10_6)}
++  {$if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)}
+   NSSplitViewDividerStylePaneSplitter = 3;
+   {$endif}
+ {$endif}
+diff -rupN CocoaAll_old/appkit/Sources.inc CocoaAll/appkit/Sources.inc
+--- CocoaAll_old/appkit/Sources.inc	2012-04-04 07:20:38.000000000 +0700
++++ CocoaAll/appkit/Sources.inc	2012-04-04 07:46:08.000000000 +0700
+@@ -157,8 +157,8 @@
+ {$include NSStepperCell.inc}
+ {$include NSGlyphInfo.inc}
+ {$include NSShadow.inc}
+-{$include NSSimpleHorizontalTypesetter.inc}
+ {$include NSTypesetter.inc}
++{$include NSSimpleHorizontalTypesetter.inc}
+ {$include NSATSTypesetter.inc}
+ {$include NSSearchField.inc}
+ {$include NSSearchFieldCell.inc}
+diff -rupN CocoaAll_old/coredata/NSManagedObjectContext.inc CocoaAll/coredata/NSManagedObjectContext.inc
+--- CocoaAll_old/coredata/NSManagedObjectContext.inc	2012-04-04 07:23:28.000000000 +0700
++++ CocoaAll/coredata/NSManagedObjectContext.inc	2012-04-04 07:46:24.000000000 +0700
+@@ -24,11 +24,6 @@ var
+   NSRefreshedObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+   NSInvalidatedObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+   NSInvalidatedAllObjectsKey: NSString { available in 10_5, 3_0 }; cvar; external;
+-  NSErrorMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSMergeByPropertyStoreTrumpMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSMergeByPropertyObjectTrumpMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSOverwriteMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+-  NSRollbackMergePolicy: id { available in 10_4, 3_0 }; cvar; external;
+ {$endif}
+ 
+ {$ifdef TYPES}
+diff -rupN CocoaAll_old/coremediaio/CMIOHardwarePlugIn.inc CocoaAll/coremediaio/CMIOHardwarePlugIn.inc
+--- CocoaAll_old/coremediaio/CMIOHardwarePlugIn.inc	2012-04-04 07:22:23.000000000 +0700
++++ CocoaAll/coremediaio/CMIOHardwarePlugIn.inc	2012-04-04 07:45:52.000000000 +0700
+@@ -5,9 +5,8 @@
+ 
+ {$ifdef TYPES}
+ type
++	CMIOHardwarePlugInInterfacePtr = ^CMIOHardwarePlugInInterface;
+   CMIOHardwarePlugInRef = ^CMIOHardwarePlugInInterfacePtr;
+-
+-type
+   CMIOHardwarePlugInInterface = record
+     _reserved: pointer;
+     QueryInterface: function (self_: pointer; uuid: CFUUIDBytes; interface_: pointer): SInt32; cdecl;
+@@ -34,8 +33,6 @@ type
+     StreamDeckJog: function (self_: CMIOHardwarePlugInRef; stream: CMIOStreamID; speed: SInt32): OSStatus; cdecl;
+     StreamDeckCueTo: function (self_: CMIOHardwarePlugInRef; stream: CMIOStreamID; frameNumber: Float64; playOnCue: Boolean): OSStatus; cdecl;
+   end;
+-type
+-  CMIOHardwarePlugInInterfacePtr = ^CMIOHardwarePlugInInterface;
+ {$endif}
+ 
+ {$ifdef FUNCTIONS}
+diff -rupN CocoaAll_old/coremediaio/Sources.inc CocoaAll/coremediaio/Sources.inc
+--- CocoaAll_old/coremediaio/Sources.inc	2012-04-04 07:20:24.000000000 +0700
++++ CocoaAll/coremediaio/Sources.inc	2012-04-04 07:45:31.000000000 +0700
+@@ -1,9 +1,9 @@
+ {$define FRAMEWORK_LOADED_COREMEDIAIO}
++{$include CMIOHardwareObject.inc}
+ {$include CMIOHardware.inc}
+ {$include CMIOHardwareControl.inc}
+ {$include CMIOHardwareDevice.inc}
+-{$include CMIOHardwareObject.inc}
+-{$include CMIOHardwarePlugIn.inc}
+ {$include CMIOHardwareStream.inc}
++{$include CMIOHardwarePlugIn.inc}
+ {$include CMIOHardwareSystem.inc}
+ {$include CMIOSampleBuffer.inc}
+diff -rupN CocoaAll_old/discrecordingui/DRSetupPanel.inc CocoaAll/discrecordingui/DRSetupPanel.inc
+--- CocoaAll_old/discrecordingui/DRSetupPanel.inc	2012-04-04 07:22:28.000000000 +0700
++++ CocoaAll/discrecordingui/DRSetupPanel.inc	2012-04-04 07:46:17.000000000 +0700
+@@ -28,7 +28,7 @@ type
+     procedure cancel (sender: id); message 'cancel:';
+     procedure eject (sender: id); message 'eject:';
+     procedure open (sender: id); message 'open:';
+-    procedure close (sender: id); message 'close:';
++    procedure close_ (sender: id); message 'close:';
+     procedure deviceSelectionChanged (device: DRDevice); message 'deviceSelectionChanged:';
+     function mediaStateChanged (status: NSDictionary): boolean; message 'mediaStateChanged:';
+     procedure setupForDisplay; message 'setupForDisplay';
+diff -rupN CocoaAll_old/foundation/NSGeometry.inc CocoaAll/foundation/NSGeometry.inc
+--- CocoaAll_old/foundation/NSGeometry.inc	2012-04-04 07:24:16.000000000 +0700
++++ CocoaAll/foundation/NSGeometry.inc	2012-04-04 07:46:35.000000000 +0700
+@@ -88,6 +88,7 @@ const
+   NSMaxYEdge = 3;
+ type
+   NSRectEdge = clong;
++  NSRectEdgePtr = ^NSRectEdge;
+ {$endif}
+ 
+ {$endif}

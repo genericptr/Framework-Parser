@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<frameworks>
+		
+	<!-- base list of uses for MacOS SDK units imported via the -uses switch -->
+	<!-- NOTE: imported via the -uses switch, don't inherit directly from this framework -->
+	
+	<!-- *** DEPRECATED (due to -uses) ***
+	<framework>
+		<name>macos_uses</name>
+		<uses>
+			AEDataModel, IconsCore,
+			CFBase, CFArray, CFBag , CFCharacterSet, CFData, CFDate, CFDictionary, CFNumber, CFPropertyList, CFSet, CFString, CFStringEncodingExt, CFTimeZone, CFTree, CFURL, CFXMLNode, CFXMLParser, CFMachPort, CFMessagePort, CFRunLoop, CFSocket, CFBinaryHeap, CFBitVector, CFBundle, CFByteOrders, CFPlugIn, CFPreferences, CFURLAccess, CFUUID, CFLocale, CFStream, CFDateFormatter, CFNumberFormatter, CFCalendar, CFUserNotification, CFNotificationCenter, CFAttributedString, CFNetworkErrorss,
+			CGBase, CGAffineTransforms, CGBitmapContext, CGColor, CGColorSpace, CGContext, CGDataConsumer, CGDataProvider, CGDirectDisplay, CGDirectPalette, CGDisplayConfiguration, CGDisplayFades, CGErrors, CGEvent, CGEventSource, CGEventTypes, CGFont, CGFunction, CGGLContext, CGGeometry, CGImage, CGLayer, CGPDFArray, CGPDFContentStream, CGPDFContext, CGPDFDictionary, CGPDFDocument, CGPDFObject, CGPDFOperatorTable, CGPDFPage, CGPDFScanner, CGPDFStream, CGPDFString, CGPSConverter, CGPath, CGPattern, CGRemoteOperation, CGSession, CGShading, CGWindowLevels,
+			CVBase, CVImageBuffer,
+			IOSurfaceAPI,
+			SecBase, SecTrust,
+			macgl, CGLTypes,
+		</uses>
+	</framework>
+	-->
+		
+	<framework>
+		<parent>foundation_base</parent>
+		<name>Foundation</name>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>AppKit</name>
+		<ignore_types>_NSWINDOWS_DLL_GOOP</ignore_types>
+		<ignore_headers>AppKitDefines.h</ignore_headers>
+		<uses>CoreImage</uses>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>WebKit</name>
+		<remove_macros>
+			<value>/\s*WEBKIT_OBJC_METHOD_ANNOTATION\([^;]*\)\s*/i</value>
+			<value>/AVAILABLE_IN_WEBKIT_VERSION_\d+_\d+/</value>
+			<value>/AVAILABLE_AFTER_WEBKIT_VERSION_\d+_\d+/i</value>
+			<value>/AVAILABLE_WEBKIT_VERSION_\d+_\d+_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_\d+_\d+/i</value>
+		</remove_macros>
+		<support_frameworks>AppKit</support_frameworks>
+	</framework>
+						
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>QuickLookUI</name>
+		<external_macros>QL_EXPORT</external_macros>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>IOKit</name>
+		<imports>/hidsystem/IOLLEvent.h</imports>
+	</framework>
+	
+	<framework>
+		<parent>carbon_base</parent>
+		<name>CarbonCore</name>
+		<ignore_headers>ConditionalMacros.h</ignore_headers>
+	</framework>
+	
+	<framework>
+		<parent>carbon_base</parent>
+		<name>CoreMediaIO</name>
+		<imports>CMIOHardware.h, CMIOHardwareControl.h, CMIOHardwareDevice.h, CMIOHardwareObject.h, CMIOHardwarePlugIn.h, CMIOHardwareStream.h, CMIOHardwareSystem.h, CMIOSampleBuffer.h</imports>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CalendarStore</name>
+		<support_frameworks>Foundation</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>PDFKit</name>
+		<support_frameworks>Foundation</support_frameworks>
+	</framework>
+		
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>QTKit</name>
+		<uses>Movies</uses>
+		<support_frameworks>Foundation, AppKit</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>OSAKit</name>
+		<support_frameworks>Foundation, AppKit</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>Automator</name>
+		<remove_macros>
+			<value>/\bAM_UNUSED_FOR_ANALYZER\b/</value>
+		</remove_macros>
+		<support_frameworks>AppKit</support_frameworks>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>ServerNotification</name>
+		<imports>NSServerNotificationCenter.h</imports>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>SecurityFoundation</name>
+		<imports>SFAuthorization.h</imports>
+		<uses>Authorization</uses>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>SecurityInterface</name>
+		<imports>SFAuthorizationPluginView.h, SFCertificateView.h, SFAuthorizationView.h, SFChooseIdentityPanel.h, SFCertificatePanel.h, SFKeychainSavePanel.h, SFCertificateTrustPanel.h, SFKeychainSettingsPanel.h</imports>
+		<uses>Authorization, AuthorizationPlugin</uses>
+		<support_frameworks>Foundation</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>Message</name>
+		<imports>NSMailDelivery.h</imports>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>InstantMessage</name>
+		<imports>IMAVControl.h, IMAVManager.h, IMService.h</imports>
+	</framework>
+			
+	<framework>
+		<parent>carbon_base</parent>
+		<name>CFOpenDirectory</name>
+		<uses>CFError</uses>
+		<support_frameworks>Foundation</support_frameworks>
+		<external_macros>CF_EXPORT</external_macros>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreAudioKit</name>
+		<support_frameworks>AppKit</support_frameworks>
+		<uses>Components</uses>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>DiscRecording</name>
+		<uses>Files</uses>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>DiscRecordingUI</name>
+		<support_frameworks>Foundation, AppKit</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>ImageKit</name>
+		<support_frameworks>CoreImage</support_frameworks>
+	</framework>
+		
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>InputMethodKit</name>
+		<support_frameworks>AppKit</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>InstallerPlugins</name>
+		<support_frameworks>AppKit</support_frameworks>
+	</framework>
+	
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>PreferencePanes</name>
+		<support_frameworks>Foundation, AppKit</support_frameworks>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>QuartzFilters</name>
+		<support_frameworks>Foundation, AppKit</support_frameworks>
+	</framework>
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>ScriptingBridge</name>
+		<uses>LSOpen</uses>
+	</framework>
+				
+</frameworks>

@@ -1,0 +1,8 @@
+-batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks"
+-ignore="vecLib.framework,vImage.framework"
+-group=iPhoneAll
+-patch="@/patches/iphoneall-5.0.patch"
+-template="@/templates/iphoneall-template.txt"
+-skeleton="@/skeletons/iPhoneAll"
+-class_definitions
+-build_skeletons
