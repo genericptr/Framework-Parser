@@ -685,7 +685,7 @@ class HeaderParser extends MemoryManager {
 		
 		// process all until no scopes can be found
 		while (true) {
-			if (!$this->process_next_scope($contents, &$current, &$offset)) break;	
+			if (!$this->process_next_scope($contents, $current, $offset)) break;	
 			
 			// print completeness percent for seeing performance
 			if ($this->show_completeness) {

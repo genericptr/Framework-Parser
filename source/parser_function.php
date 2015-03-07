@@ -392,6 +392,67 @@ class HeaderFunctionParser extends HeaderParserModule {
 		}
 	}		
 		
+	public function prepare (&$contents) {
+		$offset = 0;
+		
+		// format extern c blocks
+		if (is_parser_option_enabled(PARSER_OPTION_EXTERNC)) {
+			$blocks = array();
+			
+			// find extern C blocks
+			/*
+			
+			we better ask the list how to indentify these functions
+			
+			while (preg_match("/[\n]+extern\s*\"C\"\s*\{(.*)[\n]+\}[\n]+/is", $contents, $captures, PREG_OFFSET_CAPTURE, $offset)) {
+				$info = array();
+				$info["string"] = $captures[0][0];
+				$info["offset"] = (int)$captures[0][1];
+				$info["length"] = strlen($captures[0][0]);
+				$blocks[] = $info;
+				$offset = $info["offset"] + $info["length"];
+			}
+			
+			print_r($blocks);
+				
+			foreach ($blocks as $block) {
+				$offset = 0;			
+				while (preg_match("/[\n]+\s*(\w+)\s+(\w+)\(([^(]+)\)([^#{;]+);/is", $block["string"], $captures, PREG_OFFSET_CAPTURE, $offset)) {
+					//print_r($captures);
+					$block["string"] = substr_replace($block["string"], "extern ", $captures[0][1] + 1, 0);
+
+					// get the start/end offset and macro captured
+					$result = $captures[0][0];
+					$start = (int)$captures[0][1];
+					$length = strlen($captures[0][0]);
+					$offset = $start + $length;
+				}
+				//print($block);
+				
+				$block["string"] = substr_replace($block["string"], "extern ", $captures[0][1] + 1, 0);
+			}
+			*/
+			
+			$offset = 0;			
+			while (preg_match("/[\n]+\s*(\w+)\s+(\w+)\(([^(]+)\)([^#{;]+);/is", $contents, $captures, PREG_OFFSET_CAPTURE, $offset)) {
+				//print_r($captures);
+				$contents = substr_replace($contents, "extern ", $captures[0][1] + 1, 0);
+
+				//ErrorReporting::errors()->add_message("- Added extern to function \"$name\" from ".basename($umbrella).".");
+				
+
+				// get the start/end offset and macro captured
+				$result = $captures[0][0];
+				$start = (int)$captures[0][1];
+				$length = strlen($captures[0][0]);
+				$offset = $start + $length;
+			}
+			//print($contents);
+		}
+		
+	}
+	
+		
 	public function init () {
 		parent::init();
 		

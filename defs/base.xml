@@ -172,6 +172,10 @@
 				<pattern>/(NS|CF)+_UNAVAILABLE[^(]*\(([^;]*)\)\s*/is</pattern>
 				<replacement>{ unavailable in $2 }</replacement>
 			</macro>
+			<macro>
+				<pattern>/NS_REQUIRES_SUPER/</pattern>
+				<replacement>{ NS_REQUIRES_SUPER }</replacement>
+			</macro>
 		</availability_macros>
 		
 		<replacement_patterns>

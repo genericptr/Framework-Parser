@@ -70,6 +70,7 @@ define("PARSER_OPTION_XCODE", "xcode");																	// defines the location 
 define("PARSER_OPTION_MACOS", "macos");																	// helper to load the macos.xml framework definition													
 define("PARSER_OPTION_IOS", "ios");																			// helper to load the ios.xml framework definition
 define("PARSER_OPTION_USES", "uses");																		// *** DEPRECATED *** imports <uses> directly from a framework definition
+define("PARSER_OPTION_EXTERNC", "externc");															// enables pre-parsing extern "c" {} blocks
 
 // options which can be passed when specifying
 // frameworks with the -all switch

@@ -1022,7 +1022,7 @@ TEMPLATE;
 						
 		if ($loaded_from_framework) {
 			$framework->auto_loaded = true;
-			array_unshift($this->frameworks_loaded, &$framework);
+			array_unshift($this->frameworks_loaded, $framework);
 			if (MESSAGE_FRAMEWORKS_LOADED) ErrorReporting::errors()->add_note("The framework \"".$framework->get_name()."\" has been auto loaded from ".$loaded_from_framework->get_name().".");
 		} else {
 			$this->frameworks_loaded[] = &$framework;

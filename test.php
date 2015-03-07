@@ -104,16 +104,12 @@ function parse_header () {
 	//$GLOBALS["argv"][] = "-header=\"ios:$cwd/tests/universal-headers.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreFoundation:$cwd/tests/changes_6_0.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreImage:$cwd/tests/changes_10_8.h\"";
-	$GLOBALS["argv"][] = "-header=\"Foundation:~/Downloads/square-WaxSim-64952de/iPhoneSimulatorRemoteClient/iPhoneSimulatorRemoteClient.h\"";
+	$GLOBALS["argv"][] = "-header=\"cocoa_base:$cwd/tests/extern_c.h\"";
 	
 	//$GLOBALS["argv"][] = "-ios";
 	$GLOBALS["argv"][] = "-macos";
-	
-	//$GLOBALS["argv"][] = "-out=\"~/Desktop/mac_testing\"";
-	//$GLOBALS["argv"][] = "-sdk=MacOSX10.8.sdk";
-	
 	$GLOBALS["argv"][] = "-show";
-	//$GLOBALS["argv"][] = "-dryrun";
+	$GLOBALS["argv"][] = "-externc";
 }
 
 function parse_unit () {
@@ -329,7 +325,7 @@ function find_frameworks_with_objective_c ($directory, $framework = null) {
 //print_r($frameworks);
 //die;
 
-//parse_header();
+parse_header();
 //parse_frameworks();
 //parse_frameworks_ios();
 //parse_batch_system();

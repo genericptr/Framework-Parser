@@ -97,7 +97,7 @@ class HeaderParserModule extends MemoryManager {
 	}
 	
 	// override to prepare the header contents for parsing
-	public function prepare ($contents) {
+	public function prepare (&$contents) {
 	}
 	
 	// override to conclude the parsing
