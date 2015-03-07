@@ -123,6 +123,7 @@ class FrameworkLoader {
 	//
 	// $path = absolute path to the .h header file
 	public function process_header ($path) {
+		global $system_framework_directories;
 		
 		// break the path into 2 components
 		if ($parts = explode(":", $path)) {
@@ -133,13 +134,22 @@ class FrameworkLoader {
 				// get the path component
 				$path = expand_tilde_path($parts[1]);
 				
-				// if the path doesn't exist and the frameowrk directory can't be found then
-				// attempt to find the framework directory by using the input directory which uses -sdk
+				// try input directory to resolve framework path (which uses -sdk)
 				if (!file_exists($path) && !file_exists($framework->get_path())) {
 					$framework_path = $this->get_input_directory();
 					if (file_exists($framework_path)) {
 						$framework_path = $framework_path."/".$framework->get_name().".framework";
 						$framework->set_path($framework_path);
+					}
+				}
+				
+				// try system frameworks to resolve framework path
+				if (!file_exists($path) && !file_exists($framework->get_path())) {
+					foreach ($system_framework_directories as $framework_path) {
+						$framework_path = $framework_path."/".$framework->get_name().".framework";
+						if (file_exists($framework_path)) {
+							$framework->set_path($framework_path);
+						}
 					}
 				}
 				
