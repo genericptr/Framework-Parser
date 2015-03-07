@@ -106,16 +106,14 @@ define("BASE_FRAMEWORK", "base");
 $default_xcode_path = "/Applications/Xcode.app";
 
 // all system defined directories which contain frameworks
-$system_framework_directories = array(	
-	
-																				// as of Xcode 4.3 SDK's are stored in the application bundle
-																				"%%XCODE%%/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
-																				"%%XCODE%%/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
-																				
-																				// legacy SDK locations:
-																				"/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
-																				"/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
-																				);
+$system_framework_directories = array(	// as of Xcode 4.3 SDK's are stored in the application bundle
+										"%%XCODE%%/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
+										"%%XCODE%%/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
+									
+										// legacy SDK locations:
+										"/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
+										"/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks",
+										);
 
 // returns the full path for an sdk by searching
 // the availble list of system framework directories

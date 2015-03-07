@@ -129,21 +129,31 @@ class FrameworkLoader {
 			$original_path = $parts[1];
 			
 			if ($framework = $this->find_framework($parts[0])) {
-								
+				
 				// get the path component
 				$path = expand_tilde_path($parts[1]);
+				
+				// if the path doesn't exist and the frameowrk directory can't be found then
+				// attempt to find the framework directory by using the input directory which uses -sdk
+				if (!file_exists($path) && !file_exists($framework->get_path())) {
+					$framework_path = $this->get_input_directory();
+					if (file_exists($framework_path)) {
+						$framework_path = $framework_path."/".$framework->get_name().".framework";
+						$framework->set_path($framework_path);
+					}
+				}
 				
 				// if there is no header at the path then look for the component
 				// in the frameworks header directory
 				if (!file_exists($path)) {
 					$path = $framework->get_headers_directory()."/".$parts[1];
-					
+
 					// if the header still can't be found search in paths
 					if (!file_exists($path)) {
 						$path = $this->find_header($parts[1]);
 					}
-					
 				}
+				
 				
 			} else {
 				ErrorReporting::errors()->add_fatal("The framework \"".$parts[0]."\" has not been defined.");
@@ -981,7 +991,7 @@ TEMPLATE;
 	}
 			
 	private function load_framework (Framework $framework, $loaded_from_framework = null) {
-		
+
 		// the framework is unloadable
 		if ($this->is_framework_unloadable($framework)) return;
 		
@@ -1174,7 +1184,7 @@ TEMPLATE;
 	
 	// loads all frameworks that were specified on the command line via -frameworks and -dir
 	private function load_command_line_frameworks ($frameworks)  {
-		
+
 		if (!$frameworks) $frameworks = array();
 		
 		// add requested frameworks from command line
