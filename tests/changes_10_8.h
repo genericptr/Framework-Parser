@@ -171,6 +171,8 @@ typedef NS_ENUM(NSUInteger, NSSearchPathDirectory) {
     NSTrashDirectory NS_ENUM_AVAILABLE(10_8, NA) = 102                   // location of Trash directory
 };
 
+// typedefs with multi word types
+
 typedef NS_OPTIONS(unsigned long long, NSAlignmentOptions) {
     NSAlignMinXInward   = 1ULL << 0,
     NSAlignMinYInward   = 1ULL << 1,

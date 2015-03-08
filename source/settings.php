@@ -71,6 +71,8 @@ define("PARSER_OPTION_MACOS", "macos");																	// helper to load the ma
 define("PARSER_OPTION_IOS", "ios");																			// helper to load the ios.xml framework definition
 define("PARSER_OPTION_USES", "uses");																		// *** DEPRECATED *** imports <uses> directly from a framework definition
 define("PARSER_OPTION_EXTERNC", "externc");															// enables pre-parsing extern "c" {} blocks
+define("PARSER_OPTION_FRAMEWORK_DIFFS", "framework_diffs");										// shows a list of different frameworks in the search path then was specific with -frameworks
+define("PARSER_OPTION_VERBOSE", "v");										// enables all extra messages (see list of defines prefixed MESSAGE_)
 
 // options which can be passed when specifying
 // frameworks with the -all switch
@@ -116,7 +118,7 @@ $sdk_framework_directories = array(	// as of Xcode 4.3 SDK's are stored in the a
 									);
 
 // all system defined directories which contain frameworks
-$system_framework_directories = array("/System/Library/Frameworks");
+$system_framework_directories = array("/System/Library/Frameworks", "/Library/Frameworks");
 
 // returns the full path for an sdk by searching
 // the availble list of system framework directories
@@ -296,13 +298,14 @@ define("PARSER_MEMORY_LIMIT", "1000M");		// -1 is no limit
  * Messages
  */
 
+define("MESSAGE_FRAMEWORKS_RESOLVED", false);		// Notify what paths frameworks are resolved to
 define("MESSAGE_FRAMEWORKS_LOADED", false);			// Notify when frameworks are loaded
 define("MESSAGE_PEAK_MEMORY_LIMITS", true);			// Notify at various times during parsing the peak memory usage (for debugging)
 define("MESSAGE_INLINE_FUNCTIONS", false);			// Notify when inline functions are detected but ignored
 define("MESSAGE_MEMORY_DEBUGGING", false);			// Notify when memory managed classes are destroyed (__destroy is called)
-define("MESSAGE_ADD_SYMBOL", false);						// Notify symbols are added to the symbol table
-define("MESSAGE_OPAQUE_TYPEDEFS", true);				// Notify when opaque typedefs are found
-define("MESSAGE_DEFINE_EXTERNAL_MACRO", true);	// Notify external macros are dynamically adding to the framework
+define("MESSAGE_ADD_SYMBOL", false);				// Notify symbols are added to the symbol table
+define("MESSAGE_OPAQUE_TYPEDEFS", true);			// Notify when opaque typedefs are found
+define("MESSAGE_DEFINE_EXTERNAL_MACRO", true);		// Notify external macros are dynamically adding to the framework
 define("MESSAGE_DUPLICATE_IDENTIFIER", true);		// Notify when symbols names have already been declared (i.e. duplicate identifier)
 
 ?>

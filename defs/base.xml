@@ -17,7 +17,7 @@
 		<uses>CTypes</uses>
 		<include_imported_frameworks>1</include_imported_frameworks>
 		
-		<!--	replacement patterns for defines -->
+		<!-- eplacement patterns for defines -->
 		<define_replacements>
 			<define>
 				<pattern>/CFSTR\(\s*"(.*)"\s*\)/i</pattern>
@@ -121,6 +121,7 @@
 			<value>/IBOutlet/i</value>
 			<value>/__unsafe_unretained/i</value>
 			<value>/__unused/i</value>
+			<value>/(UNAVAILABLE_ATTRIBUTE|DEPRECATED_ATTRIBUTE)/</value>
 		</remove_macros>
 				
 		<availability_macros>
@@ -176,6 +177,14 @@
 				<pattern>/NS_REQUIRES_SUPER/</pattern>
 				<replacement>{ NS_REQUIRES_SUPER }</replacement>
 			</macro>
+			<macro>
+				<pattern>/NS_DESIGNATED_INITIALIZER/</pattern>
+				<replacement>{ NS_DESIGNATED_INITIALIZER }</replacement>
+			</macro>
+			<macro>
+				<pattern>/CF_RETURNS_NOT_RETAINED/</pattern>
+				<replacement>{ CF_RETURNS_NOT_RETAINED }</replacement>
+			</macro>
 		</availability_macros>
 		
 		<replacement_patterns>
@@ -184,24 +193,7 @@
 				<pattern>/(NS|CF)+_(ENUM|OPTIONS)\((.*),\s*(.*)\)/i</pattern>
 				<replacement>$3 $4; enum</replacement>
 			</pattern>
-		</replacement_patterns>
-		
-		
-		<!--
-		<skip_block>
-			<block>
-				<start></start>
-				<end></end>
-			</block>
-		</skip_block>
-		-->
-		
-		<!--
-		<ignore_lines>
-			<line></line>
-		</ignore_lines>
-		-->
-		
+		</replacement_patterns>		
 	</framework>
 	
 	<framework>
@@ -272,6 +264,7 @@
 			<value>/%%PREGEX_NAMES%%_CLASS_AVAILABLE\s*\(.*\)/i</value>
 			<value>/%%PREGEX_NAMES%%_EXTERN_C_(BEGIN|END)/i</value>
 			<value>/\bAVAILABLE_\w+_VERSION_\d+_\d+_AND_LATER\b/i</value>
+			<value>/NS_OPTIONS/</value>
 		</remove_macros>
 	</framework>
 	

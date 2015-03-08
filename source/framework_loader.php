@@ -129,42 +129,47 @@ class FrameworkLoader {
 		if ($parts = explode(":", $path)) {
 			$original_path = $parts[1];
 			
+			/*
+				we want to allow undefined frameworks 
+				but which do we inherit from
+			*/
+			if (!$this->find_framework($parts[0])) {
+				$name = readline("The framework \"$parts[0]\" is not defined. What framework would you like to define from?\n");
+				if ($base = $this->find_framework($name)) {
+					$framework = Framework::clone_existing($parts[0], $base);
+					$this->add_defined_framework($framework);
+					//$framework->print_info();
+					$parts[0] = $framework->get_name();
+				} else {
+					die("The framework \"$name\" is not defined.\n");
+				}
+			}
+			
 			if ($framework = $this->find_framework($parts[0])) {
 				
 				// get the path component
 				$path = expand_tilde_path($parts[1]);
 				
-				// try input directory to resolve framework path (which uses -sdk)
-				if (!file_exists($path) && !file_exists($framework->get_path())) {
-					$framework_path = $this->get_input_directory();
-					if (file_exists($framework_path)) {
-						$framework_path = $framework_path."/".$framework->get_name().".framework";
-						$framework->set_path($framework_path);
-					}
-				}
-				
-				// try system frameworks to resolve framework path
-				if (!file_exists($path) && !file_exists($framework->get_path())) {
-					foreach ($system_framework_directories as $framework_path) {
-						$framework_path = $framework_path."/".$framework->get_name().".framework";
+				// explict path failed, use search paths
+				if (!file_exists($path)) {
+					foreach ($this->get_search_paths() as $search_path) {
+						$framework_path = $search_path."/".$framework->get_name().".framework";
 						if (file_exists($framework_path)) {
 							$framework->set_path($framework_path);
+							if (MESSAGE_FRAMEWORKS_RESOLVED) print("$framework-> was resolved to $framework_path\n");
+							$path = $framework->get_headers_directory()."/".$parts[1];
+							if (file_exists($path)) break;
 						}
 					}
 				}
-				
-				// if there is no header at the path then look for the component
-				// in the frameworks header directory
+			
+				// if the header still can't be found search in paths
+				// note: in this case search paths will refer to a directory
+				// with header files and not a framework directory
 				if (!file_exists($path)) {
-					$path = $framework->get_headers_directory()."/".$parts[1];
-
-					// if the header still can't be found search in paths
-					if (!file_exists($path)) {
-						$path = $this->find_header($parts[1]);
-					}
+					$path = $this->find_header($parts[1]);
 				}
-				
-				
+							
 			} else {
 				ErrorReporting::errors()->add_fatal("The framework \"".$parts[0]."\" has not been defined.");
 			}
@@ -510,6 +515,7 @@ TEMPLATE;
 	
 	// returns an array of paths to search for frameworks
 	private function get_search_paths () {
+		global $system_framework_directories;
 		$paths = array();
 		
 		// add search paths from command line
@@ -523,9 +529,14 @@ TEMPLATE;
 		}
 		
 		// add default input directory
-		if ($this->get_input_directory()) $paths[] = $this->get_input_directory();
+		if ($this->get_input_directory()) {
+			$paths[] = $this->get_input_directory();
+		}
 		
-		return $paths;
+		// add system framework paths as last resort
+		$paths = array_merge($paths, $system_framework_directories);
+		
+		return array_unique($paths);
 	}
 	
 	private function add_defined_framework (Framework $framework) {
@@ -880,13 +891,8 @@ TEMPLATE;
 	private function resolve_framework (Framework $framework, $directory = null) {
 		
 		if (!$directory) {
-			
-			// no input directory to resolve from, bail
-			if (!$this->get_input_directory()) return;
-			
 			// resolve in each search path
 			foreach ($this->get_search_paths() as $path) $this->resolve_framework($framework, $path);
-			
 		} else {
 			// iterate the directory
 			if ($handle = @opendir($directory)) {
@@ -899,7 +905,7 @@ TEMPLATE;
 					
 					if (is_dir($path)) {
 						if ($file == $framework->get_name().".framework") {
-							print("$framework-> was resolved to $path\n");
+							if (MESSAGE_FRAMEWORKS_RESOLVED) print("$framework-> was resolved to $path\n");
 							$framework->set_path($path);
 							return;
 						}
@@ -1352,6 +1358,34 @@ TEMPLATE;
 						
 		// add defined frameworks
 		if (($frameworks) || (is_parser_option_enabled(PARSER_OPTION_DIRECTORY))) {
+			
+			// show a list of new frameworks search paths
+			if (is_parser_option_enabled(PARSER_OPTION_FRAMEWORK_DIFFS)) {
+				//print_r($frameworks);
+				
+				$paths = $this->get_search_paths();
+				$names = array();
+				
+				foreach ($paths as $path) {
+					$files = scandir($path);
+					$files = array_diff($files, array(".", ".."));
+
+					foreach ($files as $name) {
+						$names[] = remove_file_extension($name);
+					}
+					
+					$names = array_unique($names);
+				}
+
+				// print list of differences
+				$new = array_diff($names, $frameworks);
+				print("Different frameworks:\n\n");
+				foreach ($new as $name) {
+					print("$name\n");
+				}
+				
+				die;
+			}
 		
 			$this->load_command_line_frameworks($frameworks);
 			$this->sort_loaded_frameworks();

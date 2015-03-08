@@ -103,6 +103,10 @@ if ($input[PARSER_OPTION_AUTOLOAD_IMPORTED_FRAMEWORKS]) {
 	$input[PARSER_OPTION_BUILD_SKELETONS] = true;
 }
 
+// enable extra message
+if ($input[PARSER_OPTION_VERBOSE]) {
+}
+
 // set the global command line options
 $command_line_options = $input;
 
