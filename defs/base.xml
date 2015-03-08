@@ -264,7 +264,6 @@
 			<value>/%%PREGEX_NAMES%%_CLASS_AVAILABLE\s*\(.*\)/i</value>
 			<value>/%%PREGEX_NAMES%%_EXTERN_C_(BEGIN|END)/i</value>
 			<value>/\bAVAILABLE_\w+_VERSION_\d+_\d+_AND_LATER\b/i</value>
-			<value>/NS_OPTIONS/</value>
 		</remove_macros>
 	</framework>
 	
