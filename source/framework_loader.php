@@ -1266,8 +1266,7 @@ TEMPLATE;
 				// remove the base framework for easy access
 				set_parser_option(PARSER_OPTION_DIRECTORY, $path);
 
-				$this->load_framework($framework);
-				
+				$this->load_framework($framework);				
 			} else {
 				ErrorReporting::errors()->add_fatal("The base framework \"".$parts[0]."\" can not be found.");
 			}

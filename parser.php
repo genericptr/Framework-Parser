@@ -143,10 +143,4 @@ if (is_parser_option_enabled(PARSER_OPTION_HEADER)) {
 	$loader->process_header(get_parser_option(PARSER_OPTION_HEADER));
 }
 
-// ??? testing!
-if (is_parser_option_enabled(PARSER_OPTION_DIRECTORY)) {
-	die("test!");
-//	$loader->process_directory(get_parser_option(PARSER_OPTION_DIRECTORY));
-}
-
 ?>

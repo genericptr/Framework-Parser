@@ -473,9 +473,7 @@ class Framework extends MemoryManager {
 	public function load_headers ($directory) {
 		ErrorReporting::errors()->add_message("Loading headers from $directory.");
 		$headers = directory_contents($directory, false, false, "/\.h$/i");
-		//print_r($headers);
 		if (count($headers) == 0) ErrorReporting::errors()->add_note("No headers were found.");
-		//$this->header_paths = $headers;
 		return $headers;
 	}	
 				
@@ -609,7 +607,8 @@ class Framework extends MemoryManager {
 					$this->make_file(FRAMEWORK_BASE_DIRECTORY, TEMPLATE_FILE_UNDEFINED_TYPES.".inc", "", true);
 				}
 			}
-
+		} else {
+			if (is_parser_option_enabled(PARSER_OPTION_VERBOSE)) ErrorReporting::errors()->add_note("The skeleton for \"".$this->get_name()."\" could not be built because header path is null.");
 		}
 	}
 

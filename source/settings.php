@@ -54,7 +54,7 @@ define("PARSER_OPTION_GROUP_FRAMEWORKS", "group_frameworks");			   	// sets the 
 define("PARSER_OPTION_FRAMEWORKS", "frameworks");						   	// explicitly sets the list of frameworks to parse (when -batch isn't enabled)
 define("PARSER_OPTION_SEARCH_PATHS", "search_paths");					   	// adds additional search paths when looking for frameworks
 define("PARSER_OPTION_SDK", "sdk");											// sdk for default frameworks directory
-define("PARSER_OPTION_AUTOLOAD_IMPORTED_FRAMEWORKS", "autoload_imported_frameworks"); 
+define("PARSER_OPTION_AUTOLOAD_IMPORTED_FRAMEWORKS", "autoload_imported_frameworks");
 define("PARSER_OPTION_ONLY", "only");										// only print the list of frameworks or headers
 define("PARSER_OPTION_IGNORE", "ignore");									// ignore the list of frameworks or headers
 define("PARSER_OPTION_DRY_RUN", "dryrun");									// parses but doesn't produce any files

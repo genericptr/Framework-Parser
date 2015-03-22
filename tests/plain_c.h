@@ -1,6 +1,5 @@
 
 
-
 // no return type with macros
 int CPL_DLL CPL_STDCALL GDALGetDataTypeSize( GDALDataType );
 
