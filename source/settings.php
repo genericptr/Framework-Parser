@@ -47,7 +47,7 @@ define("PARSER_OPTION_OUTPUT", "out");									   	// output directory for print
 define("PARSER_OPTION_SHOW", "show");									   	// print output to terminal (overrides -out)
 define("PARSER_OPTION_ALL", "all");										   	// parses all headers in framework
 define("PARSER_OPTION_HEADER", "header");								   	// parses a single header
-define("PARSER_OPTION_DIRECTORY", "dir");								   	// parses all headers in the directory as framework
+define("PARSER_OPTION_DIRECTORY", "dir");								 	// parses all headers in the directory as framework
 define("PARSER_OPTION_BATCH", "batch");									   	// parses all frameworks in the batch directory specified
 define("PARSER_OPTION_GROUP", "group");									   	// groups all frameworks together into a single unit (like MacOSAll)
 define("PARSER_OPTION_GROUP_FRAMEWORKS", "group_frameworks");			   	// sets the list of frameworks to add to the group unit (when -group is enabled)

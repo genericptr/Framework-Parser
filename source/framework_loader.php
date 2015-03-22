@@ -204,7 +204,7 @@ class FrameworkLoader {
 		$processed_count = 0;
 		$header_count = 0;
 		$framework_count = count($this->frameworks_loaded);
-		
+
 		// there are no frameworks loaded to process
 		if (!$this->frameworks_loaded) return;
 				
@@ -891,7 +891,7 @@ TEMPLATE;
 		
 	// resolves a frameworks path by searching in available paths
 	private function resolve_framework (Framework $framework, $directory = null) {
-		
+
 		if (!$directory) {
 			// resolve in each search path
 			foreach ($this->get_search_paths() as $path) $this->resolve_framework($framework, $path);
@@ -1080,12 +1080,10 @@ TEMPLATE;
 		// load all xml paths
 		$paths = array();
 		$paths = array_merge($paths, get_framework_definitions());
-		
+
 		// add additional XML files after the default definitions
 		if (is_parser_option_enabled(PARSER_OPTION_FRAMEWORKS_XML)) {
 			$framework_xml_paths = preg_split("/\s*,\s*/", get_parser_option(PARSER_OPTION_FRAMEWORKS_XML));
-			
-			
 			foreach ($framework_xml_paths as $path) {
 				$paths[] = expand_path($path);
 			}
@@ -1139,7 +1137,6 @@ TEMPLATE;
 		//foreach ($this->frameworks_defined as $framework) {
 		//	ErrorReporting::errors()->add_note("The framework \"".$framework->get_name()."\" has been defined.");
 		//}
-		
 	}
 		
 	private function verify_command_line ()  {
@@ -1204,7 +1201,7 @@ TEMPLATE;
 		
 	}
 	
-	// loads all frameworks that were specified on the command line via -frameworks and -dir
+	// loads all frameworks that were specified on the command line via -frameworks and -directory
 	private function load_command_line_frameworks ($frameworks)  {
 
 		if (!$frameworks) $frameworks = array();
@@ -1245,7 +1242,6 @@ TEMPLATE;
 				if (strstr($name, FRAMEWORK_OPTION_DISABLE_FINALIZING)) $framework->set_finalize(false);
 				
 				$this->load_framework($framework);
-				
 			} else {
 				ErrorReporting::errors()->add_fatal("The requested framework \"$name\" could not be found in any defined frameworks. Please check the name or add an additional definition using -frameworks_xml.");
 			}
@@ -1258,18 +1254,20 @@ TEMPLATE;
 			$name = basename($directory);
 			$parts = explode(FRAMEWORK_BASE_SEPARATOR, $directory);
 			$path = expand_path($parts[1]);
+
 			if ($base = $this->find_framework($parts[0])) {
 				$framework = Framework::clone_existing($name, $base);
 
 				// override the framework path with the directory
 				$framework->set_raw_directory($path);
-
+				
 				$this->add_defined_framework($framework);
 
 				// remove the base framework for easy access
 				set_parser_option(PARSER_OPTION_DIRECTORY, $path);
 
 				$this->load_framework($framework);
+				
 			} else {
 				ErrorReporting::errors()->add_fatal("The base framework \"".$parts[0]."\" can not be found.");
 			}
@@ -1339,7 +1337,6 @@ TEMPLATE;
 			// -only is only used to filter frameworks in batch mode
 			// so we disable it now so all headers can compile
 			clear_parser_option(PARSER_OPTION_ONLY);
-			
 		} else {
 			$frameworks = get_parser_option(PARSER_OPTION_FRAMEWORKS);
 		}
@@ -1361,7 +1358,7 @@ TEMPLATE;
 			$framework->set_headers_directory(null);
 			$this->add_defined_framework($framework);
 		}
-						
+		
 		// add defined frameworks
 		if (($frameworks) || (is_parser_option_enabled(PARSER_OPTION_DIRECTORY))) {
 			
@@ -1392,8 +1389,9 @@ TEMPLATE;
 				
 				die;
 			}
-		
+			
 			$this->load_command_line_frameworks($frameworks);
+			
 			$this->sort_loaded_frameworks();
 			
 			// perform post-sorting actions on loaded frameworks
@@ -1417,7 +1415,7 @@ TEMPLATE;
 					$this->build_group_unit(get_parser_option(PARSER_OPTION_GROUP), $this->frameworks_loaded, null);
 				}
 			}
-						
+			
 		}
 				
 	}
