@@ -52,7 +52,9 @@ $template_availability_macros = <<<TEMPLATE
 {\$define MAC_OS_X_VERSION_10_6 := 1060}
 {\$define MAC_OS_X_VERSION_10_7 := 1070}
 {\$define MAC_OS_X_VERSION_10_8 := 1080}
-{\$define MAC_OS_X_VERSION_LATEST := MAC_OS_X_VERSION_10_8}
+{\$define MAC_OS_X_VERSION_10_9 := 1090}
+{\$define MAC_OS_X_VERSION_10_10 := 1100}
+{\$define MAC_OS_X_VERSION_LATEST := MAC_OS_X_VERSION_10_10}
 
 // System Versions iPhoneOS SDK
 {\$define __MAC_10_0 := 1000}
@@ -64,6 +66,8 @@ $template_availability_macros = <<<TEMPLATE
 {\$define __MAC_10_6 := 1060}
 {\$define __MAC_10_7 := 1070}
 {\$define __MAC_10_8 := 1080}
+{\$define __MAC_10_9 := 1090}
+{\$define __MAC_10_10 := 1100}
 {\$define __MAC_NA   := 9999}   
 
 {\$define __IPHONE_2_0 := 20000}
@@ -78,8 +82,10 @@ $template_availability_macros = <<<TEMPLATE
 {\$define __IPHONE_4_3 := 40300}
 {\$define __IPHONE_5_0 := 50000}
 {\$define __IPHONE_6_0 := 60000}
+{\$define __IPHONE_7_0 := 70000}
+{\$define __IPHONE_8_0 := 80000}
 {\$define __IPHONE_NA  := 99999}  
-{\$define __IPHONE_LATEST  := __IPHONE_6_0}
+{\$define __IPHONE_LATEST  := __IPHONE_8_0}
 
 // Target Conditionals
 {\$if defined(CPUPOWERPC32)}

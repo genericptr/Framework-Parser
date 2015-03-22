@@ -8,8 +8,8 @@ require_once("utilities.php");
 // function source types
 // these control the way HeaderFunctionParser::build_function_pointer (and others) builds the source string
 define("FUNCTION_SOURCE_TYPE_EXTERNAL", 1);		// procedure name; cdecl; external;
-define("FUNCTION_SOURCE_TYPE_FIELD", 2);			// name: procedure; cdel;
-define("FUNCTION_SOURCE_TYPE_TYPE", 3);				// name = procedure; cdecl;
+define("FUNCTION_SOURCE_TYPE_FIELD", 2);		// name: procedure; cdel;
+define("FUNCTION_SOURCE_TYPE_TYPE", 3);			// name = procedure; cdecl;
 
 define("FUNCTION_TYPE_PROCEDURE", 1);
 define("FUNCTION_TYPE_FUNCTION", 2);
@@ -92,19 +92,23 @@ class FunctionSymbol extends Symbol {
 class HeaderFunctionParser extends HeaderParserModule {
 		
 	private $pattern_function_external = array(	"id" => 1, 
-																							"scope" => SCOPE_FUNCTION, 
-																							"pattern" => "/(\$1)\s*([^;]+)\s*\(([^);]+)\)\s*;/is",
-																							);
+												"scope" => SCOPE_FUNCTION, 
+												"pattern" => "/(\$1)\s*([^;]+)\s*\(([^);]+)\)\s*;/is",
+												);
 	
 	private $pattern_function_inline = array(	"id" => 2, 
-																						"scope" => SCOPE_FUNCTION_INLINE, 
-																						"start" => "/(\$1)\s*([^;]+)\s*\(([^);]+)\)\s*\{/is",
-																						"end" => "/\}/",
-																						
-																						// we have to add a module for the parser to terminate the 
-																						// scope but this should be optional.
-																						"modules" => array(MODULE_MACRO),
-																						);
+												"scope" => SCOPE_FUNCTION_INLINE, 
+												"start" => "/(\$1)\s*([^;]+)\s*\(([^);]+)\)\s*\{/is",
+												"end" => "/\}/",
+												// we have to add a module for the parser to terminate the 
+												// scope but this should be optional.
+												"modules" => array(MODULE_MACRO),
+												);
+	
+	private $pattern_function_plain_c = array(	"id" => 3, 
+												"scope" => SCOPE_FUNCTION, 
+												"pattern" => "/([^;]+)\s*\(([^);]+)\)\s*;/is",
+												);
 					
 	// unnamed parameter function (with possible named callback)
 	// (NSInteger (*)(int, void *))
@@ -356,9 +360,14 @@ class HeaderFunctionParser extends HeaderParserModule {
 		}
 	}
 					
-	private function parse_function ($results) {
-		$this->extract_name_return_type($results[2], $name, $return_type);
-		return $this->parse_function_declaration($name, $return_type, $results[3], FUNCTION_SOURCE_TYPE_EXTERNAL);
+	private function parse_function ($results, $plain_c = false) {
+		if ($plain_c) {
+			$this->extract_name_return_type($results[1], $name, $return_type);
+			return $this->parse_function_declaration($name, $return_type, $results[2], FUNCTION_SOURCE_TYPE_EXTERNAL);
+		} else {
+			$this->extract_name_return_type($results[2], $name, $return_type);
+			return $this->parse_function_declaration($name, $return_type, $results[3], FUNCTION_SOURCE_TYPE_EXTERNAL);
+		}
 	}
 							
 	public function process_scope ($id, Scope $scope) {
@@ -386,6 +395,16 @@ class HeaderFunctionParser extends HeaderParserModule {
 				if (!$name) break;
 				
 				if (MESSAGE_INLINE_FUNCTIONS) ErrorReporting::errors()->add_note("An inline function $name is being ignored (parse by hand).");
+				break;
+			}
+			
+			// plain-c functions
+			case 3: {				
+				if ($function = $this->parse_function($scope->results, true)) {
+					$function->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
+					$this->symbols->add_symbol($function);
+					$scope->set_symbol($function);
+				}
 				break;
 			}
 			
@@ -462,6 +481,8 @@ class HeaderFunctionParser extends HeaderParserModule {
 		
 		$this->add_pattern($this->pattern_function_inline);
 		$this->add_pattern($this->pattern_function_external);
+		
+		if (is_parser_option_enabled(PARSER_OPTION_PLAIN_C)) $this->add_pattern($this->pattern_function_plain_c);
 	}		
 
 }
@@ -472,7 +493,7 @@ class HeaderFunctionParser extends HeaderParserModule {
  * For compatibility with the universal headers
  * we need to parse the Pascal units to determine which
  * functions have "var" parameters because we can not 
- * duplicate this functionallity in the PHP parser
+ * duplicate this functionality in the PHP parser
  */
 
 function print_param_functions ($file) {

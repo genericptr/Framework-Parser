@@ -19,8 +19,10 @@ type
 type
 	dispatch_queue_t = pointer;
   dispatch_semaphore_t = pointer;
+	dispatch_block_t = pointer;
 	pthread_mutex_t = pointer;	
-
+	pthread_block_t = pointer;	
+	
 { Security framework - SecureTransport.h }
 type
 	SSLProtocol = integer;
@@ -65,6 +67,7 @@ const
 const
 	FLT_MIN = 0;
 	FLT_MAX = 1;
+	DBL_MAX = high(clong);
 	
 { from IOKit (not yet part of univint) }
 const

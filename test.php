@@ -2,95 +2,6 @@
 
 require_once("source/utilities.php");
 
-$todo = <<<HEADER
-TO-DO:
-	
-	• add error reporting command line options
-			-errors=fatal+message+note+warning
-	• block/function pointers in returns types (see methods.h)	
-	√ protocols need to print super class actually which is allowed
-	• empty macros from class scope types being removed (see AVAsset.inc)		
-	• format_array_type needs to add dynamic array types to the symbol table like callbacks
-	  we also need a system to handle dynamic symbol adding now that printing is handled via scopes
-	• we always need to build skeletons to get imported frameworks but we don't always want to
-		print them.
-			- rename to analyze_framework and always call
-	• make availability macro/replacement pattern callbacks to post process the results:
-		for example __OSX_AVAILABLE_STARTING (__MAC_10_4, __IPHONE_NA) macros return a value of "__MAC_10_4, __IPHONE_NA" so we could
-		make a callback to process and return "Mac OS 10.4, iOS not available"
-		
-		use call_user_func("post_process_ios_availability_macro", $1);
-		
-		<macro>
-			<pattern>/\s*[_]*\w+_AVAILABLE\s*\((.*)\)\s*/i</pattern>
-			<replacement>{ available in $1 }</replacement>
-			<function>post_process_ios_availability_macro</function>
-		</macro>
-	• Accelerate and vecLib have cirular unit references which we need to protect against, if not really complicated
-	• we need a way to define macros in frameworks.xml or templates in general
-	
-	• parse plain folders for headers 
-		iOS requires all these headers:
-		/iPhoneSimulator4.0.sdk/usr/include
-		
-		we may need another command line option because 
-		the framework.xml doesn't accomidate general headers in the sdk
-		-sdk_headers="/usr/include/dh.h"
-		
-	• iPhoneAll
-		√ don't add DefinedClassesXXX units into uses unless the file actually exists!
-		√ don't add frameworks to group template unless they were actually parsed! 
-		- we need ignore frameworks for -group otherwise vecLib gets printed which we don't want 
-			can we make -batch ignore frameworks instead?
-	
-	• in -group mode we need to have a differnt policy with duplicate variables, i.e. ignore them completely.	
-		1) NSString declares UniChar again.
-		   do we need a <ignore_header_types>
-											<header>
-												<name>NSString.h</name>
-												<types>UniChar</types>
-											</header>
-										</ignore_header_types>
-
-			B) don't declare in NSManagedObjectContext
-			NSErrorMergePolicy: id; cvar; external;
-			NSMergeByPropertyStoreTrumpMergePolicy: id; cvar; external;
-			NSMergeByPropertyObjectTrumpMergePolicy: id; cvar; external;
-			NSOverwriteMergePolicy: id; cvar; external;
-			NSRollbackMergePolicy: id; cvar; external;
-		
-	• when in -group mode make another option to ALSO print all individual framwork units
-	  because we may need these also as an option.
-	
-		-framework_units? -group_include_units?
-		
-HEADER;
-//print($todo);
- 
-$header = <<<HEADER
-typedef enum _CGInterpolationQuality CGInterpolationQuality;
-
-enum CGInterpolationQuality {
-    kCGInterpolationDefault = 0,
-    kCGInterpolationNone = 1,
-    kCGInterpolationLow = 2,
-    kCGInterpolationMedium = 4,
-    kCGInterpolationHigh = 3
-};
-
-HEADER;
-//show_string_offset(array(104), file_get_contents(getcwd()."/tests/universal-headers.h"));
-
-//if (preg_match("/(typedef)*\s*enum\s*(\w+)*\s*\{/i", $header, $captures, PREG_OFFSET_CAPTURE, 1)) {
-//	print_r($captures);
-//}
-//die;
-
-//if (preg_match("/(typedef)*\s*(const)*\s*(struct|union)+\s*(\w*)\s*\{/i", $header, $captures)) print_r($captures);
-//preg_match_all("/(\w+)\s*:\s*(\(.*?\)|)\s*(\w+)/", $header, $captures);
-//print_r($captures);
-//die;
-
 function parse_header () {
 	$cwd = getcwd();
 	
@@ -104,12 +15,12 @@ function parse_header () {
 	//$GLOBALS["argv"][] = "-header=\"ios:$cwd/tests/universal-headers.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreFoundation:$cwd/tests/changes_6_0.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreImage:$cwd/tests/changes_10_8.h\"";
-	$GLOBALS["argv"][] = "-header=\"cocoa_base:$cwd/tests/extern_c.h\"";
+	$GLOBALS["argv"][] = "-header=\"cocoa_base:$cwd/tests/plain_c.h\"";
 	
 	//$GLOBALS["argv"][] = "-ios";
 	$GLOBALS["argv"][] = "-macos";
 	$GLOBALS["argv"][] = "-show";
-	$GLOBALS["argv"][] = "-externc";
+	$GLOBALS["argv"][] = "-plain_c";
 }
 
 function parse_unit () {

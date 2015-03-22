@@ -15,3 +15,11 @@ type
 	GLclampfPtr = ^GLclampf;	
 	GLdoublePtr = ^GLdouble;	
 	GLclampdPtr = ^GLclampd;	
+	
+// NSOpenGL.h
+type
+	_CGLPixelFormatObjectPtr = pointer;
+	_CGLContextObjectPtr = pointer;
+	
+type
+	NSVisualEffectViewInternalPtr = pointer;

@@ -41,14 +41,10 @@ if (count($GLOBALS["argv"]) > 1) {
 	// load input from command file
 	if ($input[PARSER_OPTION_COMMAND]) {
 		$command = $input[PARSER_OPTION_COMMAND];
-		$command = expand_tilde_path($command);
-		$command = expand_root_path($command);
+		$command = expand_tilde_path($command);		
+		$command = expand_root_path($command);				
 		$input = load_input_command($command, $input);
 	}
-	
-	// print the command
-	//print(implode($GLOBALS["argv"], " "));
-	//print_r($input);
 	
 } else {
 	die("No options specified.\n");
@@ -106,6 +102,9 @@ if ($input[PARSER_OPTION_AUTOLOAD_IMPORTED_FRAMEWORKS]) {
 // enable extra message
 if ($input[PARSER_OPTION_VERBOSE]) {
 }
+
+// remove false/null values
+$input = array_filter($input);
 
 // set the global command line options
 $command_line_options = $input;

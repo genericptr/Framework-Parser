@@ -13,7 +13,7 @@
 	// expands @ in $path to the directory of the script
 	// known as the "root"
 	function expand_root_path ($path) {
-		return str_replace("@", dirname($GLOBALS["argv"][0]), $path);
+		return str_replace("@", $_SERVER["PWD"], $path);
 	}
 	
 	// utility for calling expand_root_path() and expand_tilde_path()

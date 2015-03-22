@@ -201,7 +201,7 @@ class HeaderStructParser extends HeaderParserModule {
 		// string is empty so bail
 		if (!$post_declaration) return;
 		
-		// explod into fields array
+		// explode into fields array
 		$post_declaration = preg_replace("!\s+!", "", $post_declaration);
 		$fields = explode(",", $post_declaration);
 		
@@ -239,6 +239,10 @@ class HeaderStructParser extends HeaderParserModule {
 				
 				$struct->add_pointer($field);
 			} else {
+				
+				// if the alias captured a typedef keyword strip it out here
+				$field = preg_replace("/^typedef/i", "", $field);
+					
 				$struct->add_alias($field);
 			}
 		}

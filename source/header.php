@@ -196,7 +196,11 @@ class Header extends MemoryManager {
 		// get the units output path
 		$path = rtrim($path, "/")."/".$this->get_name_with_extension("pas");
 		
-		ErrorReporting::errors()->add_message("  Printing ".basename($path));
+		if ($show) {
+			ErrorReporting::errors()->add_message("  Printing ".basename($path));
+		} else {
+			ErrorReporting::errors()->add_message("  Printing '$path'");
+		}
 		
 		// load the output file
 		$output = new HeaderOutput($this, $path, $show);
@@ -204,9 +208,8 @@ class Header extends MemoryManager {
 		// disable if/def sections for stand alone units
 		$output->enable_header_sections = false;
 		
-		$output->writeln(0, "{\$mode delphi}");
-		$output->writeln(0, "{\$modeswitch objectivec1}");
-		$output->writeln(0, "{\$modeswitch cvar}");
+		$output->writeln(0, "{\$mode objfpc}");
+		$output->writeln(0, "{\$modeswitch objectivec2}");
 
 		$output->writeln(0, "unit ".basename_without_extension($path).";");
 		$output->writeln(0, "interface");
@@ -258,6 +261,10 @@ class Header extends MemoryManager {
 		
 		// build the header message with some information about the header
 		$sdk = $this->framework->get_sdk();
+		
+		// NOTE: this is making diff'ing messy so it's being removed for now
+		$sdk = null;
+	
 		if ($sdk) {
 			$header_message = "{ Parsed from ".ucfirst($this->framework->get_name()).".framework ($sdk) ".$this->name." }";
 		} else {
@@ -266,9 +273,13 @@ class Header extends MemoryManager {
 		$output->writeln(0, $header_message);
 		
 		// print created on date
-		$date = @date("D M j G:i:s Y");
-		$output->writeln(0, "{ Created on $date }");
-		$output->writeln();
+		// NOTE: this is making diff'ing messy so it's being removed for now
+		$show_date = false;
+		if ($show_date) {
+			$date = @date("D M j G:i:s Y");
+			$output->writeln(0, "{ Created on $date }");
+			$output->writeln();
+		}
 
 		// print other types from master symbol table
 		$this->symbols->print_inline_array_types($this, $output);

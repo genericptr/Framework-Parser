@@ -93,20 +93,22 @@ class FrameworkLoader {
 	
 	public function apply_patch ($patch) {
 		if (file_exists($patch)) {
-			ErrorReporting::errors()->add_message("Applying patch ".basename($patch)." to ".basename($this->output));	
+			ErrorReporting::errors()->add_message("Applying patch '$patch' to ".basename($this->output));	
 						
 			$cwd = dirname($this->output);
 			chdir($cwd);
 
 			// copy the patch file into the output directory
-			copy($patch, $cwd."/".basename($patch));
+			$path = $cwd."/".basename($patch);
+			copy($patch, $path);
 
 			// apply the patch
 			$command = "patch -p0 < ".basename($patch)."";
 			system($command);
 
 			// delete the patch file
-			unlink($cwd."/".basename($patch));
+			if (file_exists($path)) unlink($path);
+			
 		} else {
 			ErrorReporting::errors()->add_fatal("The patch ".basename($patch)." can not be found.");	
 		}
@@ -710,7 +712,7 @@ TEMPLATE;
 				
 				if (is_parser_option_enabled(PARSER_OPTION_UNIT)) {
 					$header->print_unit($this->output, is_parser_option_enabled(PARSER_OPTION_SHOW));
-				} else {
+				} else {						
 					$header->print_output($this->output, false, is_parser_option_enabled(PARSER_OPTION_SHOW));
 				}
 			}

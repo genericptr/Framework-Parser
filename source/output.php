@@ -47,7 +47,7 @@ class Output {
 	
 	// close the output file
 	public function close () {
-		fclose($this->handle);
+		if ($this->handle) fclose($this->handle);
 	}
 	
 	function __construct($path, $show) {	

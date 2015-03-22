@@ -190,7 +190,7 @@
 		<replacement_patterns>
 			<!-- NS_ENUM macro from NSObjCRuntime.h starting in the 10.8 SDK -->
 			<pattern>
-				<pattern>/(NS|CF)+_(ENUM|OPTIONS)\((.*),\s*(.*)\)/i</pattern>
+				<pattern>/(NS|CF)+_(ENUM|OPTIONS)\s*\((.*),\s*(.*)\)/i</pattern>
 				<replacement>$3 $4; enum</replacement>
 			</pattern>
 		</replacement_patterns>		

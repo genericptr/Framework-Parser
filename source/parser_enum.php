@@ -132,23 +132,30 @@ class HeaderEnumParser extends HeaderParserModule {
 		
 	// Patterns
 	private $pattern_enum = array(	"id" => 1, 
-																	"scope" => SCOPE_BLOCK_CONST, 
-																	"start" => "/(typedef)*\s*enum\s*(\w+)*\s*\{/i",
-																	"end" => "/\}(.*?);/is",
-																	"modules" => array(MODULE_MACRO, MODULE_FIELD_ENUM),
-																	// fields can consume the enum end so terminate from start
-																	PATTERN_KEY_TERMINATE_FROM_START => true,
-																	);
+									"scope" => SCOPE_BLOCK_CONST, 
+									"start" => "/(typedef)*\s*enum\s*(\w+)*\s*\{/i",
+									"end" => "/\}(.*?);/is",
+									"modules" => array(MODULE_MACRO, MODULE_FIELD_ENUM),
+									// fields can consume the enum end so terminate from start
+									PATTERN_KEY_TERMINATE_FROM_START => true,
+									);
 
-	// is this new objective-c extension to C? it was first discovered in 10.8 SDK
 	private $pattern_enum_with_colon = array(	"id" => 2, 
-																						"scope" => SCOPE_BLOCK_CONST, 
-																						"start" => "/(typedef)*\s*enum\s*:\s*(\w+)\s*\{/i",
-																						"end" => "/\}(.*?);/is",
-																						"modules" => array(MODULE_MACRO, MODULE_FIELD_ENUM),
-																						// fields can consume the enum end so terminate from start
-																						PATTERN_KEY_TERMINATE_FROM_START => true,
-																						);
+												"scope" => SCOPE_BLOCK_CONST, 
+												"start" => "/(typedef)*\s*enum\s*:\s*(\w+)\s*\{/i",
+												"end" => "/\}(.*?);/is",
+												"modules" => array(MODULE_MACRO, MODULE_FIELD_ENUM),
+												// fields can consume the enum end so terminate from start
+												PATTERN_KEY_TERMINATE_FROM_START => true,
+												);
+	private $pattern_enum_with_type = array(	"id" => 3, 
+												"scope" => SCOPE_BLOCK_CONST, 
+												"start" => "/typedef\s+enum\s*(\w+)\s*:\s*(\w+)\s*\{/i",
+												"end" => "/\}(.*?);/is",
+												"modules" => array(MODULE_MACRO, MODULE_FIELD_ENUM),
+												// fields can consume the enum end so terminate from start
+												PATTERN_KEY_TERMINATE_FROM_START => true,
+												);
 				
 	/**
 	 * Methods
@@ -194,7 +201,7 @@ class HeaderEnumParser extends HeaderParserModule {
 			
 			// enums with types declared after colons (pattern #2) use
 			// the defined type instead of TYPDEF_ENUM_TYPE
-			if ($id == 2) $enum->type = $scope->start_results[2];
+			if (($id == 2) || ($id == 3)) $enum->type = $scope->start_results[2];
 						
 		} elseif ($id == 1) {
 			// if the enum is not a typedef try to get the name from the first
@@ -231,6 +238,7 @@ class HeaderEnumParser extends HeaderParserModule {
 		parent::init();
 		$this->add_pattern($this->pattern_enum);
 		$this->add_pattern($this->pattern_enum_with_colon);
+		$this->add_pattern($this->pattern_enum_with_type);
 	}		
 
 }
