@@ -15,12 +15,15 @@ function parse_header () {
 	//$GLOBALS["argv"][] = "-header=\"ios:$cwd/tests/universal-headers.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreFoundation:$cwd/tests/changes_6_0.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreImage:$cwd/tests/changes_10_8.h\"";
-	$GLOBALS["argv"][] = "-header=\"cocoa_base:$cwd/tests/plain_c.h\"";
+	$GLOBALS["argv"][] = "-header=\"gdl:$cwd/tests/plain_c.h\"";
 	
 	//$GLOBALS["argv"][] = "-ios";
 	$GLOBALS["argv"][] = "-macos";
+	$GLOBALS["argv"][] = "-unit";
 	$GLOBALS["argv"][] = "-show";
 	$GLOBALS["argv"][] = "-plain_c";
+	$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/gdl.xml\"";
+	$GLOBALS["argv"][] = "-v";
 }
 
 function parse_unit () {

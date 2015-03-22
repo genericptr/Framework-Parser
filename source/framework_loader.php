@@ -1084,15 +1084,17 @@ TEMPLATE;
 		// add additional XML files after the default definitions
 		if (is_parser_option_enabled(PARSER_OPTION_FRAMEWORKS_XML)) {
 			$framework_xml_paths = preg_split("/\s*,\s*/", get_parser_option(PARSER_OPTION_FRAMEWORKS_XML));
+			
+			
 			foreach ($framework_xml_paths as $path) {
-				$paths[] = expand_tilde_path($path);
+				$paths[] = expand_path($path);
 			}
 		}
 		
 		// add iOS/MacOS frameworks definitions for helper switch
 		if (is_parser_option_enabled(PARSER_OPTION_MACOS)) $paths[] = "@/defs/macos.xml";
 		if (is_parser_option_enabled(PARSER_OPTION_IOS)) $paths[] = "@/defs/ios.xml";
-		
+				
 		// load each xml file
 		foreach ($paths as $path) {
 			
@@ -1113,6 +1115,8 @@ TEMPLATE;
 					$framework->load($path);
 					
 					if ($this->is_framework_defined($framework)) ErrorReporting::errors()->add_fatal("The framework \"".$framework->get_name()."\" was defined twice in $path.");
+					
+					if (is_parser_option_enabled(PARSER_OPTION_VERBOSE)) ErrorReporting::errors()->add_note("The framework \"".$framework->get_name()."\" was defined.");
 					
 					// append to array of frameworks
 					$this->add_defined_framework($framework);

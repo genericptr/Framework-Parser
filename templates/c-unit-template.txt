@@ -1,0 +1,43 @@
+{$mode objfpc}
+{$modeswitch cvar}
+
+unit [NAME];
+interface
+
+[LINK_FRAMEWORK]
+
+uses
+	CTypes, MacOSAll;
+
+{$define INTERFACE}
+{$include UndefinedTypes.inc}
+
+{$define TYPES}
+[INCLUDE]
+{$undef TYPES}
+
+{$define RECORDS}
+[INCLUDE]
+{$undef RECORDS}
+
+{$define PROTOCOLS}
+[INCLUDE]
+{$undef PROTOCOLS}
+
+{$define CLASSES}
+[INCLUDE]
+{$undef CLASSES}
+
+{$define FUNCTIONS}
+[INCLUDE]
+{$undef FUNCTIONS}
+
+{$define EXTERNAL_SYMBOLS}
+[INCLUDE]
+{$undef EXTERNAL_SYMBOLS}
+
+[INLINE_FUNCTIONS]
+
+{$undef INTERFACE}
+implementation
+end.

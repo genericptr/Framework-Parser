@@ -6,6 +6,12 @@
 
 $command_line_options = array();
 
+function show_command_line () {
+	global $command_line_options;
+	print("Command line:\n");
+	print_r($command_line_options);
+}
+
 function is_parser_option_enabled ($option) {
 	global $command_line_options;
 	return (bool)($command_line_options[$option] != null);

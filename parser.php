@@ -34,6 +34,11 @@ function load_input_command ($command, $input) {
 	return script_input();
 }
 
+// show error if PWD is doesn't contain us
+if (!file_exists($_SERVER["PWD"]."/parser.php")) {
+	die("Fatal: The current working directory doesn't contain parser.php. Please \"cd\" to the directory containing parser.php and try again.\n");
+}
+
 // get the command line options
 if (count($GLOBALS["argv"]) > 1) {
 	$input = script_input();
@@ -97,6 +102,11 @@ if ($input[PARSER_OPTION_ALL]) {
 // -autoload_imported_frameworks requires -build_skeletons
 if ($input[PARSER_OPTION_AUTOLOAD_IMPORTED_FRAMEWORKS]) {
 	$input[PARSER_OPTION_BUILD_SKELETONS] = true;
+}
+
+if ($input[PARSER_OPTION_PLAIN_C]) {
+	// override the root unit with the c version
+	$template_root_unit = "@/templates/c-unit-template.txt";
 }
 
 // enable extra message
