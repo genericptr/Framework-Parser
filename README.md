@@ -213,9 +213,29 @@ There is an example of how to parse iPhoneAll using -group and a custom template
 
 ### Parse 3rd party framework from specific directory:
 
-In the example below the framework DropboxSDK is parsed from ~/Desktop/dropbox-ios-sdk-1.1 which is specified using -search_paths. Foundation.framework is also parsed for supporting types (but not printed as the ^ prefix is used) so the MacOSX10.7 SDK is specified using -sdk. Typically you may need to specify an additional framework definition using -frameworks_xml as seen below.
+In the example below the framework Metal.framework is parsed from ... which is specified using -search_paths. Foundation.framework is also parsed for supporting types (but not printed as the ^ prefix is used) so the MacOSX10.12 SDK is specified using -sdk. Typically you may need to specify an additional framework definition using -frameworks_xml as seen below.
 
-	php parser.php -out="~/dump" -frameworks="^Foundation, DropboxSDK" search_paths="~/Desktop/dropbox-ios-sdk-1.1" -frameworks_xml="~/Desktop/dropbox-ios-sdk-1.1/DropboxSDK.xml" -sdk="MacOSX10.7.sdk" -all -class_definitions -build_skeletons
+	php parser.php -out="~/dump" -frameworks="^Foundation, Metal" search_paths="..." -frameworks_xml="metal.xml" -sdk="MacOSX10.12.sdk" -all -class_definitions -build_skeletons
+	
+Example framework definition (metal.xml)
+	
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<frameworks>
+		<framework>
+			<parent>foundation_base</parent>
+			<name>Foundation</name>
+		</framework>
+		<framework>
+			<parent>foundation_base</parent>
+			<name>Metal</name>
+			<replacement_patterns>
+				<pattern>
+					<pattern>/\b(nullable|__nullable|__nonnull|__autoreleasing)+\b/</pattern>
+					<replacement></replacement>
+				</pattern>
+			</replacement_patterns>
+		</framework>
+	</frameworks>
 
 ### Parse Objective-C headers to Objective Pascal units:
 
