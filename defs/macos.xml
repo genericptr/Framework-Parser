@@ -1,24 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <frameworks>
-		
-	<!-- base list of uses for MacOS SDK units imported via the -uses switch -->
-	<!-- NOTE: imported via the -uses switch, don't inherit directly from this framework -->
-	
-	<!-- *** DEPRECATED (due to -uses) ***
-	<framework>
-		<name>macos_uses</name>
-		<uses>
-			AEDataModel, IconsCore,
-			CFBase, CFArray, CFBag , CFCharacterSet, CFData, CFDate, CFDictionary, CFNumber, CFPropertyList, CFSet, CFString, CFStringEncodingExt, CFTimeZone, CFTree, CFURL, CFXMLNode, CFXMLParser, CFMachPort, CFMessagePort, CFRunLoop, CFSocket, CFBinaryHeap, CFBitVector, CFBundle, CFByteOrders, CFPlugIn, CFPreferences, CFURLAccess, CFUUID, CFLocale, CFStream, CFDateFormatter, CFNumberFormatter, CFCalendar, CFUserNotification, CFNotificationCenter, CFAttributedString, CFNetworkErrorss,
-			CGBase, CGAffineTransforms, CGBitmapContext, CGColor, CGColorSpace, CGContext, CGDataConsumer, CGDataProvider, CGDirectDisplay, CGDirectPalette, CGDisplayConfiguration, CGDisplayFades, CGErrors, CGEvent, CGEventSource, CGEventTypes, CGFont, CGFunction, CGGLContext, CGGeometry, CGImage, CGLayer, CGPDFArray, CGPDFContentStream, CGPDFContext, CGPDFDictionary, CGPDFDocument, CGPDFObject, CGPDFOperatorTable, CGPDFPage, CGPDFScanner, CGPDFStream, CGPDFString, CGPSConverter, CGPath, CGPattern, CGRemoteOperation, CGSession, CGShading, CGWindowLevels,
-			CVBase, CVImageBuffer,
-			IOSurfaceAPI,
-			SecBase, SecTrust,
-			macgl, CGLTypes,
-		</uses>
-	</framework>
-	-->
-		
+				
 	<framework>
 		<parent>foundation_base</parent>
 		<name>Foundation</name>
@@ -31,7 +13,7 @@
 		<ignore_headers>AppKitDefines.h</ignore_headers>
 		<uses>CoreImage</uses>
 	</framework>
-
+	
 	<framework>
 		<parent>cocoa_base</parent>
 		<name>WebKit</name>

@@ -111,7 +111,7 @@ class IVarBlockSymbol extends Symbol {
 		return $source;
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		$this->source = $this->build_source_for_scope($indent, $this->scope);
 		//$this->source = $this->scope->get_sub_scope_symbol_source($indent, array("MacroSymbol", "FieldSymbol", "StructSymbol"));
 	}

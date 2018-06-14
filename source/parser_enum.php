@@ -14,7 +14,7 @@ class EnumFieldSymbol extends Symbol {
 		return true;
 	}
 		
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		if ($this->bitwise_or) {
 			foreach ($this->value as $part) $value .= $part." + ";
 			$value = trim($value, "+ ");
@@ -116,7 +116,7 @@ class EnumBlockSymbol extends Symbol {
 		return false;
 	}
 		
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		$source .= indent_string($indent)."const\n";
 		$source .= $this->scope->get_sub_scope_symbol_source($indent + 1);
 		

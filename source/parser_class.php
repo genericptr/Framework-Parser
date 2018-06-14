@@ -238,7 +238,7 @@ class ClassSymbol extends Symbol {
 		$output->writeln(0, "type");
 	}
 		
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		//$source = indent_string($indent)."type\n";
 		//$indent += 1;
 		
@@ -314,7 +314,7 @@ class ClassSymbol extends Symbol {
  * Section symbol
  */
 class SectionSymbol extends Symbol {
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		$this->source = indent_string($indent - 1).$this->name."\n";
 	}
 }
@@ -539,9 +539,10 @@ class HeaderClassParser extends HeaderParserModule {
 	}						
 		
 	function process_scope ($id, Scope $scope) {
-		//print("got class pattern $id\n");
-		//print($scope->contents);
-		//print_r($scope->start_results);
+		// print("got class pattern $id\n");
+		// print($scope->contents);
+		// print_r($scope->start_results);
+		
 		$results = $scope->start_results;
 		
 		switch ($id) {

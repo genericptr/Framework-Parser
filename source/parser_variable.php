@@ -22,7 +22,7 @@ class VariableSymbol extends Symbol {
 		return "var";
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		$this->source = indent_string($indent)."$this->name: $this->type".$this->insert_deprecated_macro()."; ".EXTERNAL_VARIABLE_SUFFIX."\n";
 	}
 	

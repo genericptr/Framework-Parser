@@ -33,7 +33,7 @@ class FieldSymbol extends Symbol {
 		}
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		
 		$name = implode(", ", $this->names);
 		$source = $name.":";
@@ -73,7 +73,7 @@ class CallbackSymbol extends FieldSymbol {
 	public $function_pointer;
 	public $is_block = false;
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		if ($this->is_block) {
 			$this->source = indent_string($indent).$this->name.": ".OPAQUE_BLOCK_TYPE.";\n";
 		} else {

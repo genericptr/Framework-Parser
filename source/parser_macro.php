@@ -71,7 +71,7 @@ class MacroSymbol extends Symbol {
 		}
 	}
 			
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		
 		if ($this->pair) {
 			$source .= indent_string($indent).$this->get_start_line()."\n";

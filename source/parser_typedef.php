@@ -101,7 +101,7 @@ class TypedefSymbol extends Symbol {
 		
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		///$source = indent_string($indent)."type\n";
 		//$indent += 1;
 		

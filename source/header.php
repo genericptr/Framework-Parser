@@ -124,6 +124,14 @@ class Header extends MemoryManager {
 		return $this->path;
 	}
 
+	public function get_display_name () {
+		if (is_parser_option_enabled(PARSER_OPTION_VERBOSE)) {
+			return $this->path;
+		} else {
+			return $this->name;
+		}
+	}
+
 	// returns the partial path by appending extension
 	public function get_partial_path ($extension) {
 		return $this->partial_path.".".$extension;
@@ -140,9 +148,9 @@ class Header extends MemoryManager {
 	public function parse () {
 		
 		if (MESSAGE_PEAK_MEMORY_LIMITS) {
-			ErrorReporting::errors()->add_message("Parsing ".$this->get_name()." (".bytes_human_readable(memory_get_peak_usage(true)).")...");
+			ErrorReporting::errors()->add_message("Parsing ".$this->get_display_name()." (".bytes_human_readable(memory_get_peak_usage(true)).")...");
 		} else {
-			ErrorReporting::errors()->add_message("Parsing ".$this->get_name()."...");
+			ErrorReporting::errors()->add_message("Parsing ".$this->get_display_name()."...");
 		}
 											
 		// execute relevant header parsers

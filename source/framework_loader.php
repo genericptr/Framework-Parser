@@ -1014,7 +1014,7 @@ TEMPLATE;
 		if ($this->is_framework_unloadable($framework)) return;
 		
 		// the framework is being ignored
-		if ($this->ignore_framework($framework->get_name())) continue;
+		if ($this->ignore_framework($framework->get_name())) return;
 				
 		// static frameworks can't be loaded
 		if ($framework->is_static()) {
@@ -1223,12 +1223,12 @@ TEMPLATE;
 			
 			// the framework is not defined so define
 			// from the default framework if it was specified
-			if ((!$this->is_framework_defined($name)) && (is_parser_option_enabled(PARSER_OPTION_DEFAULT_FRAMWORK))) {
-				if ($default = $this->find_framework(get_parser_option(PARSER_OPTION_DEFAULT_FRAMWORK))) {
+			if ((!$this->is_framework_defined($name)) && (is_parser_option_enabled(PARSER_OPTION_DEFAULT_FRAMEWORK))) {
+				if ($default = $this->find_framework(get_parser_option(PARSER_OPTION_DEFAULT_FRAMEWORK))) {
 					$framework = Framework::clone_existing($name, $default);
 					$this->add_defined_framework($framework);
 				} else {
-					ErrorReporting::errors()->add_fatal("The default framework \"".get_parser_option(PARSER_OPTION_DEFAULT_FRAMWORK)."\" can not be found.");
+					ErrorReporting::errors()->add_fatal("The default framework \"".get_parser_option(PARSER_OPTION_DEFAULT_FRAMEWORK)."\" can not be found.");
 				}
 			}
 			

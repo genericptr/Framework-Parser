@@ -1,3 +1,3 @@
 #!/bin/bash
-DIR=$(dirname $0)
-php "$DIR/parser.php" -out="/Developer/ObjectivePascal/CocoaAll" -command="@/commands/cocoaall10.8.txt"
+cd $(dirname $0)
+php "parser.php" -out="MacOS_10_10" -command="@/commands/cocoaall10.10.txt"

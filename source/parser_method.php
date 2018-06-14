@@ -48,7 +48,7 @@ class MethodSymbol extends Symbol {
 		//$class->namespace->add_keyword($this->name);	
 	}
 		
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		
 		// add class method
 		if ($this->is_class) $source .= "class ";

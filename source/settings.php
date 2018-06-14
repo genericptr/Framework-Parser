@@ -64,7 +64,7 @@ define("PARSER_OPTION_OPAQUE_TYPES", "opaque_types");						// UNDER DEVELOPMENT:
 define("PARSER_OPTION_CLASS_DEFINITIONS", "class_definitions");				// prints global class definitions (should be enabled)
 define("PARSER_OPTION_FRAMEWORKS_XML", "frameworks_xml");					// loads additional framework definition XML files
 define("PARSER_OPTION_CLEAN", "clean");										// deletes all parser made files from the output directory (used for sharing skeletons)
-define("PARSER_OPTION_DEFAULT_FRAMWORK", "default_framework");				// sets the default framework to parse against when using: -batch -frameworks and -header 
+define("PARSER_OPTION_DEFAULT_FRAMEWORK", "default_framework");				// sets the default framework to parse against when using: -batch -frameworks and -header if no defined framework is found
 define("PARSER_OPTION_TEMPLATE", "template");								// sets the template for root or group units
 define("PARSER_OPTION_PATCH", "patch");										// applies a .patch file (must be created manually) to the output directory after being parsed
 define("PARSER_OPTION_SKELETON", "skeleton");								// defines the skeleton directory to copy to the output directory (see /skeletons)

@@ -102,7 +102,7 @@ class StructSymbol extends Symbol {
 		}
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 						
 		// begin record
 		if (!$this->bit_packed) {

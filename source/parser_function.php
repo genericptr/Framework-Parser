@@ -28,7 +28,7 @@ class FunctionSymbol extends Symbol {
 		return HEADER_SECTION_FUNCTIONS;
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		
 		// add function kind
 		if ($this->kind == FUNCTION_TYPE_PROCEDURE)

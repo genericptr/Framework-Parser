@@ -15,15 +15,15 @@ function parse_header () {
 	//$GLOBALS["argv"][] = "-header=\"ios:$cwd/tests/universal-headers.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreFoundation:$cwd/tests/changes_6_0.h\"";
 	//$GLOBALS["argv"][] = "-header=\"CoreImage:$cwd/tests/changes_10_8.h\"";
-	$GLOBALS["argv"][] = "-header=\"gdl:$cwd/tests/plain_c.h\"";
+	$GLOBALS["argv"][] = "-header=\"Foundation:$cwd/tests/changes_10_10.h\"";
 	
 	//$GLOBALS["argv"][] = "-ios";
 	$GLOBALS["argv"][] = "-macos";
 	$GLOBALS["argv"][] = "-unit";
 	$GLOBALS["argv"][] = "-show";
-	$GLOBALS["argv"][] = "-plain_c";
-	$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/gdl.xml\"";
-	$GLOBALS["argv"][] = "-v";
+	//$GLOBALS["argv"][] = "-plain_c";
+	//$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/gdl.xml\"";
+	//$GLOBALS["argv"][] = "-v";
 }
 
 function parse_unit () {
@@ -129,21 +129,6 @@ function parse_batch_ios () {
 }
 
 function parse_external_framework () {
-
-	/*
-	note that we have 3 umbrellas in DropboxSDK (JSON, MPOAuth, DropboxSDK).
-	if we specify MPOAuth in <imports> the framework sorter (should change name to FrameworkAnanlyzer) 
-	it should be able to add headers to path
-	
-	for files outside of the umbrellas should we parse them as standalone files? we have some support
-	units in there also which could be separate like UIAlertView+Dropbox.h
-	*/
-	
-	// ??? make -preserve="unit" so the master unit isn't changed. we can expand params later...
-	
-	// ??? we can add -all_headers to ignore the umbrella and imports etc... this could be in
-	// frameworks.xml also....
-	
 	$GLOBALS["argv"][] = "-frameworks=\"^Foundation, DropboxSDK\"";
 	$GLOBALS["argv"][] = "-search_paths=\"~/Desktop/dropbox-ios-sdk-1.1\"";
 	$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/dropbox-ios-sdk-1.1/DropboxSDK.xml\"";
@@ -153,6 +138,24 @@ function parse_external_framework () {
 	$GLOBALS["argv"][] = "-class_definitions";
 	$GLOBALS["argv"][] = "-build_skeletons";
 }
+
+function parse_header_external_directory () {
+	
+	// $header = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Versions/A/Headers/MTLArgument.h";
+	$header = "/Users/ryanjoseph/Desktop/metal/metal_test.h";
+
+	$GLOBALS["argv"][] = "-header=\"Metal:$header";
+
+	$GLOBALS["argv"][] = "-frameworks=\"^Foundation, Metal\"";
+	$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/metal/metal.xml\"";
+	$GLOBALS["argv"][] = "-sdk=MacOSX10.12.sdk";
+	$GLOBALS["argv"][] = "-all";
+	$GLOBALS["argv"][] = "-class_definitions";
+	$GLOBALS["argv"][] = "-v+";
+
+	$GLOBALS["argv"][] = "-show"; // don't output anything
+}
+
 
 function parse_directory ($directory) {
 	//$GLOBALS["argv"][] = "-frameworks=\"sharekit\"";
@@ -239,13 +242,14 @@ function find_frameworks_with_objective_c ($directory, $framework = null) {
 //print_r($frameworks);
 //die;
 
-parse_header();
+// parse_header();
 //parse_frameworks();
 //parse_frameworks_ios();
 //parse_batch_system();
 //parse_batch_ios();
-//parse_external_framework();
+// parse_external_framework();
 //parse_unit();
+parse_header_external_directory();
 
 //parse_cocoa_all();
 //parse_ios_all();
@@ -255,10 +259,5 @@ parse_header();
 //parse_directory_2("~/Downloads/ShareKit/Classes/ShareKit/Core");
 
 require("parser.php");
-//print("=================\n");
-
-///Developer/SDKs/MacOSX10.7.sdk/usr/include/TargetConditionals.h
-///Developer/SDKs/MacOSX10.7.sdk/usr/include/AvailabilityMacros.h
-///Users/ryanjoseph/Desktop/iosall/iPhoneOS5.0.sdk/usr/include/Availability.h
 
 ?>

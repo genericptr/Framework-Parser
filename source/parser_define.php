@@ -34,7 +34,7 @@ class DefineSymbol extends Symbol {
 		}
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		//$source = indent_string($indent)."const\n";
 		//$indent += 1;
 		

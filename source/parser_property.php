@@ -82,7 +82,7 @@ class PropertySymbol extends MethodSymbol {
 		}
 	}
 	
-	public function build_source ($indent) {
+	public function build_source ($indent = 0) {
 		
 		// add setter
 		if (!$this->is_read_only()) {
