@@ -1,5 +1,4 @@
 # Framework-Parser
-
 Objective-C framework parser for Objective Pascal (FPC)
 
 # Sections
@@ -30,9 +29,9 @@ Objective-C framework parser for Objective Pascal (FPC)
 
 =======================================
 
-## Basics
+## 1) Basics
 
-### Specifying frameworks:
+### a) Specifying frameworks:
 
 The option -frameworks allows you to specify a single or list of frameworks to parse in a comma-separated list. For the parser to effectively locate the frameworks you must either specify -sdk or -search_paths as one of the options (see below). 
 
@@ -49,23 +48,23 @@ For example:
 
 	-frameworks="^CoreFoundation, ^#Foundation, AppKit"
 
-### Specifying framework definitions:
+### b) Specifying framework definitions:
 
 All frameworks specified must be accompanied by an XML framework definition file. By default the files base.xml and universal.xml (located in /defs) are loaded but you can add addition definitions by using -frameworks_xml or the shortcuts -macos and -ios which add all the frameworks definitions available for that OS.
 
-### Default frameworks:
+### c) Default frameworks:
 
 In parser switches -batch, -frameworks and -header you can specify a default framework by prefixing with the framework name and : such as  -batch="cocoa_base:/path/to/frameworks" which will parse all frameworks based off that framework. This is used for frameworks that don't have an entry in frameworks.xml, however if there is a matching framework entry it will override the default framework.
 
 You can also use -default_framework to specify a default framework.
 
-### Auto-loading frameworks:
+### d) Auto-loading frameworks:
 
 If you specify -autoload_imported_frameworks all frameworks that are imported in the frameworks specified by -frameworks will be loaded and parsed.
 
 For example, AppKit imports Foundation, ApplicationServices, CoreFoundation and others which will all be parsed if you only specify -frameworks=AppKit
 
-### Build commands:
+### e) Build commands:
 
 Specifying -build_commands=compiler/version will create .command scripts which you can use to test the parsed frameworks in the terminal (just double-click to open in Terminal.app). If needed the contents of the scripts can be controlled by editing the strings named $template_build_command in templates.php. 
 
@@ -75,7 +74,7 @@ Depending on the frameworks parsed you can specify which target the scripts are 
 	-build_commands=i386/2.6.0
 	-build_commands=arm/2.6.0
 
-### SDK search paths:
+### f) SDK search paths:
 
 When you specify -sdk the parser will search an array of paths for the SDK. This array is found in settings.php and must contain the macro %%SDK%% where the SDK name is in the path. For example:
 
@@ -87,13 +86,13 @@ As of Xcode 4.3 SDK's are now stored within the Xcode application bundle so a ne
 	"%%XCODE%%/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/%%SDK%%/System/Library/Frameworks"
 
 
-### Additional search paths:
+### g) Additional search paths:
 
 You can specify additional search paths for frameworks if for example you have many frameworks specified in -frameworks but they exist in multiple locations.
 
 To add search paths use -search_paths="/path".
 
-### Custom unit templates:
+### h) Custom unit templates:
 
 By default the templates used when generating units .pas files is found in templates.php but you can specify custom template files by using -template. These files still follow the same temp ate format and macros such as [AVAILABILITY_MACROS] can be used.
 
@@ -101,13 +100,13 @@ For example the follow option will use the template for iPhoneAll.pas.
 
 	-template="@/templates/iphoneall-template.txt"
 
-### Building skeletons:
+### i) Building skeletons:
 
 When -build_skeletons is enabled the parser will automatically generate the necessary files to compile the framework and place them within the directory specified by -out. Among the files needed are a root include file which includes all header files (which are printed as .inc files) and a .pas unit which includes the master include in the proper form. Additionally each framework produces a supporting InlineFunctions.inc and UndefinedTypes.inc which are used for storing hand-parsed code for the framework.
 
 The parser will analyze the build order of the headers and print them properly in the root include so it's not recommended you do this by hand. If you wish to change change the main unit (like the uses clause which is common) it's preferred to modify the templates in templates.php or using various options in frameworks.xml.
 
-### Groups:
+### j) Groups:
 
 Batch parses can be grouped together into a single unit using -group. Examples of this are iPhoneAll.pas and CocoaAll.pas which is grouped for ease of use since projects using these platforms typically always require at least a few frameworks frameworks and adding each file by hand to the uses clause can be tedious (FPC can not recurse the uses clause like C can).
 
@@ -119,7 +118,7 @@ Additionally you can control the list of frameworks added to the group unit by s
 
 	-group_frameworks="Foundation, AppKit, CoreData"
 
-### Ignoring headers and frameworks:
+### k) Ignoring headers and frameworks:
 
 Certain frameworks or batch parses will contains headers or entire frameworks that you want to the parser to ignore by not parsing or printing. To ignore a header or framework use the -ignore option and specify a comma-separated list of header names or frameworks names.
 
@@ -127,7 +126,7 @@ For example:
 
 	-ignore="vecLib.framework, vImage.framework, CoreDefines.h, AppKit.h"
 
-### Additional framework definitions:
+### l) Additional framework definitions:
 
 When parsing 3rd party frameworks you will typically want to specify an additional framework definition file, which you can do using -frameworks_xml then supplying a path to the XML file (or multiple files by separating paths by commas). Framework definitions are inheritable so you can specify existing framework definitions using <parent> and they will inherit all properties from that entry just as if they were in the same file.
 
@@ -143,7 +142,7 @@ For example the definition below inherits from cocoa_base.
 		</framework>
 	</frameworks>
 
-### Applying patches:
+### m) Applying patches:
 
 Because the parser is not always able to translate a framework 100% accurately it can apply .patch files (created with diff) automatically using the -patch option.
 
@@ -151,7 +150,7 @@ For example to apply the pre-made patch for iPhoneAll on iOS 5.0 SDK:
 
 	-patch="@/patches/iphoneall-5.0.patch"
 
-### Using skeletons:
+### n) Using skeletons:
 
 Some frameworks may require hand added types and/or inline functions which any users will need to add manually to the parsers output directory, otherwise known as the "skeleton". If you specify the -skeleton option and provide a path to a skeleton directory it will be copied to the output directory (if it doesn't exist) and be used as the base for the parser.
 
@@ -159,7 +158,7 @@ For example to use the iPhoneAll skeleton which is pre-packaged with the parser:
 
 	-skeletons="@/skeletons/iPhoneAll"
 
-### Command files:
+### o) Command files:
 
 To facilitate sharing parser options you can make files which contain predefined options and specify the command by using -command. Command files are identical to sending direct command line options in the terminal except you add each option on a new line in the file.
 
@@ -176,7 +175,7 @@ For example the following command and file which parses iPhoneAll.
 	-class_definitions
 	-build_skeletons
 
-### Stand-alone units:
+### p) Stand-alone units:
 
 You can parse a single header as a stand-alone unit by using -header and -unit in conjunction (omitting -unit will produce an .inc include file). This is useful for 3rd party Objective-C headers which you can compile as static libraries in Xcode then link to the corresponding Objective Pascal unit. You must specify a base framework in the -header switch but currently you can not parse supporting frameworks using -frameworks so implicit pointer types like Cocoa classes will be parsed as pointers (i.e. NSObject will be NSObjectPtr). You must add additional units, cleanup class types and optionally link the library using {$linklibrary} by hand in the parsed unit file.
 
@@ -184,7 +183,7 @@ For example an Objective-C header from iOS 6.0 can be parsed using these options
 
 	php parser.php -header="ios:~/Desktop/Reachability.h" -xcode="/Applications/Xcode45-DP3.app" -ios -sdk="iPhoneOS6.0.sdk" -unit -show
 
-## Examples:
+## 2) Examples:
 
 ### Batch parse iOS SDK:
 
@@ -268,7 +267,7 @@ Fore example the command below will define a framework (test) and parse all file
 
 	php parser.php -out="." -frameworks_xml="test.xml" -dir="test:/path/to/headers" -plain_c
 
-## Shortcuts
+## 3) Shortcuts
 
 The parser provides some pre-made commands for common SDK versions that most Objective Pascal users need. These shortcuts specify all the required options in addition to applying some patches and building from a pre-made skeleton. 
 
@@ -280,7 +279,7 @@ Using iPhoneAll shortcut for iOS SDK 5.0 :
 
 	php parser.php -out="~/iPhoneAll" -command="@/commands/iphoneall5.0.txt"
 
-## Defining Frameworks
+## 4) Defining Frameworks
 
 When parsing frameworks the most important step is defining the frameworks various settings via an XML file known as framework.xml (although you can specify more than one file this is the general name used).
 
@@ -302,10 +301,10 @@ Framework definition properties are inheritable which means one framework can in
 
 `<ignore_lines>` - Array of lines that will be skipped by the parser.
 
-	<ignore_lines>
+	`<ignore_lines>
 		<line>#define FOO</line>
 		<line>@class FOO</line>
-	</ignore_lines>
+	</ignore_lines>`
 
 `<uses>` - Comma-separated list of units to include in the uses clause when generating units. This list is inserted into templates using the [USES] macro (see templates.php).
 
@@ -317,37 +316,37 @@ Framework definition properties are inheritable which means one framework can in
 
 `<remove_macros>` - **DEPRECATED** use <replacement_patterns> instead. Array of regular expression to be removed entirely. 
 
-	<remove_macros>
+	`<remove_macros>
 		<value>/ATTRIBUTE_PACKED/</value>
-	</remove_macros>
+	</remove_macros>`
 
 `<availability_macros>` - Array of regular expression patterns/replacements that will be included into the Pascal source next to the symbol it was declared. These are macros are used to notify users a symbol is no longer available, available as of certain SDK or deprecated.
 
-	<availability_macros>
+	`<availability_macros>
 		<macro>
 			<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER\b/i</pattern>
 			<replacement>{ available in $1.$2 and later }</replacement>
 		</macro>
-	<availability_macros>
+	<availability_macros>`
 
 `<inline_macros>` - Comma-separated list of macros that specify the C keyword "inline" which the parser requires in order to skip inline functions that it can not translate properly.
 
 `<replacement_patterns>` - Array of regular expression patterns/replacements that will be stripped from the C source entirely.
 
-	<replacement_patterns>
+	`<replacement_patterns>
 		<pattern>
 			<pattern>/CALLBACK_API(_C|_STDCALL|_C_STDCALL)*\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/i</pattern>
 			<replacement>$2 (* $3)</replacement>
 		</pattern>
-	</replacement_patterns>
+	</replacement_patterns>`
 
 `<replace_types>` - Array of C types and their Pascal equivalent they will be replaced with (in key=value pair format). If you specify a key wrapped in / it will be treated as regular expression. By default all types are treated as case-insensitive and spaces are expanded to /s+ so if you want other behavior you define the regular expression manually by wrapping the key in /.
 
-	<replace_types>
+	`<replace_types>
 		<value>void=pointer</value>
 		<value>/^bool$/=cbool</value>
 		<value>/^BOOL$/=boolean</value>
-	</replace_types>
+	</replace_types>`
 
 `<pointer_types>` - Array of C types and their preferred pointer type to be used if the type is encoded as a pointer.
 
