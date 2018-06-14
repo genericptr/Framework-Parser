@@ -3,29 +3,29 @@ Objective-C framework parser for Objective Pascal (FPC)
 
 # Sections
 
-	1.	Basics
-	a.	Specifying frameworks
-	b.	Specifying framework definitions
-	c.	Default frameworks
-	d.	Auto-loading frameworks
-	e.	Build commands
-	f.	SDK search paths
-	g.	Additional search paths
-	h.	Custom unit templates
-	i.	Building skeletons
-	j.	Groups
-	k.	Ignoring headers and frameworks
-	l.	Additional framework definitions
-	m.	Applying patches
-	n.	Using skeletons
-	o.	Command files
-	p.	Stand-alone units
-	q.	Parsing plain C headers from a directory
-	2.	Examples
-	3.	Shortcuts
-	4.	Defining Frameworks
-	a.	Properties
-	b.	Macros
+* Basics
+	* Specifying frameworks
+	* Specifying framework definitions
+	* Default frameworks
+	* Auto-loading frameworks
+	* Build commands
+	* SDK search paths
+	* Additional search paths
+	* Custom unit templates
+	* Building skeletons
+	* Groups
+	* Ignoring headers and frameworks
+	* Additional framework definitions
+	* Applying patches
+	* Using skeletons
+	* Command files
+	* Stand-alone units
+	* Parsing plain C headers from a directory
+* Examples
+* Shortcuts
+* Defining Frameworks
+	* Properties
+	* Macros
 
 =======================================
 
@@ -98,7 +98,7 @@ By default the templates used when generating units .pas files is found in templ
 
 For example the follow option will use the template for iPhoneAll.pas.
 
--template="@/templates/iphoneall-template.txt"
+	-template="@/templates/iphoneall-template.txt"
 
 ### i) Building skeletons:
 
@@ -124,7 +124,7 @@ Certain frameworks or batch parses will contains headers or entire frameworks th
 
 For example:
 
--ignore="vecLib.framework, vImage.framework, CoreDefines.h, AppKit.h"
+	-ignore="vecLib.framework, vImage.framework, CoreDefines.h, AppKit.h"
 
 ### l) Additional framework definitions:
 
@@ -132,15 +132,15 @@ When parsing 3rd party frameworks you will typically want to specify an addition
 
 For example the definition below inherits from cocoa_base.
 
-<?xml version="1.0" encoding="UTF-8" ?>
-<frameworks>			
-	<framework>
-		<parent>cocoa_base</parent>
-		<name>DropboxSDK</name>
-		<support_frameworks>Foundation</support_frameworks>
-		<imports>MPDebug.h, MPOAuth.h, MPOAuthAPI.h, MPOAuthAPIRequestLoader.h, MPOAuthAuthenticationMethod.h</imports>
-	</framework>
-</frameworks>
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<frameworks>			
+		<framework>
+			<parent>cocoa_base</parent>
+			<name>DropboxSDK</name>
+			<support_frameworks>Foundation</support_frameworks>
+			<imports>MPDebug.h, MPOAuth.h, MPOAuthAPI.h, MPOAuthAPIRequestLoader.h, MPOAuthAuthenticationMethod.h</imports>
+		</framework>
+	</frameworks>
 
 ### m) Applying patches:
 
@@ -148,7 +148,7 @@ Because the parser is not always able to translate a framework 100% accurately i
 
 For example to apply the pre-made patch for iPhoneAll on iOS 5.0 SDK:
 
--patch="@/patches/iphoneall-5.0.patch"
+	-patch="@/patches/iphoneall-5.0.patch"
 
 ### n) Using skeletons:
 
@@ -156,7 +156,7 @@ Some frameworks may require hand added types and/or inline functions which any u
 
 For example to use the iPhoneAll skeleton which is pre-packaged with the parser:
 
--skeletons="@/skeletons/iPhoneAll"
+	-skeletons="@/skeletons/iPhoneAll"
 
 ### o) Command files:
 
@@ -164,16 +164,16 @@ To facilitate sharing parser options you can make files which contain predefined
 
 For example the following command and file which parses iPhoneAll.
 
-php parser.php -out="~/dump" -command="@/commands/iphoneall5.0.txt"
+	php parser.php -out="~/dump" -command="@/commands/iphoneall5.0.txt"
 
--batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks"
--ignore="vecLib.framework,vImage.framework"
--group=iPhoneAll
--patch="@/patches/iphoneall-5.0.patch"
--template="@/templates/iphoneall-template.txt"
--skeleton="@/skeletons/iPhoneAll"
--class_definitions
--build_skeletons
+	-batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks"
+	-ignore="vecLib.framework,vImage.framework"
+	-group=iPhoneAll
+	-patch="@/patches/iphoneall-5.0.patch"
+	-template="@/templates/iphoneall-template.txt"
+	-skeleton="@/skeletons/iPhoneAll"
+	-class_definitions
+	-build_skeletons
 
 ### p) Stand-alone units:
 
@@ -181,13 +181,13 @@ You can parse a single header as a stand-alone unit by using -header and -unit i
 
 For example an Objective-C header from iOS 6.0 can be parsed using these options:
 
-php parser.php -header="ios:~/Desktop/Reachability.h" -xcode="/Applications/Xcode45-DP3.app" -ios -sdk="iPhoneOS6.0.sdk" -unit -show
+	php parser.php -header="ios:~/Desktop/Reachability.h" -xcode="/Applications/Xcode45-DP3.app" -ios -sdk="iPhoneOS6.0.sdk" -unit -show
 
 ## 2) Examples:
 
 ### Batch parse iOS SDK:
 
-php parser.php -out="~/dump" -batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks" -ios -class_definitions -build_skeletons
+	php parser.php -out="~/dump" -batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks" -ios -class_definitions -build_skeletons
 
 Batch parsing will search the entire directory specified in -batch and parse all frameworks including private frameworks which may be nested within other frameworks. You should specify a default framework like "ios:" in the example above so that frameworks that don't have entries in framework.xml will have a valid framework to parse from.
 
@@ -195,7 +195,7 @@ Note: the -xcode switch and %%XCODE%% macro can be used in the -batch path (see 
 
 ### Batch parse system frameworks:
 
-php parser.php -out="~/dump" -batch="cocoa_base:/System/Library/Frameworks" -macos -class_definitions -build_skeletons
+	php parser.php -out="~/dump" -batch="cocoa_base:/System/Library/Frameworks" -macos -class_definitions -build_skeletons
 
 Be warned that parsing /System/Library/Frameworks on my MacBook 2.4GHz Intel Core 2 Duo took 40 minutes and 900MB of RAM at peak usage.
 
@@ -209,29 +209,29 @@ Using the -sdk option you can specify an SDK name such as MacOSX10.7.sdk or iPho
 
 There is an example of how to parse iPhoneAll using -group and a custom template using -template:
 
-php parser.php -out="~/Desktop/iPhoneAll" "-batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks" -ignore="vecLib.framework,vImage.framework" -group=iPhoneAll -template="@/templates/iphoneall-template.txt" -ios -class_definitions -build_skeletons
+	php parser.php -out="~/Desktop/iPhoneAll" "-batch="ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks" -ignore="vecLib.framework,vImage.framework" -group=iPhoneAll -template="@/templates/iphoneall-template.txt" -ios -class_definitions -build_skeletons
 
 ### Parse 3rd party framework from specific directory:
 
 In the example below the framework DropboxSDK is parsed from ~/Desktop/dropbox-ios-sdk-1.1 which is specified using -search_paths. Foundation.framework is also parsed for supporting types (but not printed as the ^ prefix is used) so the MacOSX10.7 SDK is specified using -sdk. Typically you may need to specify an additional framework definition using -frameworks_xml as seen below.
 
-php parser.php -out="~/dump" -frameworks="^Foundation, DropboxSDK" search_paths="~/Desktop/dropbox-ios-sdk-1.1" -frameworks_xml="~/Desktop/dropbox-ios-sdk-1.1/DropboxSDK.xml" -sdk="MacOSX10.7.sdk" -all -class_definitions -build_skeletons
+	php parser.php -out="~/dump" -frameworks="^Foundation, DropboxSDK" search_paths="~/Desktop/dropbox-ios-sdk-1.1" -frameworks_xml="~/Desktop/dropbox-ios-sdk-1.1/DropboxSDK.xml" -sdk="MacOSX10.7.sdk" -all -class_definitions -build_skeletons
 
 ### Parse Objective-C headers to Objective Pascal units:
 
 Often source code is distributed as a directory containing .m and .h files without a framework structure. The example below uses the -dir option to parse headers from a directory (with Foundation and 10.8 SDK for symbols) and outputs as .pas units. Note the prefix : is used to specify the base framework of the directory.
 
-php parser.php -out="~/dump" -frameworks="^Foundation" -dir="cocoa_base:~/UKKQueue" -sdk=MacOSX10.8.sdk -macos -unit
+	php parser.php -out="~/dump" -frameworks="^Foundation" -dir="cocoa_base:~/UKKQueue" -sdk=MacOSX10.8.sdk -macos -unit
 
 ### Parse single header from SDK and print output:
 
 ### Parse a header from AppKit.framework via the 10.7 SDK:
 
-php parser.php -header="AppKit:NSWindow.h" -sdk="MacOSX10.7.sdk" -macos -show
+	php parser.php -header="AppKit:NSWindow.h" -sdk="MacOSX10.7.sdk" -macos -show
 
 ### Parse any generic Objective-C header:
 
-php parser.php -header="cocoa_base:~/Desktop/SomeCocoaFile.h" -show
+	php parser.php -header="cocoa_base:~/Desktop/SomeCocoaFile.h" -show
 
 This is typically for testing the parser since parsing single headers will likely produce errors since supporting frameworks are missing. Headers that don't contain Objective-C however have a better chance of working since the types therein may not rely on other frameworks, which is seldom the case with Objective-C headers.
 
@@ -245,7 +245,7 @@ Optionally you can specify a framework definition to add settings to the parser 
 
 Fore example the command below will define a framework (test) and parse all files from the given directory in plain C mode.
 
-php parser.php -out="." -frameworks_xml="test.xml" -dir="test:/path/to/headers" -plain_c
+	php parser.php -out="." -frameworks_xml="test.xml" -dir="test:/path/to/headers" -plain_c
 
 ## 3) Shortcuts
 
@@ -257,7 +257,7 @@ To see which commands are available browser the /parser/commands directory.
 
 Using iPhoneAll shortcut for iOS SDK 5.0 :
 
-php parser.php -out="~/iPhoneAll" -command="@/commands/iphoneall5.0.txt"
+	php parser.php -out="~/iPhoneAll" -command="@/commands/iphoneall5.0.txt"
 
 ## 4) Defining Frameworks
 
@@ -267,70 +267,70 @@ Framework definition properties are inheritable which means one framework can in
 
 ### Properties: 
 
-<name> - The name of the framework without extension. For static frameworks (see below) the name does not represent an actual .framework directory but is used just for reference (see cocoa_base for example).
+`<name>` - The name of the framework without extension. For static frameworks (see below) the name does not represent an actual .framework directory but is used just for reference (see cocoa_base for example).
 
-<static> - 1 = true, 0 = false. Static frameworks are used for referencing settings but do not represent an actual framework so they can not be parsed. The framework "base" is an example of a static framework.
+`<static>` - 1 = true, 0 = false. Static frameworks are used for referencing settings but do not represent an actual framework so they can not be parsed. The framework "base" is an example of a static framework.
 
-<root> - Partial path of the master include file in the parser output directory. This is typically not changed and is defined as <root>/%%LC_NAME%%/Sources.inc</root> in "base".
+`<root>` - Partial path of the master include file in the parser output directory. This is typically not changed and is defined as <root>/%%LC_NAME%%/Sources.inc</root> in "base".
 
-<umbrella> - The name of the "umbrella" headers in the frameworks header directory which imports all relevant headers for the framework. This is not a requirement for frameworks however and is more of a convention used by Apple which states the header named the same as the framework is the umbrella (defined as %%NAME%%.h in "base"). For example in AppKit.framework AppKit.h is the umbrella which imports and headers required for AppKit.
+`<umbrella>` - The name of the "umbrella" headers in the frameworks header directory which imports all relevant headers for the framework. This is not a requirement for frameworks however and is more of a convention used by Apple which states the header named the same as the framework is the umbrella (defined as %%NAME%%.h in "base"). For example in AppKit.framework AppKit.h is the umbrella which imports and headers required for AppKit.
 
-<ignore_types> - Comma-separated list of types (may be regular expressions if no commas are in the pattern) which the parser will ignore. These types apply to: typesdefs, structs, classes and defines.
+`<ignore_types>` - Comma-separated list of types (may be regular expressions if no commas are in the pattern) which the parser will ignore. These types apply to: typesdefs, structs, classes and defines.
 
-<ignore_headers> - Comma-separated list of header names that will be ignored in the framework.
+`<ignore_headers>` - Comma-separated list of header names that will be ignored in the framework.
 
-<ignore_lines> - Array of lines that will be skipped by the parser.
+`<ignore_lines>` - Array of lines that will be skipped by the parser.
 
-	<ignore_lines>
+	`<ignore_lines>
 		<line>#define FOO</line>
 		<line>@class FOO</line>
-	</ignore_lines>
+	</ignore_lines>`
 
-<uses> - Comma-separated list of units to include in the uses clause when generating units. This list is inserted into templates using the [USES] macro (see templates.php).
+`<uses>` - Comma-separated list of units to include in the uses clause when generating units. This list is inserted into templates using the [USES] macro (see templates.php).
 
-<imports> - Comma-separated list of headers to "import" into the framework (like #import in C). Typically you can use <umbrella> to load all required headers but in some frameworks you may need to specify additional headers or the umbrella header does not exist.
+`<imports>` - Comma-separated list of headers to "import" into the framework (like #import in C). Typically you can use <umbrella> to load all required headers but in some frameworks you may need to specify additional headers or the umbrella header does not exist.
 
-<implicit_pointers> - Comma-separated list of types that are "implicit pointers", I.E. these types are not parsed as pointers even with * in the their usage (typically used for Objective-C classes).
+`<implicit_pointers>` - Comma-separated list of types that are "implicit pointers", I.E. these types are not parsed as pointers even with * in the their usage (typically used for Objective-C classes).
 
-<external_macros> - The parser will make an attempt to parser #defines that specify the "extern" keyword in C but if it fails you must specify external macros explicitly or external types like variables and functions will be ignored.
+`<external_macros>` - The parser will make an attempt to parser #defines that specify the "extern" keyword in C but if it fails you must specify external macros explicitly or external types like variables and functions will be ignored.
 
-<remove_macros> - DEPRECATED use <replacement_patterns> instead. Array of regular expression to be removed entirely. 
+`<remove_macros>` - **DEPRECATED** use <replacement_patterns> instead. Array of regular expression to be removed entirely. 
 
-	<remove_macros>
+	`<remove_macros>
 		<value>/ATTRIBUTE_PACKED/</value>
-	</remove_macros>
+	</remove_macros>`
 
-<availability_macros> - Array of regular expression patterns/replacements that will be included into the Pascal source next to the symbol it was declared. These are macros are used to notify users a symbol is no longer available, available as of certain SDK or deprecated.
+`<availability_macros>` - Array of regular expression patterns/replacements that will be included into the Pascal source next to the symbol it was declared. These are macros are used to notify users a symbol is no longer available, available as of certain SDK or deprecated.
 
-	<availability_macros>
+	`<availability_macros>
 		<macro>
 			<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER\b/i</pattern>
 			<replacement>{ available in $1.$2 and later }</replacement>
 		</macro>
-	<availability_macros>
+	<availability_macros>`
 
-<inline_macros> - Comma-separated list of macros that specify the C keyword "inline" which the parser requires in order to skip inline functions that it can not translate properly.
+`<inline_macros>` - Comma-separated list of macros that specify the C keyword "inline" which the parser requires in order to skip inline functions that it can not translate properly.
 
-<replacement_patterns> - Array of regular expression patterns/replacements that will be stripped from the C source entirely.
+`<replacement_patterns>` - Array of regular expression patterns/replacements that will be stripped from the C source entirely.
 
-	<replacement_patterns>
+	`<replacement_patterns>
 		<pattern>
 			<pattern>/CALLBACK_API(_C|_STDCALL|_C_STDCALL)*\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/i</pattern>
 			<replacement>$2 (* $3)</replacement>
 		</pattern>
-	</replacement_patterns>
+	</replacement_patterns>`
 
-<replace_types> - Array of C types and their Pascal equivalent they will be replaced with (in key=value pair format). If you specify a key wrapped in / it will be treated as regular expression. By default all types are treated as case-insensitive and spaces are expanded to /s+ so if you want other behavior you define the regular expression manually by wrapping the key in /.
+`<replace_types>` - Array of C types and their Pascal equivalent they will be replaced with (in key=value pair format). If you specify a key wrapped in / it will be treated as regular expression. By default all types are treated as case-insensitive and spaces are expanded to /s+ so if you want other behavior you define the regular expression manually by wrapping the key in /.
 
-	<replace_types>
+	`<replace_types>
 		<value>void=pointer</value>
 		<value>/^bool$/=cbool</value>
 		<value>/^BOOL$/=boolean</value>
-	</replace_types>
+	</replace_types>`
 
-<pointer_types> - Array of C types and their preferred pointer type to be used if the type is encoded as a pointer.
+`<pointer_types>` - Array of C types and their preferred pointer type to be used if the type is encoded as a pointer.
 
-<support_frameworks> - Comma-separated list of framework names to import. Even if a framework has been parsed in the current batch frameworks can not see each others types unless they import each other.
+`<support_frameworks>` - Comma-separated list of framework names to import. Even if a framework has been parsed in the current batch frameworks can not see each others types unless they import each other.
 
 The parser will attempt to import frameworks automatically for support types when it encounters lines like #import <Foundation/Foundation.h> but currently it does not recurse into headers so lines such as #import <Cocoa/Cocoa.h> will not import all frameworks in Cocoa.h.
 
@@ -338,27 +338,27 @@ The parser will attempt to import frameworks automatically for support types whe
 
 You can specify various macros in the XML which will be replaced by appropriate values depending on the framework being parsed.
 
-%%NAME%%
+`%%NAME%%`
 
 The name of the framework as <name>
 
-%%LC_NAME%%
+`%%LC_NAME%%`
 
 Same as %%NAME%% but the name is in all lower case characters.
 
-%%UC_NAME%%
+`%%UC_NAME%%`
 
 Same as %%NAME%% but the name is in all upper case characters.
 
-%%ABBRV_NAME%%
+`%%ABBRV_NAME%%`
 
 The abbreviated name of the framework as is often used in C macros. The abbreviation is made by using only the upper case characters in the framework name (as defined in <name> or in the file name for batch parses) so CoreVideo which be CV.
 
-%%PREGEX_NAMES%%
+`%%PREGEX_NAMES%%`
 
 Perl-compatible regular expression pattern for the normal and abbreviated name of the framework. For example AppKit would be (UI|UIKit)+. This macro should only be used in properties that use regular expressions.
 
-%%SDK%%
+`%%SDK%%`
 
 Value of the -sdk switch. This macro is used for path names usually.
 
