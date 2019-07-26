@@ -146,7 +146,7 @@ class HeaderFieldParser extends HeaderParserModule {
 		$field->contents = $scope->contents;
 		
 		// bit field
-		if (preg_match("/:\s*(\d+)$/", $scope->results[3], $captures)) {
+		if (preg_match("/:\s*(\d+)\s*$/", $scope->results[3], $captures)) {
 			$field->bit_field = (int)$captures[1];
 		}
 		
