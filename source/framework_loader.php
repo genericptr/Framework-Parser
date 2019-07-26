@@ -281,6 +281,7 @@ class FrameworkLoader {
 		$output->writeln(0, "{\$mode delphi}");
 		$output->writeln(0, "{\$modeswitch objectivec1}");
 		$output->writeln(0, "{\$modeswitch cvar}");
+		$output->writeln(0, "{\$packrecords c}");
 		$output->writeln(0, "");
 
 		$output->writeln(0, "unit ".TEMPLATE_FILE_DEFINED_CLASSES.$framework->get_name().";");
