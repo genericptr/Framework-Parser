@@ -34,8 +34,14 @@ class StructSymbol extends Symbol {
 	
 	public function add_alias ($name) {
 		
-		// inline struct can't have aliases
-		if ($this->inline) return;
+		// inline struct can't have aliases, but the name after the struct declration
+		// is the field name (the name before it is the type name, which we don't care
+		// about)
+		if ($this->inline)
+		{
+			$this->name = $name;
+			return;
+		}
 			
 		$symbol = TypedefSymbol::make_simple($name, $this->name, $this->header);
 		$symbol->scope = $this->scope;
