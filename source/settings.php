@@ -12,6 +12,26 @@ function show_command_line () {
 	print_r($command_line_options);
 }
 
+function is_verbose (): bool {
+	return is_parser_option_enabled(PARSER_OPTION_VERBOSE);
+}
+
+function get_verbosity (): int {
+	return (int)get_parser_option(PARSER_OPTION_VERBOSE);
+	// global $command_line_options;	
+	// $level = 0;
+	// $flag = PARSER_OPTION_VERBOSE;
+	// while (true) {
+	// 	if (is_parser_option_enabled($flag)) {
+	// 		$level++;
+	// 		$flag .= 'v';
+	// 	} else {
+	// 		break;
+	// 	}
+	// }
+	// return $level;
+}
+
 function is_parser_option_enabled ($option) {
 	global $command_line_options;
 	return (bool)($command_line_options[$option] != null);
@@ -43,43 +63,43 @@ function clear_parser_option ($option) {
 }
 
 // command line options
-define("PARSER_OPTION_OUTPUT", "out");									   	// output directory for printing
-define("PARSER_OPTION_SHOW", "show");									   	// print output to terminal (overrides -out)
-define("PARSER_OPTION_ALL", "all");										   	// parses all headers in framework
-define("PARSER_OPTION_HEADER", "header");								   	// parses a single header
-define("PARSER_OPTION_DIRECTORY", "dir");								 	// parses all headers in the directory as framework
-define("PARSER_OPTION_BATCH", "batch");									   	// parses all frameworks in the batch directory specified
-define("PARSER_OPTION_GROUP", "group");									   	// groups all frameworks together into a single unit (like MacOSAll)
+define("PARSER_OPTION_OUTPUT", "out");									   						// output directory for printing
+define("PARSER_OPTION_SHOW", "show");									   							// print output to terminal (overrides -out)
+define("PARSER_OPTION_ALL", "all");										   							// parses all headers in framework
+define("PARSER_OPTION_HEADER", "header");								   						// parses a single header
+define("PARSER_OPTION_DIRECTORY", "dir");								 							// parses all headers in the directory as framework
+define("PARSER_OPTION_BATCH", "batch");									   						// parses all frameworks in the batch directory specified
+define("PARSER_OPTION_GROUP", "group");									   						// groups all frameworks together into a single unit (like MacOSAll)
 define("PARSER_OPTION_GROUP_FRAMEWORKS", "group_frameworks");			   	// sets the list of frameworks to add to the group unit (when -group is enabled)
-define("PARSER_OPTION_FRAMEWORKS", "frameworks");						   	// explicitly sets the list of frameworks to parse (when -batch isn't enabled)
-define("PARSER_OPTION_SEARCH_PATHS", "search_paths");					   	// adds additional search paths when looking for frameworks
-define("PARSER_OPTION_SDK", "sdk");											// sdk for default frameworks directory
+define("PARSER_OPTION_FRAMEWORKS", "frameworks");						   				// explicitly sets the list of frameworks to parse (when -batch isn't enabled)
+define("PARSER_OPTION_SEARCH_PATHS", "search_paths");					   			// adds additional search paths when looking for frameworks
+define("PARSER_OPTION_SDK", "sdk");																		// sdk for default frameworks directory
 define("PARSER_OPTION_AUTOLOAD_IMPORTED_FRAMEWORKS", "autoload_imported_frameworks");
-define("PARSER_OPTION_ONLY", "only");										// only print the list of frameworks or headers
-define("PARSER_OPTION_IGNORE", "ignore");									// ignore the list of frameworks or headers
-define("PARSER_OPTION_DRY_RUN", "dryrun");									// parses but doesn't produce any files
-define("PARSER_OPTION_BUILD_SKELETONS", "build_skeletons");					// builds framework skeletons
-define("PARSER_OPTION_BUILD_COMMANDS", "build_commands");					// specify i386, arm or ppc as value
-define("PARSER_OPTION_OPAQUE_TYPES", "opaque_types");						// UNDER DEVELOPMENT: prints a unit containing all opaque types found
+define("PARSER_OPTION_ONLY", "only");																	// only print the list of frameworks or headers
+define("PARSER_OPTION_IGNORE", "ignore");															// ignore the list of frameworks or headers
+define("PARSER_OPTION_DRY_RUN", "dryrun");														// parses but doesn't produce any files
+define("PARSER_OPTION_BUILD_SKELETONS", "build_skeletons");						// builds framework skeletons
+define("PARSER_OPTION_BUILD_COMMANDS", "build_commands");							// specify i386, arm or ppc as value
+define("PARSER_OPTION_OPAQUE_TYPES", "opaque_types");									// prints a unit containing all opaque types found
 define("PARSER_OPTION_CLASS_DEFINITIONS", "class_definitions");				// prints global class definitions (should be enabled)
-define("PARSER_OPTION_FRAMEWORKS_XML", "frameworks_xml");					// loads additional framework definition XML files
-define("PARSER_OPTION_CLEAN", "clean");										// deletes all parser made files from the output directory (used for sharing skeletons)
+define("PARSER_OPTION_FRAMEWORKS_XML", "frameworks_xml");							// loads additional framework definition XML files
+define("PARSER_OPTION_CLEAN", "clean");																// deletes all parser made files from the output directory (used for sharing skeletons)
 define("PARSER_OPTION_DEFAULT_FRAMEWORK", "default_framework");				// sets the default framework to parse against when using: -batch -frameworks and -header if no defined framework is found
-define("PARSER_OPTION_TEMPLATE", "template");								// sets the template for root or group units
-define("PARSER_OPTION_PATCH", "patch");										// applies a .patch file (must be created manually) to the output directory after being parsed
-define("PARSER_OPTION_SKELETON", "skeleton");								// defines the skeleton directory to copy to the output directory (see /skeletons)
-define("PARSER_OPTION_UMBRELLA", "umbrella");								// UNDER DEVELOPMENT: when parsing a single framework explicitly sets the umbrella unit
-define("PARSER_OPTION_COMMAND", "command");									// loads a options from a command file (see /commands directory)
-define("PARSER_OPTION_UNIT", "unit");										// when -header is enabled -unit will print a .pas unit instead of a .inc include file
-define("PARSER_OPTION_ALL_UNITS", "all_units");								// always print a unit for each framework even when -group is enabled
-define("PARSER_OPTION_XCODE", "xcode");										// defines the location of Xcode.app which contains SDK's since version 4.3
-define("PARSER_OPTION_MACOS", "macos");										// helper to load the macos.xml framework definition													
-define("PARSER_OPTION_IOS", "ios");											// helper to load the ios.xml framework definition
-define("PARSER_OPTION_USES", "uses");										// *** DEPRECATED *** imports <uses> directly from a framework definition
-define("PARSER_OPTION_EXTERNC", "externc");									// enables pre-parsing extern "c" {} blocks (NOT WORKING)
-define("PARSER_OPTION_FRAMEWORK_DIFFS", "framework_diffs");					// shows a list of different frameworks in the search path then was specific with -frameworks
-define("PARSER_OPTION_VERBOSE", "v");										// enables all extra messages (see list of defines prefixed MESSAGE_)
-define("PARSER_OPTION_PLAIN_C", "plain_c");									// enables plain-c compability mode (don't use for Objective-C)
+define("PARSER_OPTION_TEMPLATE", "template");													// sets the template for root or group units
+define("PARSER_OPTION_PATCH", "patch");																// applies a .patch file (must be created manually) to the output directory after being parsed
+define("PARSER_OPTION_SKELETON", "skeleton");													// defines the skeleton directory to copy to the output directory (see /skeletons)
+define("PARSER_OPTION_UMBRELLA", "umbrella");													// *** UNDER DEVELOPMENT ***: when parsing a single framework explicitly sets the umbrella unit
+define("PARSER_OPTION_COMMAND", "command");														// loads a options from a command file (see /commands directory)
+define("PARSER_OPTION_UNIT", "unit");																	// when -header is enabled -unit will print a .pas unit instead of a .inc include file
+define("PARSER_OPTION_ALL_UNITS", "all_units");												// always print a unit for each framework even when -group is enabled
+define("PARSER_OPTION_XCODE", "xcode");																// defines the location of Xcode.app which contains SDK's since version 4.3
+define("PARSER_OPTION_MACOS", "macos");																// helper to load the macos.xml framework definition													
+define("PARSER_OPTION_IOS", "ios");																		// helper to load the ios.xml framework definition
+define("PARSER_OPTION_EXTERNC", "externc");														// enables pre-parsing extern "c" {} blocks (NOT WORKING)
+define("PARSER_OPTION_FRAMEWORK_DIFFS", "framework_diffs");						// shows a list of different frameworks in the search path then was specific with -frameworks
+define("PARSER_OPTION_VERBOSE", "v");																	// enables all extra messages (see list of defines prefixed MESSAGE_)
+define("PARSER_OPTION_PLAIN_C", "plain_c");														// enables plain-c compability mode (don't use for Objective-C)
+define("PARSER_OPTION_SAFE_WRITE", "safe");														// don't overwrite files if the modification date has changed since first parser
 
 // options which can be passed when specifying
 // frameworks with the -all switch
@@ -263,6 +283,7 @@ define("MODULE_PROTOCOL", "protocol");
 define("MODULE_STRUCT", "struct");
 define("MODULE_TYPEDEF", "typedef");
 define("MODULE_VARIABLE", "variable");
+define("MODULE_CONSTANT", "constant");
 
 /**
  * Pascal syntax
@@ -293,6 +314,7 @@ define("DUPLICATE_CLASS_METHOD_PREFIX", "class");			// class methods that are du
 define("OPAQUE_TYPEDEF_TYPE", "OpaqueType");					// typedefs which reference structs that can't be found are changed to this type
 define("FOUR_CHAR_CODE_REPLACE_PATTERN", "FourCharCode('$1')");					// constant strings of 4 characters are replaced with this pattern ($1 being the string contents)
 define("IVAR_CONFLICT_PREFIX", "_");									// prefix all ivars with this to prevent unnecessary keyword protection in classes
+define("GENERIC_PARAM_TYPE", "id");										// Objective-C generic parameter replacement type
 
 /**
  * Other

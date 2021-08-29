@@ -5,17 +5,8 @@ require_once("source/utilities.php");
 function parse_header () {
 	$cwd = getcwd();
 	
-	//php /Developer/ObjectivePascal/parser/test.php -header="Foundation:~/Desktop/header.h" -macos -show
-	
 	//$GLOBALS["argv"][] = "-header=\"ios:CGGeometry.h\"";
-	//$GLOBALS["argv"][] = "-header=\"ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CGBase.h\"";
-	//$GLOBALS["argv"][] = "-header=\"carbon_base:/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Headers/Files.h\"";
-	//$GLOBALS["argv"][] = "-header=\"carbon_base:/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/Headers/MacWindows.h\"";
-	//$GLOBALS["argv"][] = "-header=\"Foundation:/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSObjCRuntime.h\"";
-	//$GLOBALS["argv"][] = "-header=\"ios:$cwd/tests/universal-headers.h\"";
-	//$GLOBALS["argv"][] = "-header=\"CoreFoundation:$cwd/tests/changes_6_0.h\"";
-	//$GLOBALS["argv"][] = "-header=\"CoreImage:$cwd/tests/changes_10_8.h\"";
-	$GLOBALS["argv"][] = "-header=\"Foundation:$cwd/tests/changes_10_10.h\"";
+	$GLOBALS["argv"][] = "-header=\"AppKit:$cwd/tests/changes_10_15.h\"";
 	
 	//$GLOBALS["argv"][] = "-ios";
 	$GLOBALS["argv"][] = "-macos";
@@ -24,6 +15,55 @@ function parse_header () {
 	//$GLOBALS["argv"][] = "-plain_c";
 	//$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/gdl.xml\"";
 	//$GLOBALS["argv"][] = "-v";
+}
+
+function parse_test ($name, $sdk) {
+	$cwd = getcwd();
+	$GLOBALS["argv"][] = "-header=\"AppKit:$cwd/tests/$name\"";
+	$GLOBALS["argv"][] = "-$sdk";
+	$GLOBALS["argv"][] = "-unit";
+	$GLOBALS["argv"][] = "-show";
+	//$GLOBALS["argv"][] = "-v";
+}
+
+function parse_macos_header () {
+	$cwd = getcwd();
+	$GLOBALS["argv"][] = "-header=\"Foundation:$cwd/tests/cblocks.h\"";
+	$GLOBALS["argv"][] = "-macos";
+	$GLOBALS["argv"][] = "-unit";
+	$GLOBALS["argv"][] = "-show";
+	// $GLOBALS["argv"][] = "-v";
+}
+
+function parse_appkit_framework () {
+	$GLOBALS["argv"][] = "-frameworks=Foundation,AppKit";
+	$GLOBALS["argv"][] = "-frameworks_xml=@/defs/macos.xml";
+	$GLOBALS["argv"][] = "-out=~/Desktop/MacOS_10_15";
+	$GLOBALS["argv"][] = "-sdk=MacOSX10.15.sdk";
+	$GLOBALS["argv"][] = "-all";
+	$GLOBALS["argv"][] = "-safe";
+	$GLOBALS["argv"][] = "-class_definitions";
+	$GLOBALS["argv"][] = "-build_skeletons";
+	$GLOBALS["argv"][] = "-build_commands=x86/3.0.4";
+}
+
+function parse_macos_framework ($names) {
+
+	$GLOBALS["argv"][] = "-frameworks=$names";
+	$GLOBALS["argv"][] = "-out=~/Desktop/CocoaAll_10_15";
+	$GLOBALS["argv"][] = "-group=CocoaAll";
+	$GLOBALS["argv"][] = "-group_frameworks=\"Foundation, CoreImage, QuartzCore, CoreData, AppKit\"";
+	$GLOBALS["argv"][] = "-all_units=\"@/templates/mac-unit-template.txt\"";
+	$GLOBALS["argv"][] = "-template=\"@/templates/cocoaall-template.txt\"";
+	$GLOBALS["argv"][] = "-skeleton=\"@/skeletons/CocoaAll_10_15\"";
+	$GLOBALS["argv"][] = "-sdk=MacOSX10.15.sdk";
+	$GLOBALS["argv"][] = "-macos";
+	$GLOBALS["argv"][] = "-all";
+	$GLOBALS["argv"][] = "-class_definitions";
+	$GLOBALS["argv"][] = "-v";
+	$GLOBALS["argv"][] = "-safe";
+	$GLOBALS["argv"][] = "-build_skeletons";
+	$GLOBALS["argv"][] = "-build_commands=x86/3.0.4";
 }
 
 function parse_unit () {
@@ -55,48 +95,9 @@ function parse_frameworks_ios () {
 	$GLOBALS["argv"][] = "-build_commands=arm/2.6.0";
 }
 
-function parse_frameworks () {
-	$GLOBALS["argv"][] = "-frameworks=\"CoreFoundation\"";
-	//$GLOBALS["argv"][] = "-default_framework=\"cocoa_base\"";
-	$GLOBALS["argv"][] = "-out=\"~/Desktop/Parser\"";
-	$GLOBALS["argv"][] = "-sdk=iPhoneOS6.0.sdk";
-	$GLOBALS["argv"][] = "-xcode=/Applications/Xcode45-DP3.app";
-	$GLOBALS["argv"][] = "-all";
-	$GLOBALS["argv"][] = "-class_definitions";
-	$GLOBALS["argv"][] = "-build_skeletons";
-	//$GLOBALS["argv"][] = "-autoload_imported_frameworks";
-	$GLOBALS["argv"][] = "-build_commands=i386/2.6.0";
-}
-
 function parse_cocoa_all () {	
-	/*
-	PrintCore - PDEPluginInterface
-	AudioUnit - AUCocoaUIView (the rest are in MacOSAll)
-	
-	one class per framework
-	AppleScriptKit
-	AppleScriptObjC
-	*/
-	
-	/*
-	Support frameworks:
-	AudioUnit
-	*/
-	
-	// Carbon important
-	/*
-		
-		ImageIO
-		CoreGraphics
-		CoreFoundation
-		OpenGL
-		LaunchServices
-
-		
-	*/
-	$GLOBALS["argv"][] = "-out=\"~/Desktop/CocoaAll\"";
-	$GLOBALS["argv"][] = "-command=\"@/commands/cocoaall10.7.txt\"";
-	$GLOBALS["argv"][] = "-build_commands=i386/2.7.1";
+	$GLOBALS["argv"][] = "-out=\"~/Desktop/CocoaAll_10_15\"";
+	$GLOBALS["argv"][] = "-command=\"@/commands/cocoaall10.15.txt\"";
 }
 
 function parse_ios_all () {
@@ -109,11 +110,7 @@ function parse_ios_all () {
 function parse_batch_system () {
 	$GLOBALS["argv"][] = "-out=\"~/Desktop/MacOS10.7\"";
 	$GLOBALS["argv"][] = "-batch=\"cocoa_base:/System/Library/Frameworks\"";
-	$GLOBALS["argv"][] = "-ignore=\"glext.h,gl.h\"";
-	
-	// quicktime.framework
-	// krb5.h
-	
+	$GLOBALS["argv"][] = "-ignore=\"glext.h,gl.h\"";	
 	$GLOBALS["argv"][] = "-class_definitions";
 	$GLOBALS["argv"][] = "-build_skeletons";
 	$GLOBALS["argv"][] = "-build_commands=i386/2.6.0";
@@ -121,7 +118,6 @@ function parse_batch_system () {
 
 function parse_batch_ios () {
 	$GLOBALS["argv"][] = "-out=\"~/Desktop/ios5.0\"";
-	//$GLOBALS["argv"][] = "-out=\"@/skeletons/ios5.0\"";
 	$GLOBALS["argv"][] = "-batch=\"ios:/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks\"";
 	$GLOBALS["argv"][] = "-class_definitions";
 	$GLOBALS["argv"][] = "-build_skeletons";
@@ -140,19 +136,16 @@ function parse_external_framework () {
 }
 
 function parse_header_external_directory () {
-	
 	// $header = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Versions/A/Headers/MTLArgument.h";
 	$header = "/Users/ryanjoseph/Desktop/metal/metal_test.h";
 
 	$GLOBALS["argv"][] = "-header=\"Metal:$header";
-
 	$GLOBALS["argv"][] = "-frameworks=\"^Foundation, Metal\"";
 	$GLOBALS["argv"][] = "-frameworks_xml=\"~/Desktop/metal/metal.xml\"";
 	$GLOBALS["argv"][] = "-sdk=MacOSX10.12.sdk";
 	$GLOBALS["argv"][] = "-all";
 	$GLOBALS["argv"][] = "-class_definitions";
 	$GLOBALS["argv"][] = "-v+";
-
 	$GLOBALS["argv"][] = "-show"; // don't output anything
 }
 
@@ -172,91 +165,28 @@ function parse_directory ($directory) {
 }
 
 function parse_directory_2 ($directory) {
-	//php parser.php -dir="ios:~/Downloads/ShareKit/Classes/ShareKit/Core" -out="~/Desktop/Parser" -ios
 	$GLOBALS["argv"][] = "-out=\"~/Desktop/Parser\"";
 	$GLOBALS["argv"][] = "-dir=\"ios:$directory\"";
 	$GLOBALS["argv"][] = "-ios";
 	$GLOBALS["argv"][] = "-build_skeletons";
 }
 
-function clean_directory () {
-	$GLOBALS["argv"][] = "-clean=\"~/Desktop/CocoaAll_skel\"";
-}
+// parse_test('generics.h', 'macos');
 
-// patch -p0 < iPhoneAll.patch
-
-/*
-	diff directories:
-	
-	1) Parse the SDK
-	2) Copy the output diretory and suffix with _old.
-	3) Make changes to the original output directory by hand
-	4) Run the command below with proper naming and suffix the .patch with the SDK version for clarity
-	If -out was ~/Desktop/CocoaAll:
-	
-		cd ~/Desktop
-		diff -rupN CocoaAll_old/ CocoaAll/ > cocoaall-10.8.patch
-		diff -rupN iPhoneAll_old/ iPhoneAll/ > iphoneall-6.0.patch
-		
-*/
-
-function find_frameworks_with_objective_c ($directory, $framework = null) {
-	//print("$directory\n");
-	$frameworks = array();
-	$contents = directory_contents($directory, true);
-	foreach ($contents as $path) {
-		$name = basename($path);
-		
-		if (is_dir($path)) {
-			
-			// recurse frameworks
-			if (file_extension($name) == "framework") {
-				$frameworks = array_merge($frameworks, find_frameworks_with_objective_c($path, $name));
-			} else {
-				$frameworks = array_merge($frameworks, find_frameworks_with_objective_c($path, $framework));
-			}
-			
-		} else {
-			
-			// find objective-c in headers
-			if ((file_extension($name) == "h") && ($framework)) {
-				$lines = file($path);
-				foreach ($lines as $line) {
-					
-					if (preg_match("/@(protocol|interface)+/", $line)) {
-						print("+ $framework ($name): $line");
-						$frameworks[] = $framework;
-						return $frameworks;
-					}
-					
-				}
-			}
-			
-		}
-	}
-	
-	return array_unique($frameworks);
-}
-
-//$frameworks = find_frameworks_with_objective_c("/Developer/SDKs/MacOSX10.7.sdk");
-//print_r($frameworks);
-//die;
-
-// parse_header();
-//parse_frameworks();
-//parse_frameworks_ios();
-//parse_batch_system();
-//parse_batch_ios();
+// parse_cocoa_all();
+parse_macos_header();
+// parse_appkit_framework();
+// parse_macos_framework('Foundation,AppKit');
+// parse_macos_framework('^Foundation,Metal,MetalKit');
+// parse_frameworks();
+// parse_frameworks_ios();
+// parse_batch_system();
+// parse_batch_ios();
 // parse_external_framework();
-//parse_unit();
-parse_header_external_directory();
+// parse_unit();
+// parse_header_external_directory();
 
-//parse_cocoa_all();
-//parse_ios_all();
-//clean_directory();
-//parse_directory("~/Desktop/Projects/Dev/OpenGL/Examples/cocos2d-iphone-1.0.0-rc2/cocos2d");
-//parse_directory("~/Downloads/ShareKit/Classes/ShareKit/Core");
-//parse_directory_2("~/Downloads/ShareKit/Classes/ShareKit/Core");
+print(implode(" ", $GLOBALS["argv"])."\n");
 
 require("parser.php");
 

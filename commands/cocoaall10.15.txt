@@ -1,0 +1,13 @@
+-frameworks="SafariServices,GameKit,StoreKit,WatchConnectivity,MediaPlayer,LinkPresentation,IdentityLookupUI,UIKit,MessageUI,CoreNFC,MetalKit,PDFKit,PhotosUI,ReplayKit,SpriteKit,IntentsUI,BusinessChat,PencilKit,HealthKit,MultipeerConnectivity,WebKit,GameController,Social,CoreAudioKit,VisionKit,QuickLook,AuthenticationServices,ContactsUI,HealthKitUI,iAd,MapKit,AVKit,JavaScriptCore,GameplayKit,PassKit,EventKitUI,SceneKit,MetricKit,DiscRecording,Speech,Automator,ExceptionHandling,Metal,QuartzCore,CoreGraphics,CoreML,FinderSync,QuartzComposer,QuartzFilters,QuickLookUI,ImageKit,MPSRayIntersector,MPSNeuralNetwork,MPSNDArray,MPSCore,MPSImage,MPSMatrix,ExternalAccessory,ScreenSaver,PreferencePanes,SyncServices,OSAKit,NaturalLanguage,CoreVideo,ScriptingBridge,PrintCore,OSLog,JavaFrameEmbedding,AVFoundation,AVFAudio,DiscRecordingUI,DeviceCheck,BackgroundTasks,HIToolbox,CoreBluetooth,Contacts,IOSurface,MediaLibrary,QuickLookThumbnailing,OpenDirectory,Intents,JavaVM,JavaRuntimeSupport,JavaNativeFoundation,AppleScriptObjC,VideoSubscriberAccount,CoreWLAN,NotificationCenter,FileProvider,AppKit,IdentityLookup,CoreImage,CoreAudio,ExecutionPolicy,ModelIO,SecurityFoundation,CalendarStore,Collaboration,AudioVideoBridging,Accounts,FileProviderUI,IMServicePlugIn,AudioToolbox,SystemExtensions,CoreSpotlight,LocalAuthentication,Foundation,AdSupport,InstallerPlugins,PushKit,Vision,NetworkExtension,EventKit,CoreHaptics,CallKit,CoreMotion,AddressBook,SoundAnalysis,CoreLocation,CloudKit,IOUSBHost,Photos,CoreMIDI,InputMethodKit,ImageCaptureCore,CoreData,GLKit,CryptoTokenKit,UserNotifications,iTunesLibrary"
+-default_framework=cocoa_base
+-sdk=MacOSX10.15.sdk
+-group=CocoaAll
+-group_frameworks="Foundation, CoreImage, QuartzCore, CoreData, AppKit"
+-all_units="@/templates/mac-unit-template.txt"
+-template="@/templates/cocoaall-template.txt"
+-skeleton="@/skeletons/CocoaAll_10_15"
+-macos
+-all
+-class_definitions
+-build_skeletons
+-build_commands="x86/3.0.4"

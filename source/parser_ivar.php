@@ -36,12 +36,14 @@ class IVarBlockSymbol extends Symbol {
 			
 			foreach ($field->names as $key => $name) {
 				
+
 				// always prefix ivars to prevents conflicts with methods
 				//if (!str_has_prefix($name, IVAR_CONFLICT_PREFIX)) $name = IVAR_CONFLICT_PREFIX.$name;
 				
 				$class->protect_keyword($name);
 				$class->namespace->add_keyword($name);
 				$field->names[$key] = $name;
+				$field->added_to_class($class);
 			}
 		}
 	}
@@ -113,7 +115,6 @@ class IVarBlockSymbol extends Symbol {
 	
 	public function build_source ($indent = 0) {
 		$this->source = $this->build_source_for_scope($indent, $this->scope);
-		//$this->source = $this->scope->get_sub_scope_symbol_source($indent, array("MacroSymbol", "FieldSymbol", "StructSymbol"));
 	}
 }
 
@@ -134,8 +135,6 @@ class HeaderIVarParser extends HeaderParserModule {
 																	);			
 		
 	public function process_scope ($id, Scope $scope) {
-		//print("got ivar block\n");
-		//print($scope->contents."\n");
 		$block = new IVarBlockSymbol($this->header);
 		
 		$scope->set_symbol($block);

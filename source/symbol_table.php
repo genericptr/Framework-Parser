@@ -61,7 +61,6 @@ class GenericTable extends MemoryManager {
 	}
 	
 	public function remove_symbol (Symbol $symbol) {
-		//print("  [*] remove $symbol->name from ".get_class($this)."\n");
 		foreach ($this->symbols as $class => $symbols) {
 			foreach ($symbols as $symbol_key => $_symbol) {
 				if ($symbol->uuid == $_symbol->uuid) {
@@ -75,7 +74,6 @@ class GenericTable extends MemoryManager {
 	public function remove_symbols () {
 		foreach ($this->symbols as $class => $symbols) {
 			foreach ($symbols as $key => $symbol) {
-				//print("  [*] remove $symbol->name from ".get_class($this)."\n");
 				MemoryManager::free_array_value($this->symbols[$class], $key);
 			}
 		}
@@ -548,16 +546,17 @@ class SymbolTable {
 			// iterate the entire list
 			if (($symbol->has_dependencies()) && ($symbol->has_scope())) {
 				foreach ($symbol->dependencies as $dependency) {
-					//print("$symbol depends on $dependency\n");
-					
 					// find the dependent in the header
 					if ($dependent = $this->find_symbol($dependency, ANY_CLASS, $header)) {
 						// the dependent was declared above the symbol
 						if ($symbol->get_offset() < $dependent->get_offset()) {
-							ErrorReporting::errors()->add_message("  ".$header->get_actual_name().": $symbol->name is being moved after $dependent->name");
-							$symbol->remove_from_scope();
-							$symbol->remove_from_tables();
-							$dependent->add_dependent($symbol);
+							// only move symbol if the dependent is fully defined
+							if ($dependent->is_fully_defined()) {
+								ErrorReporting::errors()->add_note("  ".$header->get_actual_name().": $symbol->name is being moved after $dependent->name");
+								$symbol->remove_from_scope();
+								$symbol->remove_from_tables();
+								$dependent->add_dependent($symbol);
+							}
 						}
 					}
 				}
@@ -574,7 +573,7 @@ class SymbolTable {
 			if (!$class->protocols) continue;
 			
 			foreach ($class->protocols as $conforms_to) {
-				//print("class $class->name conforms to $conforms_to\n");
+				if (get_verbosity() > 1) ErrorReporting::errors()->add_message("class $class->name conforms to $conforms_to");
 				if ($protocol = $this->find_symbol($conforms_to, "ProtocolSymbol", ANY_HEADER, $framework, SEARCH_IMPORTED_FRAMEWORKS)) {
 					$class->adopted_methods = array_merge($class->adopted_methods, $protocol->get_adoptable_methods());
 				}

@@ -35,7 +35,7 @@ class FunctionSymbol extends Symbol {
 			$source = "procedure ";
 		else
 			$source = "function ";
-	  
+
 		// add function name based on source type
 		// if $name is null then the caller should add the name to start of the string
 		if ($this->name != "") {
@@ -109,16 +109,16 @@ class HeaderFunctionParser extends HeaderParserModule {
 												"scope" => SCOPE_FUNCTION, 
 												"pattern" => "/([^;]+)\s*\(([^);]+)\)\s*;/is",
 												);
-					
+
 	// unnamed parameter function (with possible named callback)
 	// (NSInteger (*)(int, void *))
 	// (NSInteger (*name)(int, void *))
-	private $pregex_parameter_callback_unnamed = "/^\s*\(([^(]+)\s*\((\*|\^)(\w+)*\)\s*\((.*?)\)\)\s*,/";	
+	private $pregex_parameter_callback_unnamed = "/^\s*\(([^(]+)\s*\((\*|\^)\s*(\w+)*\)\s*\((.*?)\)\)\s*,/";	
 	
 	// unnamed parameter function without parenthesis
 	// NSInteger (*name)(int, void *)
 	// NSInteger (*)(int, void *)
-	private $pregex_parameter_callback_unnamed_no_parenthesis = "/^\s*([^(]+)\s*\((\*|\^)(\w+)*\)\s*\((.*?)\)\s*,/";	
+	private $pregex_parameter_callback_unnamed_no_parenthesis = "/^\s*([^(]+)\s*\((\*|\^)\s*(\w+)*\)\s*\((.*?)\)\s*,/";	
 	
 	// generic parameter
 	private $pregex_parameter_generic = "/^\s*\w+(.*?),/";	
@@ -145,7 +145,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 		unset($function_parser);
 		
 		return $function->source;
-	}	
+	}
 	
 	// same as build_function_pointer except it returns a FunctionSymbol
 	public static function build_function_pointer_symbol (&$header, $return_type, $name, $parameters, $source_type) {
@@ -260,11 +260,12 @@ class HeaderFunctionParser extends HeaderParserModule {
 				
 	// Converts a C parameter string to Pascal
 	private function convert_parameters (FunctionSymbol $function, $string) {
-		//print("convert params for $function->name\n");
+		// print("convert params for $function->name: $string\n");
 		
 		// remove line breaks in parameters
 		$string = str_remove_lines($string);
-		
+		$string = clean_objc_generics($string);
+
 		// void or empty parameters, return an empty string
 		if ((trim($string) == "void")  || (trim($string) == "")) return null;
 		
@@ -278,14 +279,12 @@ class HeaderFunctionParser extends HeaderParserModule {
 		while ($contents) {
 						
 			if (preg_match($this->pregex_parameter_callback_unnamed, $contents, $captures, PREG_OFFSET_CAPTURE)) {
-				//print("got pregex_parameter_callback_unnamed\n");
 				$parameters[] = $this->convert_function_parameter($function, $captures[3][0], $captures[2][0], $captures[1][0], $captures[4][0], $count);
 				$contents = substr($contents, strlen($captures[0][0]));
 				continue;
 			}
 			
 			if (preg_match($this->pregex_parameter_callback_unnamed_no_parenthesis, $contents, $captures, PREG_OFFSET_CAPTURE)) {
-				//print("got pregex_parameter_callback_unnamed_no_parenthesis\n");
 				$parameters[] = $this->convert_function_parameter($function, $captures[3][0], $captures[2][0], $captures[1][0], $captures[4][0], $count);
 				$contents = substr($contents, strlen($captures[0][0]));
 				continue;
@@ -293,8 +292,6 @@ class HeaderFunctionParser extends HeaderParserModule {
 			
 			if (preg_match($this->pregex_parameter_generic, $contents, $captures, PREG_OFFSET_CAPTURE)) {
 				$index++;
-				
-				//print("got pregex_parameter_generic #$index\n");
 				$part = trim($captures[0][0], ", ");
 				$parameters[] = $this->convert_generic_parameter($part, $index, $function);
 				$contents = substr($contents, strlen($captures[0][0]));
@@ -302,7 +299,6 @@ class HeaderFunctionParser extends HeaderParserModule {
 			}
 			
 			if (preg_match($this->pregex_parameter_varags, $contents, $captures, PREG_OFFSET_CAPTURE)) {
-				//print("got pregex_parameter_varags\n");
 				$function->varargs = true;
 				$contents = substr($contents, strlen($captures[0][0]));
 				continue;
@@ -321,7 +317,6 @@ class HeaderFunctionParser extends HeaderParserModule {
 			break;
 		}
 		
-		//print_r($parameters);
 		return $parameters;
 	}		
 		
@@ -349,6 +344,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 	
 	// extracts name/return type from pattern result string
 	private function extract_name_return_type ($string, &$name, &$return_type) {
+		$string = clean_objc_generics($string);
 		if (preg_match("/^(.*?)(\w+)$/s", trim($string), $captures)) {
 			$name = $captures[2];
 			$return_type = trim($captures[1]);
@@ -371,6 +367,8 @@ class HeaderFunctionParser extends HeaderParserModule {
 	}
 							
 	public function process_scope ($id, Scope $scope) {
+		parent::process_scope($id, $scope);
+		
 		//print("got function $id at $scope->start/$scope->end\n");
 		//print($scope->contents."\n");
 		//print_r($scope->results);
@@ -458,7 +456,6 @@ class HeaderFunctionParser extends HeaderParserModule {
 				$contents = substr_replace($contents, "extern ", $captures[0][1] + 1, 0);
 
 				//ErrorReporting::errors()->add_message("- Added extern to function \"$name\" from ".basename($umbrella).".");
-				
 
 				// get the start/end offset and macro captured
 				$result = $captures[0][0];

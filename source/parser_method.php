@@ -29,27 +29,46 @@ class MethodSymbol extends Symbol {
 			$class->protect_keyword($pair->name);
 		}
 	}
-	
-	public function finalize (ClassSymbol $class) {
-		//print("finalize $this->name of $class->name\n");
-		
-		// protect parameter names
-		$this->protect_parameter_names($class);
 
-		$class->protect_method($this);
+	public function finalize (ClassSymbol $class) {
 		
+		$this->protect_parameter_names($class);
+		$class->protect_method($this);
 		$class->namespace->add_keyword($this->name);	
+
+		// replace generic paramter names in class
+		for ($i=0; $i < count($this->parameters); $i++) { 
+			$pair = &$this->parameters[$i];
+
+			if ($class->has_generic_params()) {
+				$pair->type = $class->replace_generic_params($pair->type);
+			}
+
+			// replace generic params in callback pointer string
+			// note: at this point we only have the raw string because it was
+			// already generated before we had class information so we need to use
+			// a word replace
+			if ($class->has_generic_params() && $pair->get_callback_symbol($symbol, $this->header)) {
+				$symbol->type = $class->replace_generic_params($symbol->type);
+			}
+		}
+
+		if ($class->has_generic_params()) {
+			$this->return_type = $class->replace_generic_params($this->return_type);
+		}
+
+		// TODO: if a param is a function pointer we need to replace generic params in the exported definition
 	}
 	
 	// invoked after a method is added to a class
 	public function added_to_class (ClassSymbol $class) {
 		$this->class = $class;
-		
-		//$class->namespace->add_keyword($this->name);	
 	}
 		
 	public function build_source ($indent = 0) {
 		
+		$source = '';
+
 		// add class method
 		if ($this->is_class) $source .= "class ";
 		
@@ -64,6 +83,7 @@ class MethodSymbol extends Symbol {
 		$source .= $this->name;
 		
 		// add parameters
+		$parameters = '';
 		if ($this->parameters) {
 			foreach ($this->parameters as $param) {
 				$parameters .= $param->name.": ".$param->type."; ";
@@ -108,6 +128,15 @@ class ParameterPair {
 	public $protocol_hint;			// the protocol hint <NSProtocol> for the paramter
 	public $modifiers;					// optional pascal modifiers for the paramater (like var)
 	public $function_pointer;		// pascal function pointer source for inline functions pointers
+
+	public function get_callback_symbol(&$symbol, Header $header): bool  {
+		if ($this->function_pointer) {
+			$symbol = SymbolTable::table()->find_symbol($this->type, ANY_CLASS, $header);
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 
 
@@ -122,10 +151,10 @@ class HeaderMethodParser extends HeaderParserModule {
 																		);
 	
 	// NSInteger (*)(id, id, void *)
-	private $pregex_callback_parameter = "/((\w+)\s*[*]*\s*)\(\*\)\s*\((.*?)\)/";
+	private $pregex_callback_parameter = "/((\w+)\s*[*]*\s*)\(\s*\*\s*\)\s*\((.*?)\)/";
 	
 	// void (^)(id obj, NSUInteger idx, BOOL *stop)
-	private $pregex_block_parameter = "/((\w+)\s*[*]*\s*)\(\^\)\s*\((.*?)\)/";
+	private $pregex_block_parameter = "/((\w+)\s*[*]*\s*)\(\s*\^\s*\)\s*\((.*?)\)/";
 	
 	// label:(NSString*)name
 	private $pregex_selector = "/(?P<label>\w+)\s*:\s*(\((?P<type>.*?)\)|)\s*(?P<name>\w+)/";
@@ -172,6 +201,7 @@ class HeaderMethodParser extends HeaderParserModule {
 	}
 	
 	private function parse_return_type ($return_type, MethodSymbol &$method) {
+		$return_type = clean_objc_generics($return_type);
 		$return_type = replace_remote_messaging_modifiers($return_type, $null);	
 		$return_type = replace_garbage_collector_hints($return_type, $null);
 		
@@ -238,6 +268,8 @@ class HeaderMethodParser extends HeaderParserModule {
 		$method->prefix = $prefix;
 		$method->return_type = $this->parse_return_type($return_type, $method);
 		
+		$parameters = clean_objc_generics($parameters);
+
 		// parse parameters
 	 	if (preg_match_all($this->pregex_selector, $parameters, $captures)) {
 			//print_r($captures);
@@ -283,22 +315,21 @@ class HeaderMethodParser extends HeaderParserModule {
 	}						
 							
 	function process_scope ($id, Scope $scope) {
-		//print("got method $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
-		
+		parent::process_scope($id, $scope);
+
 		$results = $scope->results;
 		
 		if ($method = $this->process_method($results[0], $results[1], $results[2], $results[3])) {
 			$method->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
 			$scope->set_symbol($method);
 		}
-		
 	}
 	
 	public function init () {
 		parent::init();
-		
+
+		$this->name = "method";
+
 		$this->add_pattern($this->pattern_method);
 	}		
 

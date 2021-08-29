@@ -201,7 +201,7 @@ Be warned that parsing /System/Library/Frameworks on my MacBook 2.4GHz Intel Cor
 
 ### Parse framework from SDK:
 
-php parser.php -out="~/dump" -frameworks="AppKit" -sdk="MacOSX10.7.sdk" -all -macos -autoload_imported_frameworks -class_definitions -build_skeletons
+	php parser.php -out="~/dump" -frameworks="AppKit" -sdk="MacOSX10.7.sdk" -all -macos -autoload_imported_frameworks -class_definitions -build_skeletons
 
 Using the -sdk option you can specify an SDK name such as MacOSX10.7.sdk or iPhoneOS5.0.sdk and the parser will search for the using on the system from an array of supplied search paths.
 
@@ -299,20 +299,13 @@ Framework definition properties are inheritable which means one framework can in
 
 `<ignore_headers>` - Comma-separated list of header names that will be ignored in the framework.
 
-`<ignore_lines>` - Array of lines that will be skipped by the parser.
-
-	`<ignore_lines>
-		<line>#define FOO</line>
-		<line>@class FOO</line>
-	</ignore_lines>`
-
 `<uses>` - Comma-separated list of units to include in the uses clause when generating units. This list is inserted into templates using the [USES] macro (see templates.php).
 
 `<imports>` - Comma-separated list of headers to "import" into the framework (like #import in C). Typically you can use <umbrella> to load all required headers but in some frameworks you may need to specify additional headers or the umbrella header does not exist.
 
 `<implicit_pointers>` - Comma-separated list of types that are "implicit pointers", I.E. these types are not parsed as pointers even with * in the their usage (typically used for Objective-C classes).
 
-`<external_macros>` - The parser will make an attempt to parser #defines that specify the "extern" keyword in C but if it fails you must specify external macros explicitly or external types like variables and functions will be ignored.
+`<external_macros>` - Comma-separated list of patterns. The parser will make an attempt to parser #defines that specify the "extern" keyword in C but if it fails you must specify external macros explicitly or external types like variables and functions will be ignored.
 
 `<remove_macros>` - **DEPRECATED** use <replacement_patterns> instead. Array of regular expression to be removed entirely. 
 

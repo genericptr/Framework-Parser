@@ -15,6 +15,8 @@ class EnumFieldSymbol extends Symbol {
 	}
 		
 	public function build_source ($indent = 0) {
+		$value = '';
+
 		if ($this->bitwise_or) {
 			foreach ($this->value as $part) $value .= $part." + ";
 			$value = trim($value, "+ ");
@@ -72,9 +74,9 @@ class HeaderEnumFieldParser extends HeaderParserModule {
 	}
 	
 	public function process_scope ($id, Scope $scope) {
-		//print("got enum field at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		// print("got enum field at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
 		
 		switch ($id) {
 			
@@ -117,6 +119,7 @@ class EnumBlockSymbol extends Symbol {
 	}
 		
 	public function build_source ($indent = 0) {
+		$source = '';
 		$source .= indent_string($indent)."const\n";
 		$source .= $this->scope->get_sub_scope_symbol_source($indent + 1);
 		
@@ -180,16 +183,16 @@ class HeaderEnumParser extends HeaderParserModule {
 				$field->value = $auto_increment;
 				$auto_increment++;
 			}
-			
-			//$field_count++;
 		}
 		
 	}
 								
 	public function process_scope ($id, Scope $scope) {
-		//print("got enum block $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
 		
+		// print("got enum block $id at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
+
 		$enum = new EnumBlockSymbol($this->header);
 		
 		// enum is a typedef

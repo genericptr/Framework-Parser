@@ -58,9 +58,14 @@ class PropertySymbol extends MethodSymbol {
 		// because the selectors are always the same even for duplicates in
 		// super classes, which are permitted to overwrite in external objcclass's
 		
+		// replace generic paremeter in property type
+		if ($class->has_generic_params()) {
+			$this->type = $class->replace_generic_params($this->type);
+		}
+
 		// protect getter
 		$getter = $this->get_getter();
-		//$class->protect_keyword($getter);		
+
 		$class->namespace->protect_keyword($getter);
 		$class->namespace->add_keyword($getter);
 		global_namespace_protect_keyword($getter);
@@ -69,7 +74,6 @@ class PropertySymbol extends MethodSymbol {
 		// protect setter
 		if (!$this->is_read_only()) {
 			$setter = $this->get_setter();
-			//$class->protect_keyword($setter);
 			$class->namespace->protect_keyword($setter);		
 			$class->namespace->add_keyword($setter);
 			global_namespace_protect_keyword($setter);
@@ -80,6 +84,7 @@ class PropertySymbol extends MethodSymbol {
 		foreach ($this->dependents as $property) {
 			$property->finalize($class);
 		}
+
 	}
 	
 	public function build_source ($indent = 0) {
@@ -89,7 +94,7 @@ class PropertySymbol extends MethodSymbol {
 			$name = $this->get_setter();
 			$message = trim($name, KEYWORD_PROTECTION_SUFFIX);
 			$type = $this->type;
-			$source .= indent_string($indent)."procedure $name(newValue: $type); message '$message:';";
+			$source = indent_string($indent)."procedure $name(newValue: $type); message '$message:';";
 			if ($this->deprecated_macro) $source .= " ".$this->deprecated_macro;
 			$source .= "\n";
 		}
@@ -100,7 +105,6 @@ class PropertySymbol extends MethodSymbol {
 		$type = $this->type;
 		$source .= indent_string($indent)."function $name: $type; message '$message';";
 		if ($this->deprecated_macro) $source .= " ".$this->deprecated_macro;
-		//$source .= "\n";
 		
 		// add dependents
 		if (count($this->dependents) > 0) {
@@ -137,7 +141,7 @@ class HeaderPropertyParser extends HeaderParserModule {
 		
 		foreach ($parts as $part) {
 			$part = trim($part);
-			
+
 			// split by = to get assigned accessor names
 			if (preg_match("/(\w+)\s*=\s*(\w+)/", $part, $captures)) {
 
@@ -171,19 +175,23 @@ class HeaderPropertyParser extends HeaderParserModule {
 	}
 										
 	function process_scope ($id, Scope $scope) {
-		//print("got property at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		parent::process_scope($id, $scope);
 		
 		$property = new PropertySymbol($this->header);
-				
-		if (preg_match($this->pregex_function_pointer, $scope->results[3], $captures)) {
+		
+		$attributes = $scope->results[2];
+		$name_and_type = $scope->results[3];
+		$name_and_type = clean_objc_generics($name_and_type);
+
+		$property->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
+		
+		if (preg_match($this->pregex_function_pointer, $name_and_type, $captures)) {
 			
 			// get the name and parse attributes
 			$property->name = $captures[3];
 			$property->selector = $captures[3];
-			$this->process_property_attributes($property, $scope->results[3]);
-			
+			$this->process_property_attributes($property, $name_and_type);
+
 			if ($captures[2] == "*") {
 				// build the function pointer from inline pointer type
 				$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[1], null, $captures[4], FUNCTION_SOURCE_TYPE_TYPE);
@@ -198,9 +206,20 @@ class HeaderPropertyParser extends HeaderParserModule {
 				$property->type = OPAQUE_BLOCK_TYPE;
 			}
 			
+			// print some debug info
+			if (get_verbosity() > 1) {
+				$debug = array("name" => $property->name,
+											 "selector" => $property->selector,
+											 "type" => $property->type,
+											 "return-type" => $captures[1],
+											 "parameters" => $captures[4]
+											);
+				print_r($debug);
+			}
+
 		} else {
-			$this->process_property_attributes($property, $scope->results[2]);
-			$this->process_property_name_type($property, $scope->results[3]);
+			$this->process_property_attributes($property, $attributes);
+			$this->process_property_name_type($property, $name_and_type);
 		}
 		
 		// add additional properties from names list
@@ -221,7 +240,9 @@ class HeaderPropertyParser extends HeaderParserModule {
 	
 	public function init () {
 		parent::init();
-		
+
+		$this->name = "property";
+
 		$this->add_pattern($this->pattern_property);
 	}		
 

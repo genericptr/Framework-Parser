@@ -22,20 +22,30 @@
 		$path = expand_root_path($path);
 		return $path;
 	}
-	
-	function trim_suffix($string, $suffix) {
-		if (preg_match("/$suffix$/", $string)) {
-			return substr($string, 0, -strlen($suffix));  
+
+  // converts a comma separated list string into an array
+	function comma_separated_list (?string $string): ?array {
+		if ($string) {
+			$string = str_replace(' ', '', $string);
+			return explode(',', $string);
 		} else {
-			return $string;
+			return null;
 		}
 	}
 	
-	function trim_prefix($string, $prefix) {
-		if (preg_match("/^$prefix/", $string)) {
-			return substr($string, strlen($prefix), strlen($string));
+	function trim_suffix($subject, $suffix) {
+		if (preg_match("/$suffix$/", $subject)) {
+			return substr($subject, 0, -strlen($suffix));  
 		} else {
-			return $string;
+			return $subject;
+		}
+	}
+	
+	function trim_prefix($subject, $prefix) {
+		if (preg_match("/^$prefix/", $subject)) {
+			return substr($subject, strlen($prefix), strlen($subject));
+		} else {
+			return $subject;
 		}
 	}
 	
@@ -114,12 +124,18 @@
 	}	
 		
 	function str_replace_word ($needle, $replacement, $haystack) {
+			// convert needle to regex list if it's an array
+			if (is_array($needle))
+				$needle = implode("|", $needle);
 	    $pattern = "/\b($needle)\b/";
 	    $haystack = preg_replace($pattern, $replacement, $haystack);
 	    return $haystack;
 	}
 
 	function istr_replace_word ($needle, $replacement, $haystack) {
+			// convert needle to regex list if it's an array
+			if (is_array($needle))
+				$needle = implode("|", $needle);
 	    $pattern = "/\b($needle)\b/i";
 	    $haystack = preg_replace($pattern, $replacement, $haystack);
 	    return $haystack;
@@ -153,7 +169,40 @@
 		$string = str_replace("\n", "", $string);
 		return $string;
 	}
-		
+
+	function make_white_space (int $len, string $char = " "): string {
+		$string = "";
+		for ($i=0; $i < $len; $i++) { 
+			$string .= $char;
+		}
+		return $string;
+	}
+	
+	function preg_replace_balanced(string $pattern, string $subject, bool $match_all = false, int $capture = 0): string {
+		$offset = 0;
+		while (true) {
+			if (preg_match($pattern, $subject, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+				// get the correct capture
+				$match = $matches[$capture];
+				// count newlines
+				$newlines = substr_count($match[0], "\n");
+				$start = $match[1];
+				$len = strlen($match[0]);
+				// build a replacement string which matches the correct length of the
+				// pattern which was found
+				$replacement = make_white_space($len);
+				$replacement .= make_white_space($newlines, " \n");
+				$subject = substr_replace($subject, $replacement, $start, $len);
+				$offset = $start + $len;
+				if (!$match_all) return $subject;
+			} else {
+				return $subject;
+			}
+		}
+
+		return $subject;
+	}
+
 	function preg_replace_all ($pattern, $replacement, $subject) {
 		if (!$pattern) return $subject;
 		

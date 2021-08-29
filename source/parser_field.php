@@ -14,7 +14,8 @@ class FieldSymbol extends Symbol {
 	public $bit_field = null;
 	public $garbage_collector_hint = null;
 	public $names = array();
-	
+	private $class = null;
+
 	private function is_multi_dimensional_array() {
 		return (bool)(count($this->array_dimensions) > 1);
 	}
@@ -33,11 +34,19 @@ class FieldSymbol extends Symbol {
 		}
 	}
 	
+	public function added_to_class (ClassSymbol $class) {
+		$this->class = $class;
+	}
+
 	public function build_source ($indent = 0) {
 		
 		$name = implode(", ", $this->names);
 		$source = $name.":";
-		
+
+		// replace generic params
+		if ($this->class && $this->class->has_generic_params())
+			$this->type = $this->class->replace_generic_params($this->type);
+
 		// make bit field 
 		// as far as I know bit fields can not be arrays so we handle them separately
 		if ($this->bit_field) {
@@ -60,7 +69,7 @@ class FieldSymbol extends Symbol {
 
 		// terminate
 		$source .= $this->insert_deprecated_macro().";";
-		
+
 		$this->source = indent_string($indent).$source."\n";
 	}
 }
@@ -100,10 +109,6 @@ class HeaderFieldParser extends HeaderParserModule {
 																						"pattern" => "/(.*?)\s*\(\s*([*^])\s*(\w+)?\s*\)\s*\(([^)]*)\)\s*;/i",
 																						"break" => "/^\s*\}/",
 																						);
-
-
-	// strict block (could be others??)																					
-	// \w+\s*\(\^\w+\)\s*\(.*\)\s*;
 																	
 	public function accept_scope (Scope $scope) {
 		
@@ -175,9 +180,9 @@ class HeaderFieldParser extends HeaderParserModule {
 	}
 	
 	public function process_scope ($id, Scope $scope) {
-		//print("+ got field $id in ".$scope->get_super_scope()->name."\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		// print("+ got field $id in ".$scope->get_super_scope()->name."\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
 		
 		switch ($id) {
 			
@@ -198,9 +203,6 @@ class HeaderFieldParser extends HeaderParserModule {
 			}
 			
 		}
-		
-		//$field->build_source();
-		//print($field->source."\n");
 	}
 	
 	

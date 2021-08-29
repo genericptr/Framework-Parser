@@ -212,7 +212,10 @@ class HeaderMacroParser extends HeaderParserModule {
 			foreach ($captures[1] as $key => $function) {
 				$parameters = $captures[2][$key];
 				if (!in_array($function, $this->token_keywords)) {
-					$value = preg_replace("/($function)\s*\($parameters\)/", "$1", $value);
+					// TODO: preg_replace returns a warning here that we're ignoring for now
+					// https://stackoverflow.com/questions/20705399/warning-preg-replace-unknown-modifier
+					// Warning: preg_replace(): Unknown modifier 'N' in /Developer/ObjectivePascal/parser/source/parser_macro.php on line 215
+					$value = @preg_replace("/($function)\s*\($parameters\)/", "$1", $value);
 				}
 			}
 		}

@@ -94,8 +94,9 @@ class HeaderProtocolParser extends HeaderParserModule {
 	}
 		
 	public function process_scope ($id, Scope $scope) {
-		//print("got protocol at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
+		parent::process_scope($id, $scope);
+		// print("got protocol at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
 		
 		$protocol = new ProtocolSymbol($this->header);
 		
@@ -130,7 +131,11 @@ class HeaderProtocolParser extends HeaderParserModule {
 		}
 		
 	}
-		
+
+	function conclude () {
+		// print_color(ErrorReporting::ANSI_FORE_GREEN, "conclude parsing property");
+	}	
+
 	public function init () {
 		parent::init();
 		

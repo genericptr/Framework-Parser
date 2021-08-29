@@ -9,6 +9,7 @@ require_once("parser_typedef.php");
 require_once("parser_enum.php");
 require_once("parser_function.php");
 require_once("parser_variable.php");
+require_once("parser_constant.php");
 require_once("parser_define.php");
 require_once("parser_macro.php");
 require_once("parser_field.php");
@@ -66,17 +67,18 @@ class Header extends MemoryManager {
 	
 	public $framework;										// reference to the framework the header was loaded from
 	public $anonymous_struct_count = 0;		// count of anonymous (unnamed) structures in the header
-	
+	public $untitled_categories = 0;
+
 	/**
 	 * Private
 	 */
 	
-	private $path;							// path to the header
+	public $path;								// path to the header
 	private $name;							// the full C-name of the header
 	private $symbols;						// reference to the symbol table
 
 	private $actual_name;				// actual name of the header without extention
-	private $partial_path;			// partial path containg the framework name and output file (AppKit/NSWindow)
+	public $partial_path;			  // partial path containg the framework name and output file (AppKit/NSWindow)
 															// this is used so headers can be uniquely referred to via the command line
 	
 	private $availability_macros = array();
@@ -100,13 +102,27 @@ class Header extends MemoryManager {
 		foreach ($this->availability_macros as $macro) {
 			
 			// macro is within the scope range
-			if (($macro["start"] >= $start) && ($macro["end"] <= $end)) return $macro["name"];
+			if (($macro["start"] >= $start) && ($macro["end"] <= $end)) {
+				$name = $macro["name"];
+				break;
+			}
 			
 			// macro is after scope range
-			if (($start >= $macro["start"]) && ($end <= $macro["end"])) return $macro["name"];
+			if (($start >= $macro["start"]) && ($end <= $macro["end"])) {
+				$name = $macro["name"];
+				break;
+			}
 		}
+
+		// escape single quote in deprecated statments
+		if (preg_match("/^deprecated\s+'(.*)'/", $name, $matches)) {
+			$contents = str_replace("'", "''", $matches[1]);
+			$name = "deprecated '$contents';";
+		}
+
+		return $name;
 	}
-			
+
 	public function get_actual_name () {
 		return $this->actual_name;
 	}
@@ -124,6 +140,8 @@ class Header extends MemoryManager {
 		return $this->path;
 	}
 
+	// returns the name (string) of the header which is displayed at
+	// the top of the pascal output unit
 	public function get_display_name () {
 		if (is_parser_option_enabled(PARSER_OPTION_VERBOSE)) {
 			return $this->path;
@@ -174,7 +192,8 @@ class Header extends MemoryManager {
 		$module_function = new HeaderFunctionParser(MODULE_FUNCTION, $this);
 		$module_variable = new HeaderVariableParser(MODULE_VARIABLE, $this);
 		$module_define = new HeaderDefineParser(MODULE_DEFINE, $this);
-		
+		$module_constant = new HeaderConstantParser(MODULE_CONSTANT, $this);
+
 		// add modules to parser
 		$this->parser->add_module($module_macro);
 		$this->parser->add_module($module_class);
@@ -191,9 +210,10 @@ class Header extends MemoryManager {
 		$this->parser->add_module($module_enum_field);
 		$this->parser->add_module($module_typedef);
 		$this->parser->add_module($module_function);
+		$this->parser->add_module($module_constant);
 		$this->parser->add_module($module_variable);
 		$this->parser->add_module($module_define);
-		
+
 		// run the parser!
 		$this->root_scope = $this->parser->parse();
 	}	
@@ -203,7 +223,7 @@ class Header extends MemoryManager {
 		
 		// get the units output path
 		$path = rtrim($path, "/")."/".$this->get_name_with_extension("pas");
-		
+
 		if ($show) {
 			ErrorReporting::errors()->add_message("  Printing ".basename($path));
 		} else {
@@ -245,7 +265,10 @@ class Header extends MemoryManager {
 		
 		// no root scope was parsed, bail
 		if (!$this->root_scope) return;		
-				
+			
+		// get the original path to the umbrella unit
+		$umbrella = "$path/".$this->framework->get_name().".pas";
+
 		// decide which path to print output to
 		if (!$absolute_path) {
 			$path = rtrim($path, "/")."/".$this->get_partial_path("inc");
@@ -259,9 +282,17 @@ class Header extends MemoryManager {
 			if (!file_exists($dir)) {
 				if (!@mkdir($dir)) ErrorReporting::errors()->add_fatal("The output directory \"$dir\" can't be created.");
 			}
-			//if (!file_exists($dir)) ErrorReporting::errors()->add_fatal("The output directory \"$dir\" does not exist.");
 		}
-		
+
+		// in safe mode only print files if the file doesn't already exist or the modification
+		// date is the same as the original date of the umbrella unit
+		if (is_parser_option_enabled(PARSER_OPTION_SAFE_WRITE) && file_exists($path)) {
+			if (filemtime($path) > filemtime($umbrella)) {
+				ErrorReporting::errors()->add_note(basename($path)." has been changed, ignoring.");
+				return;
+			}
+		} 
+
 		ErrorReporting::errors()->add_message("  Printing ".basename($path));
 		
 		// load the output file
@@ -274,9 +305,9 @@ class Header extends MemoryManager {
 		$sdk = null;
 	
 		if ($sdk) {
-			$header_message = "{ Parsed from ".ucfirst($this->framework->get_name()).".framework ($sdk) ".$this->name." }";
+			$header_message = "{ Parsed from ".ucfirst($this->framework->get_name()).".framework ($sdk) ".$this->get_display_name()." }";
 		} else {
-			$header_message = "{ Parsed from ".ucfirst($this->framework->get_name()).".framework ".$this->name." }";
+			$header_message = "{ Parsed from ".ucfirst($this->framework->get_name()).".framework ".$this->get_display_name()." }";
 		}
 		$output->writeln(0, $header_message);
 		
@@ -297,6 +328,10 @@ class Header extends MemoryManager {
 		
 		// print root scopes symbol table
 		$this->root_scope->print_symbol_table($output);
+
+		// synchronize modification date with umbrella unit
+		if (file_exists($umbrella))
+			touch($path, filemtime($umbrella));
 	}	
 				
 	/**

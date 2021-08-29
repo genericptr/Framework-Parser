@@ -54,7 +54,12 @@ $template_availability_macros = <<<TEMPLATE
 {\$define MAC_OS_X_VERSION_10_8 := 1080}
 {\$define MAC_OS_X_VERSION_10_9 := 1090}
 {\$define MAC_OS_X_VERSION_10_10 := 1100}
-{\$define MAC_OS_X_VERSION_LATEST := MAC_OS_X_VERSION_10_10}
+{\$define MAC_OS_X_VERSION_10_11 := 1110}
+{\$define MAC_OS_X_VERSION_10_12 := 1120}
+{\$define MAC_OS_X_VERSION_10_13 := 1130}
+{\$define MAC_OS_X_VERSION_10_14 := 1140}
+{\$define MAC_OS_X_VERSION_10_15 := 1150}
+{\$define MAC_OS_X_VERSION_LATEST := MAC_OS_X_VERSION_10_15}
 
 // System Versions iPhoneOS SDK
 {\$define __MAC_10_0 := 1000}
@@ -242,6 +247,12 @@ $template_build_command_i386 = <<<TEMPLATE
 #!/bin/bash
 DIR=\$(dirname \$0)
 /usr/local/lib/fpc/[VERSION]/ppc386 "\$DIR/[UNIT].pas" -FU"\$DIR/output"
+TEMPLATE;
+
+$template_build_command_x86 = <<<TEMPLATE
+#!/bin/bash
+DIR=\$(dirname \$0)
+/usr/local/lib/fpc/[VERSION]/ppcx64 "\$DIR/[UNIT].pas" -FU"\$DIR/output"
 TEMPLATE;
 
 // build command for ARM/iOS frameworks

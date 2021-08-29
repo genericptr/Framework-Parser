@@ -31,6 +31,12 @@
 			<!-- UInt8Ptr needs to be changed to pointer for universal interface compatibility -->
 			<value>uint8=pointer</value>
 		</pointer_types>
+		<replacement_patterns>
+			<pattern>
+				<pattern>/\b(CF_BRIDGED_TYPE|CF_BRIDGED_MUTABLE_TYPE|CF_RELATED_TYPE|CF_SWIFT_NAME)+\b\s*\(.*?\)/i</pattern>
+				<replacement></replacement>
+			</pattern>
+		</replacement_patterns>
 	</framework>
 	
 	<framework>

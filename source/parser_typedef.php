@@ -102,9 +102,6 @@ class TypedefSymbol extends Symbol {
 	}
 	
 	public function build_source ($indent = 0) {
-		///$source = indent_string($indent)."type\n";
-		//$indent += 1;
-		
 		$name = $this->name;
 		$type = $this->type;
 		
@@ -129,7 +126,7 @@ class TypedefSymbol extends Symbol {
 		
 		// build the final line from parts
 		$type = trim($type, ";");
-		$source .= "$name = $type".$this->insert_deprecated_macro().";\n";
+		$source = "$name = $type".$this->insert_deprecated_macro().";\n";
 		
 		$this->source = indent_string($indent).$source;
 	}
@@ -218,19 +215,31 @@ class HeaderTypedefParser extends HeaderParserModule {
 		// move * in pointers directly before the name to make splitting easier
 		// we don't them before names so format_c_type won't encode types as pointers
 		// and gives the typedef parser a chance to create the type for the pointer
-		$contents = preg_replace("/\*{1}\s*(\w+)/", " *$1" , $contents);
+		$contents = preg_replace("/\*{1}\s*(\w+)/", " *$1", $contents);
 		
 		// move , in type lists directly after the word
-		$contents = preg_replace("/(\*)*(\w+)\s*,{1}/", "$1$2, " ,$contents);
+		// $contents = preg_replace("/(\*)*(\w+)\s*,{1}/", "$1$2, " , $contents);
 		//print($contents."\n");
 		
 		// move [] directly after word and remove spaces inside brackets
 		$contents = preg_replace("/(\w+)\s*\[\s*(\w+)*\s*\]/", " $1[$2]" , $contents);
 		
 		// split the contents into parts divided by white space
-		$parts = preg_split("/\s+/", $contents);
-		//print_r($parts);
+
+		// TODO: seems I thought typedefs could be a list but that's not true
+		$type = "";
+		if (preg_match("/(\w+$)/", $contents, $matches, PREG_OFFSET_CAPTURE)) {
+			$list[] .= $matches[1][0];
+			$type = substr($contents, 0, $matches[1][1]);
+			$type = format_c_type($type, $this->header);
+		}
 		
+		/*
+
+		$parts = preg_split("/\s+(?=(\w+$))/", $contents);
+		// print("$contents\n");
+		// print_r($parts);
+
 		// the name is the last indentifier
 		$list[] = array_pop($parts);
 		
@@ -241,12 +250,13 @@ class HeaderTypedefParser extends HeaderParserModule {
 				unset($parts[$key]);
 			}
 		}
-		//print_r($list);
+		print_r($list);
 		
 		// rebuild the type from the remaining parts
 		$type = implode(" ", $parts);
 		$type = format_c_type($type, $this->header);
-				
+		*/
+
 		// make a typedef for each available name
 		foreach ($list as $name) {
 			$typedef = new TypedefSymbol($this->header);
@@ -255,17 +265,17 @@ class HeaderTypedefParser extends HeaderParserModule {
 			$typedef->is_struct = $is_struct;
 			$typedef->is_enum = $is_enum;
 			$typedef->is_union = $is_union;
-			
+
 			// set the type for enums
 			if ($typedef->is_enum) $typedef->type = TYPDEF_ENUM_TYPE;			
 						
 			// format for extra information
 			$this->format_typedef_array($typedef);
 			$this->format_typedef_pointer($typedef);
-			
+
 			// the identifier has already been declared
 			if (!$typedef->verify_scope_availability($scope->get_super_scope())) continue;
-			
+
 			// add dependency on type
 			$typedef->add_dependency($typedef->type);
 					
@@ -340,6 +350,11 @@ class HeaderTypedefParser extends HeaderParserModule {
 			SymbolTable::table()->add_implicit_pointer($name);
 		} else {
 			$name = trim($name, "^ ");
+			// TODO: use "reference to" syntax for cblocks (make Cblocks function parser method)
+			// print("name: $name\n");
+			// print("return: $return_type\n");
+			// print("parameters: $parameters\n");
+			// die;
 			$type = OPAQUE_BLOCK_TYPE;
 		}
 				
@@ -350,11 +365,12 @@ class HeaderTypedefParser extends HeaderParserModule {
 	}		
 		
 	public function process_scope ($id, Scope $scope) {
-		//print("got typedef $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
-		//return;
-		
+		parent::process_scope($id, $scope);
+
+		// print("** got typedef at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
+
 		switch ($id) {
 			
 			// generic typedefs
@@ -364,7 +380,6 @@ class HeaderTypedefParser extends HeaderParserModule {
 						$typedef->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
 						$this->symbols->add_symbol($typedef);
 					}
-					
 					$scope->set_symbol($typedefs[0]);
 				}
 				
@@ -401,6 +416,8 @@ class HeaderTypedefParser extends HeaderParserModule {
 	public function init () {
 		parent::init();
 		
+		$this->name = "typedef";
+
 		// NOTE: this order is important for precedence
 		$this->add_pattern($this->pattern_typedef_function_pointer);
 		$this->add_pattern($this->pattern_typedef_function_type);

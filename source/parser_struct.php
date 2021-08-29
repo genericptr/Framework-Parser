@@ -37,8 +37,7 @@ class StructSymbol extends Symbol {
 		// inline struct can't have aliases, but the name after the struct declration
 		// is the field name (the name before it is the type name, which we don't care
 		// about)
-		if ($this->inline)
-		{
+		if ($this->inline) {
 			$this->name = $name;
 			return;
 		}
@@ -75,7 +74,7 @@ class StructSymbol extends Symbol {
 	// this as the preferred name, which will be used
 	// in the framework
 	public function get_preferred_alias_name () {
-		if (count($this->aliases) == 1) {
+		if ($this->aliases && count($this->aliases) == 1) {
 			return $this->aliases[0];
 		} else {
 			return $this->name;

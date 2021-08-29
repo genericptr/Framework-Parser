@@ -24,7 +24,7 @@ class Scope extends MemoryManager {
 	public $start_from;
 	public $failed_patterns = array();
 	
-	protected $header;
+	public $header;
 	
 	private $sub_scopes = array();
 	private $super_scope = null;

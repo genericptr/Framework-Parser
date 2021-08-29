@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<frameworks>
+  <framework>
+    <parent>foundation_base</parent>
+    <name>Foundation</name>
+  </framework>
+  <framework>
+    <parent>foundation_base</parent>
+    <name>IOKit</name>
+    <!-- <imports>IOTypes.h,IOSharedLock.h,IOReturn.h,IOMessage.h,IOKitServer.h,IOKitLib.h,IOKitKeys.h,IOInterruptAccounting.h,IODataQueueShared.h,IODataQueueClient.h,IOCFURLAccess.h,IOCFUnserialize.h,IOCFSerialize.h,IOCFPlugIn.h,IOCFBundle.h,IOBSD.h</imports> -->
+    <imports>
+      IOTypes.h,
+      IOReturn.h,
+      hid/IOHIDBase.h,
+      hid/IOHIDLib.h,
+      hid/IOHIDTransaction.h,
+      hid/IOHIDDevice.h,
+      hid/IOHIDLibObsolete.h,
+      hid/IOHIDUsageTables.h,
+      hid/IOHIDDevicePlugIn.h,
+      hid/IOHIDManager.h,
+      hid/IOHIDValue.h,
+      hid/IOHIDElement.h,
+      hid/IOHIDProperties.h,
+      hid/IOHIDKeys.h,
+      hid/IOHIDQueue.h,
+      hid/IOHIDBase.h,
+      hid/IOHIDDevice.h
+    </imports>
+    <external_macros>CF_EXPORT,CF_BRIDGED_TYPE</external_macros>
+    <replacement_patterns>
+      <pattern>
+        <pattern>/\b(nullable|__nullable|_Nullable|__nonnull|__autoreleasing)+\b/</pattern>
+        <replacement></replacement>
+      </pattern>
+    </replacement_patterns>
+  </framework>
+</frameworks>

@@ -10,7 +10,8 @@ require_once("language_utilities.php");
 */
 class HeaderParserModule extends MemoryManager {
 	public $identifier;						// unique identifier used for reference modules in patterns
-	
+	public $name;									// name for debugging
+
 	protected $header;						// reference to the current header being parsed
 	protected $symbols;						// reference to the global symbol table
 	
@@ -71,6 +72,16 @@ class HeaderParserModule extends MemoryManager {
 	// $scope = the scope which the pattern was called from
 	//					you can retreive pattern results using $scope->start_results or $scope->results
 	public function process_scope ($id, Scope $scope) {
+		if (get_verbosity() > 1) {
+			print("Found $this->name (pattern #$id) at $scope->start/$scope->end\n");
+			print("$scope->contents\n");
+			if ($scope->results) {
+				print_r($scope->results);
+			}
+			if ($scope->start_results) {
+				print_r($scope->start_results);
+			}
+		}
 	}
 	
 	// override to accept the results of the pattern

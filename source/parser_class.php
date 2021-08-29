@@ -13,13 +13,12 @@ class ClassSymbol extends Symbol {
 	public $protocols;									// array of protocol names the class conforms to
 	public $methods = array();					// array of methods and macro symbols which may contain methods
 	public $instance_variables;					// IVarBlockSymbol from scope
-
 	public $adopted_methods = array();	// array of MethodSymbol (methods that are adopted from protocols we conform to)
 																			// these are added to the class symbol by calling SymbolTable::adopt_class_protocols
 																			// after all headers have been parsed
-	
 	public $categories = array();				// array of CategorySymbol categories which extend the class
-	
+	private $generic_params = array();  // generic parameters in class name, i.e NSDictionary<KeyObject, ValueObject>
+
 	public $protecting_category_keywords = false;
 	private $protecting_keyword = false;
 	private $super_class_lookup = -1;
@@ -29,6 +28,40 @@ class ClassSymbol extends Symbol {
 	 * Methods
 	 */
 	
+	public function replace_generic_params($subject) {
+		foreach ($this->generic_params as $name => $type) {
+			$subject = str_replace_word($name, $type, $subject);
+			// this is a hacky way to replace pointers to generic params
+			// a better way would be to capture the generic param before
+			// the pointer suffix has been applied
+			$subject = str_replace_word($name.POINTER_SUFFIX, $type, $subject);
+		}
+		return $subject;
+	}
+
+	public function parse_generic_params($params) {
+		$list = comma_separated_list($params);
+		$this->generic_params = array();
+		if (is_array($list) && count($list) > 0) {
+			foreach ($list as $param) {
+				if (preg_match("/(\w+):(.*)/", $param, $matches)) {
+					$this->generic_params[$matches[1]] = format_c_type($matches[2], $this->header);
+				} else {
+					$this->generic_params[$param] = GENERIC_PARAM_TYPE;
+				}
+			}
+		}
+	}
+
+	// returns true if the class has any generic parameters
+	public function has_generic_params() {
+		return $this->generic_params && is_array($this->generic_params) && count($this->generic_params) > 0;
+	}
+
+	public function has_generic_param_named($name) {
+		return ($this->has_generic_params() && array_key_exists($name, $this->generic_params));
+	}
+
 	// performs a search of the symbol table for the super class (if available)
 	public function find_super_class () {
 		
@@ -194,8 +227,9 @@ class ClassSymbol extends Symbol {
 	}	
 	
 	public function finalize () {
-		//print("finalizing class $this->name\n");
-		
+		// print("finalizing class $this->name\n");
+		// print_color(ErrorReporting::ANSI_FORE_MAGENTA, "finalizing class $this->nam");
+
 		// unprotect all previously protected methods
 		// since the class will be finalized and all methods
 		// protected for the final time
@@ -219,6 +253,21 @@ class ClassSymbol extends Symbol {
 			}
 		}
 		
+		// it's possible generic parameters can be inserted into the protocols
+		// list so we need to check if the protocol matches any generic paramter
+		if ($this->protocols) {
+			$remove = array();
+			for ($i=0; $i < count($this->protocols); $i++) { 
+				$protocol = trim_suffix($this->protocols[$i], PROTOCOL_SUFFIX);
+				if ($this->has_generic_param_named($protocol)) {
+					$remove[] = $i;
+				}
+			}
+			foreach ($remove as $index) {
+				unset($this->protocols[$index]);
+			}
+		}
+
 	}
 	
 	public function get_section () {
@@ -357,6 +406,16 @@ class ClassForwardSymbol extends Symbol {
 	public $classes = array();
 	public $is_protocol = false;
 	
+	public function is_fully_defined(): bool {
+		$classes = SymbolTable::table()->find_all_symbols("ClassSymbol", $this->header);
+		foreach ($classes as $class) {
+			if ($class->name == $this->name) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function is_declarable () {
 		return false;
 	}
@@ -377,13 +436,14 @@ class HeaderClassForwardParser extends HeaderParserModule {
 																		);
 	
 	function process_scope ($id, Scope $scope) {
-		//print("got class forward at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
+		parent::process_scope($id, $scope);
 		
 		$forward = new ClassForwardSymbol($this->header);
 		$forward->name = trim($scope->results[2]);
+		$forward->name = clean_objc_generics($forward->name);
+
 		$forward->classes = preg_split("/\s*,\s*/", $forward->name);
-		
+
 		// if the forward is a protocol suffix names
 		// with protocol suffix
 		if ($scope->results[1] == "protocol") {
@@ -396,8 +456,11 @@ class HeaderClassForwardParser extends HeaderParserModule {
 		// add all forwards as implicit pointers
 		SymbolTable::table()->add_implicit_pointer($forward->classes);
 		
-		foreach ($forward->classes as $name) $this->symbols->add_declared_type($name);
+		foreach ($forward->classes as $name) {
+			$this->symbols->add_declared_type($name);
+		}
 		
+		// add forward to the symbol table so we can build formal declarations
 		$this->symbols->add_symbol($forward);
 		
 		$scope->set_symbol($forward);
@@ -405,7 +468,8 @@ class HeaderClassForwardParser extends HeaderParserModule {
 	
 	public function init () {
 		parent::init();
-		
+
+		$this->name = "class forward";
 		$this->add_pattern($this->pattern_forward);
 	}		
 	
@@ -437,7 +501,7 @@ class HeaderClassParser extends HeaderParserModule {
 		
 	private $pattern_class = array(	"id" => 1, 
 																	"scope" => SCOPE_CLASS, 
-																	"start" => "/@interface\s+(\w+)\s*:\s*(\w+)\s*(<(.*?)>)*/i",
+																	"start" => "/@interface\s+(\w+)\s*(<(.*?)>)*\s*:\s*(\w+)\s*(<(.*?)>)*/i",
 																	"end" => "/@end/i",
 																	"modules" => array(	MODULE_MACRO, MODULE_IVAR, MODULE_CLASS_SECTION, MODULE_METHOD, MODULE_PROPERTY,
 																											MODULE_STRUCT, MODULE_ENUM, MODULE_TYPEDEF,
@@ -498,9 +562,9 @@ class HeaderClassParser extends HeaderParserModule {
 		}
 	}
 	
-	private function process_class ($name, $super_class, $protocols, Scope $scope) {
+	private function process_class ($name, $super_class, $protocols, $generic_params, Scope $scope) {
 		$class = new ClassSymbol($this->header);
-		
+
 		// build class array
 		$class->name = $name;
 		if ($super_class) $class->super_class = $super_class;
@@ -512,6 +576,9 @@ class HeaderClassParser extends HeaderParserModule {
 			$this->find_protocols($scope, $class);
 		}
 		
+		// save generic params so they can be used later
+		$class->parse_generic_params($generic_params);
+
 		// if no super class is available use root class
 		if ((!$class->super_class) && ($class->name != ROOT_CLASS)) $class->super_class = ROOT_CLASS;
 		
@@ -539,24 +606,27 @@ class HeaderClassParser extends HeaderParserModule {
 	}						
 		
 	function process_scope ($id, Scope $scope) {
-		// print("got class pattern $id\n");
-		// print($scope->contents);
-		// print_r($scope->start_results);
+		parent::process_scope($id, $scope);
 		
 		$results = $scope->start_results;
-		
+		// print("got class at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($results);
+
 		switch ($id) {
 			
+			// super class
 			case 1: {		
-				if ($class = $this->process_class($results[1], $results[2], $results[4], $scope)) {
+				if ($class = $this->process_class($results[1], $results[4], $results[6], $results[3], $scope)) {
 					$this->symbols->add_symbol($class);
 					$scope->set_symbol($class);
 				}
 				break;
 			}
 			
+			// no super class
 			case 2: {		
-				if ($class = $this->process_class($results[1], null, $results[3], $scope)) {
+				if ($class = $this->process_class($results[1], null, $results[3], null, $scope)) {
 					$this->symbols->add_symbol($class);
 					$scope->set_symbol($class);
 				}
@@ -567,12 +637,13 @@ class HeaderClassParser extends HeaderParserModule {
 	}
 	
 	function conclude () {
-		//$this->symbols->show();
-		//die("finished parsing classes");
+		// print_color(ErrorReporting::ANSI_FORE_GREEN, "conclude parsing class");
 	}
 		
 	public function init () {
 		parent::init();
+
+		$this->name = "class";
 
 		$this->add_pattern($this->pattern_class);
 		$this->add_pattern($this->pattern_class_no_super);

@@ -39,9 +39,9 @@ class HeaderVariableParser extends HeaderParserModule {
 																			);
 	
 	function process_scope ($id, Scope $scope) {
-		//print("got variable $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		// print("got variable $id at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
 		
 		$variable = new VariableSymbol($this->header);
 		

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <frameworks>
-	
+
 	<framework>
 		<name>base</name>
 		<static>1</static>
@@ -9,15 +9,28 @@
 		<external_macros>EXTERN, extern</external_macros>
 		<inline_macros>inline, static inline, static __inline__, __inline__</inline_macros>
 		<ignore_types>
-			IBOutlet, IBAction, extern, static, inline,
-			MAC_OS_X_VERSION_\w+, AVAILABLE_\w+_VERSION_\w+, DEPRECATED_IN_\w+,
-			UNAVAILABLE_ATTRIBUTE, DEPRECATED_ATTRIBUTE,
-			boolean, integer, longint, string, type, pointer,
+			IBOutlet, 
+			IBAction, 
+			extern, 
+			static, 
+			inline,
+			MAC_OS_X_VERSION_\w+, 
+			AVAILABLE_\w+_VERSION_\w+, 
+			DEPRECATED_IN_\w+,
+			UNAVAILABLE_ATTRIBUTE, 
+			DEPRECATED_ATTRIBUTE,
+			boolean, 
+			integer, 
+			longint, 
+			string, 
+			type, 
+			pointer,
+			instancetype,
 		</ignore_types>
 		<uses>CTypes</uses>
 		<include_imported_frameworks>1</include_imported_frameworks>
 		
-		<!-- eplacement patterns for defines -->
+		<!-- replacement patterns for defines -->
 		<define_replacements>
 			<define>
 				<pattern>/CFSTR\(\s*"(.*)"\s*\)/i</pattern>
@@ -31,10 +44,12 @@
 		<replace_types>
 			
 			<value>void=pointer</value>
-			
+
+			<!-- added in 10.15 -->
+			<value>instancetype=id</value>
 			<!-- basic c types -->
 			<value>/^bool$/=cbool</value>
-			<value>/^BOOL$/=boolean</value>
+			<value>/^BOOL$/=objcbool</value>
 			<value>long=clong</value>
 			<value>signed long=clong</value>
 			<value>unsigned long=culong</value>
@@ -87,7 +102,7 @@
 			
 			<!-- c-types -->
 			<value>void=pointer</value>
-			<value>boolean=pboolean</value>
+			<value>boolean=pobjcbool</value>
 			<value>clong=pclong</value>
 			<value>cshort=pcshort</value>
 			<value>cint=pcint</value>
@@ -114,17 +129,32 @@
 			<value>pointer=ppointer</value>
 			<value>pchar=ppchar</value>
 		</pointer_types>
-		
-		<!-- null defined or invalid macros defined in low-level headers-->
-		<remove_macros>
-			<value>/__attribute__\s*\(\((.*)\)\)/i</value>
-			<value>/IBOutlet/i</value>
-			<value>/__unsafe_unretained/i</value>
-			<value>/__unused/i</value>
-			<value>/(UNAVAILABLE_ATTRIBUTE|DEPRECATED_ATTRIBUTE)/</value>
-		</remove_macros>
-				
+						
 		<availability_macros>
+
+			<!-- Added in 10.15 -->
+			<macro>
+				<pattern>/API_UNAVAILABLE\(([^)]+)\)/</pattern>
+				<replacement>{ unavailable in $1 }</replacement>
+			</macro>
+			<macro>
+				<pattern>/API_AVAILABLE\(([^)]+)\)/</pattern>
+				<replacement>{ available in $1 }</replacement>
+			</macro>
+			<macro>
+				<pattern>/NS_SWIFT_(UN)*AVAILABLE\(.*\)/</pattern>
+				<replacement></replacement>
+			</macro>
+			<macro>
+				<pattern>/API_DEPRECATED\("([^"]+)",\s*([^)]+)\)/s</pattern>
+				<replacement>deprecated '$1';</replacement>
+			</macro>
+			<macro>
+				<pattern>/API_DEPRECATED_WITH_REPLACEMENT\("([^"]+)",\s*([^)]+)\)/s</pattern>
+				<replacement>deprecated 'replace with $1';</replacement>
+			</macro>
+
+			<!-- Older -->
 			<macro>
 				<pattern>/AVAILABLE_\w+_VERSION_(\d+)_(\d+)_AND_LATER\b/i</pattern>
 				<replacement>{ available in $1.$2 and later }</replacement>
@@ -182,16 +212,39 @@
 				<replacement>{ NS_DESIGNATED_INITIALIZER }</replacement>
 			</macro>
 			<macro>
-				<pattern>/CF_RETURNS_NOT_RETAINED/</pattern>
-				<replacement>{ CF_RETURNS_NOT_RETAINED }</replacement>
-			</macro>
+				<pattern>/(CF_RETURNS_RETAINED|CF_RETURNS_NOT_RETAINED|CF_RELEASES_ARGUMENT|CF_CONSUMED)+/</pattern>
+				<replacement>{ $1 }</replacement>
+			</macro>			
 		</availability_macros>
 		
 		<replacement_patterns>
+			<!-- API_DEPRECATED_XXX platform macros -->
+			<pattern>
+				<pattern>/(ios|macos|macosx|watchos|tvos|macCatalyst)+\([0-9.]+\,\s*[a-zA-Z0-9._]+\)/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<pattern>
+				<pattern>/(ios|macos|macosx|watchos|tvos|macCatalyst)+\([0-9.]+\)/</pattern>
+				<replacement>$1 $2</replacement>
+			</pattern>
 			<!-- NS_ENUM macro from NSObjCRuntime.h starting in the 10.8 SDK -->
 			<pattern>
-				<pattern>/(NS|CF)+_(ENUM|OPTIONS)\s*\((.*),\s*(.*)\)/i</pattern>
+				<pattern>/(_NS|NS|CF)+_(ENUM|ERROR_ENUM|CLOSED_ENUM|STRING_ENUM|EXTENSIBLE_STRING_ENUM|TYPED_ENUM|TYPED_EXTENSIBLE_ENUM|OPTIONS)\s*\((.*),\s*(.*)\)/i</pattern>
 				<replacement>$3 $4; enum</replacement>
+			</pattern>
+			<!-- NS_ENUM null macro -->
+			<pattern>
+				<pattern>/(_NS|NS|CF)+_\w+_ENUM\(\w+\)/</pattern>
+				<replacement>enum</replacement>
+			</pattern>
+			<!-- null defined or invalid macros defined in low-level headers-->
+			<pattern>
+				<pattern>/(IBOutlet|__unsafe_unretained|__unused|__kindof|__covariant)+/i</pattern>
+				<replacement></replacement>
+			</pattern>
+			<pattern>
+				<pattern>/__attribute__\s*\(\((.*)\)\)/i</pattern>
+				<replacement></replacement>
 			</pattern>
 		</replacement_patterns>		
 	</framework>
@@ -246,37 +299,100 @@
 		</uses>
 		
 	</framework>
-	
+
+	<!-- macOS SDK frameworks -->
+
 	<framework>
 		<parent>carbon_base</parent>
+		<name>sdk_macos_10_15</name>
+		<remove_macros>
+			<value>/_NS_SCANNER_DEPRECATED_FOR_SWIFT_ONLY_WITH_REPLACEMENT\(.*\)/i</value>
+		</remove_macros>
+	</framework>
+
+	<!-- IMPORTANT: this framework dummy must always point to the latest sdk_macos_xx framework -->
+
+	<framework>
+		<parent>sdk_macos_10_15</parent>
+		<name>sdk_macos_latest</name>
+	</framework>
+
+	<framework>
+		<parent>sdk_macos_latest</parent>
 		<name>cocoa_base</name>
 		<static>1</static>
-		<external_macros>%%ABBRV_NAME%%_EXTERN, %%UC_NAME%%_EXTERN, %%UC_NAME%%_PRIVATE_EXTERN, %%UC_NAME%%_EXPORT, %%ABBRV_NAME%%_EXPORT, %%UC_NAME%%_IMPORT, %%ABBRV_NAME%%_IMPORT</external_macros>
+		<external_macros>
+			%%ABBRV_NAME%%_EXTERN, 
+			%%UC_NAME%%_EXTERN, 
+			%%UC_NAME%%_PRIVATE_EXTERN, 
+			%%UC_NAME%%_EXPORT, 
+			%%ABBRV_NAME%%_EXPORT, 
+			%%UC_NAME%%_IMPORT, 
+			%%ABBRV_NAME%%_IMPORT, 
+			%%UC_NAME%%_IVAR
+		</external_macros>
 		<inline_macros>%%ABBRV_NAME%%_INLINE, NS_INLINE</inline_macros>
 		<ignore_types>
-			%%ABBRV_NAME%%_EXTERN, %%UC_NAME%%_EXTERN, %%UC_NAME%%_CLASS_AVAILABLE, %%ABBRV_NAME%%_CLASS_AVAILABLE, %%UC_NAME%%_EXPORT, %%ABBRV_NAME%%_EXPORT, %%UC_NAME%%_IMPORT, %%ABBRV_NAME%%_IMPORT, 
-			%%ABBRV_NAME%%_AVAILABLE_STARTING, %%ABBRV_NAME%%_AVAILABLE_BUT_DEPRECATED, %%UC_NAME%%_AVAILABLE_STARTING, %%UC_NAME%%_AVAILABLE_BUT_DEPRECATED,
-			__AVAILABILITY_INTERNAL_DEPRECATED, __AVAILABILITY_INTERNAL_UNAVAILABLE, __AVAILABILITY_INTERNAL_WEAK_IMPORT, __AVAILABILITY_INTERNAL_REGULAR,
+			%%ABBRV_NAME%%_EXTERN, 
+			%%UC_NAME%%_EXTERN, 
+			%%UC_NAME%%_CLASS_AVAILABLE, 
+			%%ABBRV_NAME%%_CLASS_AVAILABLE, 
+			%%UC_NAME%%_EXPORT, 
+			%%ABBRV_NAME%%_EXPORT, 
+			%%UC_NAME%%_IMPORT, 
+			%%ABBRV_NAME%%_IMPORT, 
+			%%ABBRV_NAME%%_AVAILABLE_STARTING, 
+			%%ABBRV_NAME%%_AVAILABLE_BUT_DEPRECATED, 
+			%%UC_NAME%%_AVAILABLE_STARTING, 
+			%%UC_NAME%%_AVAILABLE_BUT_DEPRECATED,
+			__AVAILABILITY_INTERNAL_DEPRECATED, 
+			__AVAILABILITY_INTERNAL_UNAVAILABLE, 
+			__AVAILABILITY_INTERNAL_WEAK_IMPORT, 
+			__AVAILABILITY_INTERNAL_REGULAR,
 		</ignore_types>
 		<remove_macros>
 			<value>/\s*(NS_CLASS_AVAILABLE|NS_FORMAT_FUNCTION)\s*\(.*?\)\s*/i</value>
-			<value>/(NS_REQUIRES_NIL_TERMINATION|NS_AUTOMATED_REFCOUNT_UNAVAILABLE|NS_UNAVAILABLE|NS_RETURNS_RETAINED|NS_RETURNS_NOT_RETAINED|NS_RETURNS_INNER_POINTER|NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE|NS_REQUIRES_PROPERTY_DEFINITIONS|NS_REPLACES_RECEIVER|NS_RELEASES_ARGUMENT|NS_VALID_UNTIL_END_OF_SCOPE|NS_ROOT_CLASS)/i</value>
+			<value>/(NS_REQUIRES_NIL_TERMINATION|NS_AUTOMATED_REFCOUNT_UNAVAILABLE|NS_UNAVAILABLE|NS_RETURNS_RETAINED|NS_RETURNS_NOT_RETAINED|NS_RETURNS_INNER_POINTER|NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE|NS_REQUIRES_PROPERTY_DEFINITIONS|NS_REPLACES_RECEIVER|NS_RELEASES_ARGUMENT|NS_VALID_UNTIL_END_OF_SCOPE|NS_ROOT_CLASS|NS_TYPED_EXTENSIBLE_ENUM|NS_SWIFT_BRIDGED_TYPEDEF|UNAVAILABLE_ATTRIBUTE|DEPRECATED_ATTRIBUTE|NS_TYPED_ENUM|NS_NOESCAPE|NS_EXTENSIBLE_STRING_ENUM|CF_STRING_ENUM|CF_EXTENSIBLE_STRING_ENUM|CF_TYPED_ENUM|CF_TYPED_EXTENSIBLE_ENUM|CF_AUTOMATED_REFCOUNT_UNAVAILABLE|CF_IMPLICIT_BRIDGING_ENABLED|CF_IMPLICIT_BRIDGING_DISABLED|CF_ASSUME_NONNULL_BEGIN|CF_ASSUME_NONNULL_END|CF_REFINED_FOR_SWIFT|CF_NOESCAPE|CF_NO_TAIL_CALL|CF_WARN_UNUSED_RESULT)/i</value>
 			<value>/%%PREGEX_NAMES%%_CLASS_AVAILABLE\s*\(.*\)/i</value>
 			<value>/%%PREGEX_NAMES%%_EXTERN_C_(BEGIN|END)/i</value>
 			<value>/\bAVAILABLE_\w+_VERSION_\d+_\d+_AND_LATER\b/i</value>
 		</remove_macros>
+		<replacement_patterns>
+			<!-- clang macros -->
+			<pattern>
+				<pattern>/\b(_)*(nullable|nonnull|null_unspecified|autoreleasing)+\b/i</pattern>
+				<replacement></replacement>
+			</pattern>
+		</replacement_patterns>
 	</framework>
 	
 	<framework>
 		<parent>cocoa_base</parent>
 		<name>foundation_base</name>
 		<ignore_types>
-			FOUNDATION_EXTERN, FOUNDATION_EXTERN, FOUNDATION_IMPORT, FOUNDATION_EXPORT, FOUNDATION_STATIC_INLINE, FOUNDATION_EXTERN_INLINE, 
-			YES, NO, NS_VOIDRETURN, NS_INLINE, NS_NONATOMIC_IPHONEONLY, NS_BLOCKS_AVAILABLE, NSINTEGER_DEFINED, 
-			NSURLResponseUnknownLength, NSNotAnIntMapKey, NSNotAnIntegerMapKey, NSNotAPointerMapKey,
-			NS_NONATOMIC_IOSONLY, NS_AUTOMATED_REFCOUNT_UNAVAILABLE, NS_UNAVAILABLE, AVAILABLE_MAC_OS_X_VERSION_NA_AND_LATER_BUT_DEPRECATED_IN_MAC_OS_X_VERSION_NA,
+			FOUNDATION_EXTERN, 
+			FOUNDATION_EXTERN, 
+			FOUNDATION_IMPORT, 
+			FOUNDATION_EXPORT, 
+			FOUNDATION_STATIC_INLINE, 
+			FOUNDATION_EXTERN_INLINE, 
+			YES, 
+			NO, 
+			NS_VOIDRETURN, 
+			NS_INLINE, 
+			NS_NONATOMIC_IPHONEONLY, 
+			NS_BLOCKS_AVAILABLE, 
+			NSINTEGER_DEFINED, 
+			NSURLResponseUnknownLength, 
+			NSNotAnIntMapKey, 
+			NSNotAnIntegerMapKey, 
+			NSNotAPointerMapKey,
+			NS_NONATOMIC_IOSONLY, 
+			NS_AUTOMATED_REFCOUNT_UNAVAILABLE, 
+			NS_UNAVAILABLE, 
+			AVAILABLE_MAC_OS_X_VERSION_NA_AND_LATER_BUT_DEPRECATED_IN_MAC_OS_X_VERSION_NA,
 		</ignore_types>
 		<inline_macros>FOUNDATION_STATIC_INLINE, FOUNDATION_EXTERN_INLINE</inline_macros>		
 	</framework>
-					
+	
 </frameworks>

@@ -27,8 +27,7 @@ class CategorySymbol extends ClassSymbol {
 	}
 		
 	public function build_source ($indent = 0) {
-		//$source = indent_string($indent)."type\n";
-		//$indent += 1;
+		$source = '';
 		
 		if ($this->external_name) {
 			$source .= indent_string($indent).$this->name." = ".DECLARED_CATEGORY_KEYWORD." name '".$this->external_name."' (".$this->super_class.")\n";
@@ -63,7 +62,7 @@ class HeaderCategoryParser extends HeaderParserModule {
 		
 	private $pattern_category = array(	"id" => 1, 
 																			"scope" => SCOPE_CATEGORY, 
-																			"start" => "/@interface\s+(\w+)\s*\(\s*(\w+)\s*\)/i",
+																			"start" => "/@interface\s+(\w+)\s*(<(.*?)>)*\s*\(\s*(\w*)\s*\)/i",
 																			"end" => "/@end/i",
 																			"modules" => array(	MODULE_MACRO, MODULE_METHOD, MODULE_PROPERTY,
 																													MODULE_STRUCT, MODULE_ENUM, MODULE_TYPEDEF,
@@ -71,10 +70,31 @@ class HeaderCategoryParser extends HeaderParserModule {
 																			);
 
 	function process_scope ($id, Scope $scope) {
+		parent::process_scope($id, $scope);
+
+		// print("got category at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->start_results);
+
 		$category = new CategorySymbol($this->header);
-		$category->name = $scope->start_results[2];
+
+		$category->name = $scope->start_results[4];
 		$category->super_class = $scope->start_results[1];
-				
+
+		// add generic parameters
+		$category->parse_generic_params($scope->start_results[3]);
+		
+		// categories can be nameless in objective-c but we're required
+		// to provide a name for pascal
+		if ($category->name == "") {
+			if ($this->header->untitled_categories == 0) {
+				$category->name = $category->super_class."Category";
+			} else {
+				$category->name = $category->super_class."Category_".$this->header->untitled_categories;
+			}
+			$this->header->untitled_categories++;
+		}
+
 		// add methods from the scope
 		if ($symbols = $scope->find_sub_scopes(array(SCOPE_METHOD, SCOPE_PROPERTY, SCOPE_MACRO), true, false)) {
 			$category->methods = $symbols;
@@ -94,7 +114,9 @@ class HeaderCategoryParser extends HeaderParserModule {
 
 	public function init () {
 		parent::init();
-		
+
+		$this->name = "category";
+
 		$this->add_pattern($this->pattern_category);
 	}		
 

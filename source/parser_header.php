@@ -24,7 +24,7 @@ class HeaderParser extends MemoryManager {
 	private $pattern_source = array(	"id" => 100, 
 																		"scope" => SCOPE_SOURCE, 
 																		"modules" => array(	MODULE_MACRO, MODULE_CLASS_FORWARD, MODULE_CATEGORY, MODULE_CLASS, MODULE_PROTOCOL, MODULE_STRUCT,
-																												MODULE_TYPEDEF, MODULE_ENUM, MODULE_DEFINE, MODULE_VARIABLE, MODULE_FUNCTION,
+																												MODULE_TYPEDEF, MODULE_ENUM, MODULE_DEFINE, MODULE_VARIABLE, MODULE_CONSTANT, MODULE_FUNCTION,
 																												),
 																		);
 	
@@ -140,9 +140,11 @@ class HeaderParser extends MemoryManager {
 	// doesn't want to handle (like comments) 
 	private function get_header_contents ($file) {
 		$contents = file_get_contents($file);
-		
+
 		// remove comments
-		$contents = preg_replace("/\/\*.*?\*\//s", "", $contents);
+		# $contents = preg_replace_balanced("/\/\*(\*(?!\/)|[^*])*\*\//s", $contents, true);
+		# $contents = preg_replace_balanced("/\/\/(.*?)[\n]+/s", $contents, true);
+		$contents = preg_replace("/\/\*(.*?)\*\//s", "", $contents);
 		$contents = preg_replace("/\/\/(.*?)[\n]+/s", "\n", $contents);
 
 		// remove all macros
@@ -150,75 +152,17 @@ class HeaderParser extends MemoryManager {
 		
 		// apply replacement patterns for the framework
 		$contents = $this->apply_replacement_patterns($contents);
-		
+
+		// file_put_contents("/Users/ryanjoseph/Desktop/changes_10_15.h", $contents);
+
 		//die($contents);
 		return $contents;
 	}
-	
-	// process $skip_blocks
-	// returns true and set values of $skipping which must be kept in a local variable for the
-	// duration of the loop
-	private function skip_block (&$line, &$skipping) {
-		if ($line != "") {
-			foreach ($this->header->framework->skip_blocks as $key => $value) {
-				if (@eregi($key, $line)) {
-					$skipping = true;
-				} elseif (($skipping) && (@eregi($value, $line))) {
-					$skipping = false;
-					$line = null;
-				}
-			}
-		}
-		
-		return $skipping;
-	}
-		
+			
 	/**
 	 * Control methods
 	 */
 	
-	private function preparse ($contents) {
-		$offset = 0;
-		
-		while (true) {
-			
-			if (preg_match("/([\w\s*]+)\s+(\w+)\s*\(([^);]+)\)\s*;/", $contents, $captures, PREG_OFFSET_CAPTURE, $offset)) {
-
-				// get the start/end offset and macro captured
-				$result = $captures[0][0];
-				$start = (int)$captures[0][1];
-				$length = strlen($captures[0][0]);
-				$offset = $start + $length;
-				
-				$result = trim($result);
-				print("FUNCTION: $result\n");
-				
-			} else {
-				break;
-			}
-			
-		}
-		
-		die;
-		/*
-		$external_macros = implode("|", $this->header->framework->external_macros);
-		if (preg_match("/^($external_macros)/", $line)) return $line;
-		
-		if (preg_match("/[\n]+([\w\s*]+)\s+(\w+)\s*\(([^);]+)\)\s*;\s[\n]+/", $line, $captures)) {
-			print("FUNCTION: $line\n");
-			return "extern ".$line;
-		}
-		*/
-		
-		// ??? captures typedefs!
-		//if (preg_match("/^([\w\s*]+)\s+(\w+)\s*;/", $line, $captures)) {
-		//	print("VARIABLE: $line\n");
-		//	return "extern ".$line;
-		//}
-		
-		return $line;
-	}			
-				
 	private function match_pattern_single (array $pattern, $contents, Scope $scope, $offset) {
 		
 		if (in_array($pattern[PATTERN_KEY_IDENTIFIER], $scope->failed_patterns)) {
@@ -671,10 +615,12 @@ class HeaderParser extends MemoryManager {
 			
 		}
 	}
+			
+	/**
+	 * Main Loop
+	 */
 	
-	public function process ($contents) {
-		//show_string_offset(array(909, 966), $contents);
-		
+	private function process_contents ($contents) {
 		$offset = 0;
 		$time_start = microtime_float();
 		
@@ -706,51 +652,20 @@ class HeaderParser extends MemoryManager {
 		
 		return $root;
 	}
-		
-	/**
-	 * Private
-	 */
-	
+
 	private function main_loop () {
 		$contents = $this->get_header_contents($this->header->get_path());
-		
+
 		// prepare inherited patterns
 		foreach ($this->modules as $module) $module->prepare($contents);
-		
-		// preprocess the contents
-		$lines = explode("\n", $contents);
-		$results = array();
-		$skipping = false;
-		foreach ($lines as $line) {
-			
-			// skip blocks
-			if ($this->skip_block($line, $skipping)) continue;
-			
-			// ignore lines
-			if ($this->header->framework->ignore_line($line)) continue;
-			
-			// if the magic word is reached stop the parsing
-			// this is used for testing only!
-			if ($line == "DIE_NOW") break;
-			
-			// append the line
-			$results[] = $line;
-		}
-		
-		// implode the array into content string
-		$contents = implode("\n", $results);
-		
-		// replace availablity macros then set the array to the
+				
+		// replace availability macros then set the array to the
 		// current header to symbols can access them
 		$contents = $this->replace_availability_macros($contents, $macros);
 		$this->header->set_availability_macros($macros);
-		
-		// preparse for function proto-types
-		// ??? UNDER DEVELOPMENT
-		//$contents = $this->preparse($contents);
-		
+
 		// process
-		$root = $this->process($contents);
+		$root = $this->process_contents($contents);
 		
 		// conclude inherited patterns
 		foreach ($this->modules as $module) $module->conclude();

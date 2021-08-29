@@ -335,6 +335,7 @@ TEMPLATE;
 	
 	// prints a .command build script for the framework (for debugging)
 	private function print_build_command ($unit_name) {
+		global $template_build_command_x86;
 		global $template_build_command_i386;
 		global $template_build_command_arm;
 		global $template_build_command_ppc;
@@ -342,6 +343,7 @@ TEMPLATE;
 		$command = get_parser_option(PARSER_OPTION_BUILD_COMMANDS);
 		$parts = explode("/", $command);
 		
+		if ($parts[0] == "x86") $template = $template_build_command_x86;
 		if ($parts[0] == "i386") $template = $template_build_command_i386;
 		if ($parts[0] == "arm") $template = $template_build_command_arm;
 		if ($parts[0] == "ppc") $template = $template_build_command_ppc;
@@ -662,7 +664,16 @@ TEMPLATE;
 		$template = str_replace(TEMPLATE_KEY_INLINE_FUNCTIONS, trim($string), $template);
 		
 		// write file
-		file_put_contents($this->output."/$group.pas", $template);
+		$path = $this->output."/$group.pas";
+		if (is_parser_option_enabled(PARSER_OPTION_SAFE_WRITE)) {
+			if (!file_exists($path)) {
+				file_put_contents($path, $template);
+			} else {
+				ErrorReporting::errors()->add_note(basename($path)." already exists.");
+			}
+		} else {
+			file_put_contents($path, $template);
+		}
 		
 		// make build commands
 		if (is_parser_option_enabled(PARSER_OPTION_BUILD_COMMANDS)) {
@@ -703,14 +714,6 @@ TEMPLATE;
 		// specify null absolute path parameter so the header will print to the default location
 		if ((!is_parser_option_enabled(PARSER_OPTION_DRY_RUN)) && ($framework->can_print())) {
 			foreach ($framework->get_headers() as $header) {
-				
-				/*
-					determine if we have duplicate headers (by name) and reassign unique names
-					which can be ifdef'd in Sources.inc
-					
-					problem then is how do we rewrite Sources based on the duplicates?
-				*/
-				
 				if (is_parser_option_enabled(PARSER_OPTION_UNIT)) {
 					$header->print_unit($this->output, is_parser_option_enabled(PARSER_OPTION_SHOW));
 				} else {						
@@ -724,13 +727,6 @@ TEMPLATE;
 			ErrorReporting::errors()->add_warning("  Opaque types are disabled for development.");
 			//SymbolTable::table()->print_opaque_types($this->output);
 		}
-		
-		// remove from the symbol table
-		//ErrorReporting::errors()->add_message("  Removing from symbol table.");
-		//SymbolTable::table()->remove_framework($framework);
-		//		
-		//// free framework in framework loader
-		//$this->unload_framework($framework);
 		
 		$framework->finalized = true;
 	}
@@ -1125,15 +1121,6 @@ TEMPLATE;
 			}
 		}
 		
-		// verify the framework from the -uses switch
-		/*
-		if (is_parser_option_enabled(PARSER_OPTION_USES)) {
-			if (!FrameworkLoader::loader()->find_framework(get_parser_option(PARSER_OPTION_USES))) {
-				ErrorReporting::errors()->add_fatal("The framework definition \"".get_parser_option(PARSER_OPTION_USES)."\" defined for -".PARSER_OPTION_USES." does not exist.");
-			}
-		}
-		*/
-		
 		// report which frameworks have been defined
 		//foreach ($this->frameworks_defined as $framework) {
 		//	ErrorReporting::errors()->add_note("The framework \"".$framework->get_name()."\" has been defined.");
@@ -1182,7 +1169,7 @@ TEMPLATE;
 		
 		// verify build command
 		if (is_parser_option_enabled(PARSER_OPTION_BUILD_COMMANDS)) {
-			if (!preg_match("/^(i386|ppc|arm)+\/(\d+|\.)*$/", get_parser_option_path(PARSER_OPTION_BUILD_COMMANDS))) ErrorReporting::errors()->add_fatal("The build command option is invalid (use a format such as 2.6.0/i386).");
+			if (!preg_match("/^(x86|i386|ppc|arm)+\/(\d+|\.)*$/", get_parser_option_path(PARSER_OPTION_BUILD_COMMANDS))) ErrorReporting::errors()->add_fatal("The build command option is invalid (use a format such as i386/2.6.0). Architectures: x84, i386, ppc, arm");
 		}
 		
 		// verify os helpers

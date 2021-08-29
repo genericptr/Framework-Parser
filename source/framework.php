@@ -17,7 +17,6 @@ class Framework extends MemoryManager {
 	 */
 	
 	public $ignore_types = array();
-	public $ignore_lines = array();
 	public $ignore_headers = array();
 	public $external_macros = array();
 	public $inline_macros = array();
@@ -27,7 +26,6 @@ class Framework extends MemoryManager {
 	public $availability_macros = array();				// availability macros by pattern => replacement pattern
 	public $replacement_patterns = array();				// replacement patterns by pattern => replacement pattern
 	public $define_replacements = array();				// patterns to replace #define values
-	public $skip_blocks = array();								// blocks that will be skipped in the source
 	public $implicit_pointers = array();					// types which are implicit pointers
 	public $uses = array();												
 	public $support_frameworks = array();												
@@ -401,16 +399,7 @@ class Framework extends MemoryManager {
 		
 		// uses
 		$uses = $this->add_additional_uses($frameworks, $this->uses);
-		
-		// add imported uses from -uses switch and framework definition
-		/*
-		if (is_parser_option_enabled(PARSER_OPTION_USES)) {
-			if ($framework = FrameworkLoader::loader()->find_framework(get_parser_option(PARSER_OPTION_USES))) {
-				$uses = array_merge($uses, $framework->uses);
-			}
-		}
-		*/
-		
+				
 		$template = str_replace(TEMPLATE_KEY_USES, implode(", ", $uses), $template);
 		
 		// uses (minimal with out extra uses from XML definition, used for MacOSAll compatibility)
@@ -460,10 +449,15 @@ class Framework extends MemoryManager {
 	}
 	
 	// utility method to write a file to the frameworks output
-	private function make_file ($base_directory, $name, $contents, $dont_overwrite = false) {
+	private function make_file ($base_directory, $name, $contents, $safe_mode = false) {
 		$path = $this->get_output_directory($base_directory)."/".$name;
-		if ($dont_overwrite) {
-			if (!file_exists($path)) file_put_contents($path, $contents);
+		if ($safe_mode) {
+			if (!file_exists($path)) {
+				file_put_contents($path, $contents);
+				ErrorReporting::errors()->add_message("Wrote $path");
+			} else {
+				ErrorReporting::errors()->add_note(basename($path)." already exists.");
+			}
 		} else {
 			file_put_contents($path, $contents);
 		}
@@ -492,7 +486,7 @@ class Framework extends MemoryManager {
 		if ($this->raw_directory) {
 			$headers = $this->load_headers($this->get_path());
 		}
-				
+		
 		// sort the the umbrella header to build root include
 		if ($this->get_umbrella_header()) {
 			$path = $this->get_headers_directory()."/".$this->get_umbrella_header();
@@ -509,6 +503,9 @@ class Framework extends MemoryManager {
 				// add the umbrella to the start of the array
 				// if it wasn't added yet
 				if (!in_array($path, $headers)) array_unshift($headers, $path);
+			} else {
+				// there is no umbrella header, use explicit headers
+				ErrorReporting::errors()->add_note("The framework \"$this->name\" has no umbrella header (\"$path\").");
 			}
 		}
 	
@@ -517,11 +514,9 @@ class Framework extends MemoryManager {
 			foreach ($this->imports as $name) {
 				$path = $this->get_headers_directory()."/".trim($name, "/");
 				if (file_exists($path)) {
-					
 					// we don't use the header sorter but we need to 
 					// get all imported frameworks
 					HeaderSorter::harvest_imports($path, $this);
-					
 					$headers[] = $path;
 				} else {
 					ErrorReporting::errors()->add_note("The import \"$name\" can't be found in the framework $this->name.");
@@ -554,11 +549,7 @@ class Framework extends MemoryManager {
 	public function build_skeleton () {
 		if ($this->header_paths) {
 			ErrorReporting::errors()->add_message("Building skeleton for ".$this->get_name().".");
-			
-			// ??? analyze headers
-			//foreach ($headers as $header) ErrorReporting::errors()->add_message("  + ".basename($header));
-			//die;
-			
+
 			if (!is_parser_option_enabled(PARSER_OPTION_DRY_RUN) && $this->can_print()) {
 				$lines = array();
 
@@ -566,15 +557,12 @@ class Framework extends MemoryManager {
 				// framework has been loaded in other places
 				$lines[] = "{\$define FRAMEWORK_LOADED_".strtoupper($this->get_name())."}";
 
-				/*
-					here we need to determine which headers are duplicates
-					and rename them uniquely then make ifdef's so they can be changed on the 
-					command line using -d
-					
-					checking the <imports> paths will help if you can determine partial paths like /ES1/gl.h
-					by prefixing the header name with the path: ES1_gl.inc
-					
-				*/
+				// here we need to determine which headers are duplicates
+				// and rename them uniquely then make ifdef's so they can be changed on the 
+				// command line using -d
+				
+				// checking the <imports> paths will help if you can determine partial paths like /ES1/gl.h
+				// by prefixing the header name with the path: ES1_gl.inc
 				foreach ($this->header_paths as $header) {
 					if (!$this->ignore_header(basename($header))) $lines[] = "{\$include ".basename($header, ".h").".inc}";
 				}
@@ -591,7 +579,7 @@ class Framework extends MemoryManager {
 
 					// print root include
 					$contents = implode("\n", $lines);
-					$this->make_file(FRAMEWORK_BASE_DIRECTORY, $this->get_root(), $contents);
+					$this->make_file(FRAMEWORK_BASE_DIRECTORY, $this->get_root(), $contents, is_parser_option_enabled(PARSER_OPTION_SAFE_WRITE));
 
 					// framework support files
 					$this->make_file(FRAMEWORK_OUTPUT_DIRECTORY, TEMPLATE_FILE_UNDEFINED_TYPES.".inc", "", true);
@@ -600,7 +588,7 @@ class Framework extends MemoryManager {
 					// build root unit
 					if ((!is_parser_option_enabled(PARSER_OPTION_GROUP)) || (is_parser_option_enabled(PARSER_OPTION_GROUP) && is_parser_option_enabled(PARSER_OPTION_ALL_UNITS))) {
 						$contents = $this->build_root_unit();
-						$this->make_file(FRAMEWORK_BASE_DIRECTORY, $this->get_name().".pas", $contents);
+						$this->make_file(FRAMEWORK_BASE_DIRECTORY, $this->get_name().".pas", $contents, is_parser_option_enabled(PARSER_OPTION_SAFE_WRITE));
 					}
 
 					// base support files
@@ -610,6 +598,7 @@ class Framework extends MemoryManager {
 		} else {
 			if (is_parser_option_enabled(PARSER_OPTION_VERBOSE)) ErrorReporting::errors()->add_note("The skeleton for \"".$this->get_name()."\" could not be built because header path is null.");
 		}
+
 	}
 
 	/**
@@ -631,12 +620,7 @@ class Framework extends MemoryManager {
 		}
 		//return (in_array($type, $this->ignore_types));
 	}
-		
-	// returns true if the type should be ignored
-	public function ignore_line ($line) {
-		return (in_array($line, $this->ignore_lines));
-	}	
-	
+			
 	// returns true if the header should be ignored (not parsed)
 	public function ignore_header ($name) {
 		return (in_array($name, $this->ignore_headers));
@@ -677,8 +661,11 @@ class Framework extends MemoryManager {
 			
 	// inherits values from the specified framework
 	private function inherit_from (Framework $framework, $base) {
-		//print($this->get_name()." inherits from ".$framework->get_name()."\n");
-		
+
+		if (is_parser_option_enabled(PARSER_OPTION_VERBOSE)) {
+			ErrorReporting::errors()->add_note("    ".$this->get_name()." inherits from ".$framework->get_name(), ErrorReporting::NO_PREFIX);
+		}
+
 		// use the parent if the framework doesn't specify a key which overrides the parent
 		// these values can't be loaded if the framework is static
 		if (!$this->is_static()) {
@@ -694,7 +681,6 @@ class Framework extends MemoryManager {
 		$this->external_macros = array_merge($this->external_macros, $framework->external_macros);
 		$this->inline_macros = array_merge($this->inline_macros, $framework->inline_macros);
 		$this->ignore_types = array_merge($this->ignore_types, $framework->ignore_types);
-		$this->ignore_lines = array_merge($this->ignore_lines, $framework->ignore_lines);
 		$this->replace_types = array_merge($this->replace_types, $framework->replace_types);		
 		$this->declared_types = array_merge($this->declared_types, $framework->declared_types);		
 		$this->ignore_headers = array_merge($this->ignore_headers, $framework->ignore_headers);	
@@ -704,11 +690,10 @@ class Framework extends MemoryManager {
 		$this->availability_macros = array_merge($this->availability_macros, $framework->availability_macros);
 		$this->replacement_patterns = array_merge($this->replacement_patterns, $framework->replacement_patterns);
 		$this->define_replacements = array_merge($this->define_replacements, $framework->define_replacements);
-		$this->skip_blocks = array_merge($this->skip_blocks, $framework->skip_blocks);		
 		$this->uses = array_merge($this->uses, $framework->uses);		
 		$this->imports = array_merge($this->imports, $framework->imports);		
 		$this->support_frameworks = array_merge($this->support_frameworks, $framework->support_frameworks);		
-				
+
 		// recurse into framework
 		if ($framework->get_parent()) {
 			if ($parent = FrameworkLoader::loader()->find_framework($framework->get_parent())) $this->inherit_from($parent, false);
@@ -758,13 +743,7 @@ class Framework extends MemoryManager {
 		if ($this->settings["uses"]) $this->uses = array_merge($this->uses, preg_split("/\s*,\s*/", $this->settings["uses"]));
 		if ($this->settings["imports"]) $this->imports = array_merge($this->imports, preg_split("/\s*,\s*/", $this->settings["imports"]));
 		if ($this->settings["support_frameworks"]) $this->support_frameworks = array_merge($this->support_frameworks, preg_split("/\s*,\s*/", $this->settings["support_frameworks"]));
-				
-		if ($this->settings["ignore_lines"]) {
-			foreach ($this->settings["ignore_lines"]->line as $line) {
-				if (!in_array($line, $this->ignore_lines)) $this->ignore_lines[] = (string)$line;
-			}
-		}
-		
+						
 		if ($this->settings["remove_macros"]) {
 			foreach ($this->settings["remove_macros"]->value as $value) {
 				if (!in_array($value, $this->remove_macros)) $this->remove_macros[] = (string)$value;
@@ -814,13 +793,7 @@ class Framework extends MemoryManager {
 				$this->define_replacements[(string)$define->pattern] = (string)$define->replacement;
 			}
 		}
-		
-		if ($this->settings["skip_blocks"]) {
-			foreach ($this->settings["skip_blocks"]->block as $block) {
-				$this->skip_blocks[(string)$block->start] = (string)$block->end;
-			}
-		}
-		
+				
 		// apply macros to non-static properties
 		if (!$this->is_static()) {
 			foreach ($this->ignore_types as $key => $value) $this->ignore_types[$key] = $this->apply_macros($value);
@@ -838,7 +811,6 @@ class Framework extends MemoryManager {
 		$this->external_macros = array_unique($this->external_macros);
 		$this->inline_macros = array_unique($this->inline_macros);
 		$this->ignore_types = array_unique($this->ignore_types);
-		$this->ignore_lines = array_unique($this->ignore_lines);
 		$this->declared_types = array_unique($this->declared_types);
 		$this->ignore_headers = array_unique($this->ignore_headers);
 		$this->implicit_pointers = array_unique($this->implicit_pointers);
@@ -851,7 +823,6 @@ class Framework extends MemoryManager {
 		$this->external_macros = array_filter($this->external_macros);
 		$this->inline_macros = array_filter($this->inline_macros);
 		$this->ignore_types = array_filter($this->ignore_types);
-		$this->ignore_lines = array_filter($this->ignore_lines);
 		$this->declared_types = array_filter($this->declared_types);
 		$this->ignore_headers = array_filter($this->ignore_headers);
 		$this->implicit_pointers = array_filter($this->implicit_pointers);
@@ -989,7 +960,6 @@ class Framework extends MemoryManager {
 			$this->settings["uses"] = (string) $xml->uses;
 			$this->settings["imports"] = (string) $xml->imports;
 			$this->settings["support_frameworks"] = (string) $xml->support_frameworks;
-			$this->settings["ignore_lines"] = $xml->ignore_lines;
 			$this->settings["replace_types"] = $xml->replace_types;
 			$this->settings["pointer_types"] = $xml->pointer_types;
 			$this->settings["remove_macros"] = $xml->remove_macros;

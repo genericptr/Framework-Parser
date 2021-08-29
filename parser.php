@@ -1,4 +1,8 @@
 <?php
+
+// ignore notices since they've gotten noisy in later versions of PHP
+ini_set("error_reporting", E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+
 require("source/framework_loader.php");
 
 // Returns script user input as array

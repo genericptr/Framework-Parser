@@ -28,7 +28,7 @@ class Symbol extends MemoryManager {
 	public $dependencies = array();			// array of symbols which we depend on for compiling (i.e. must be declared below this symbol)
 	public $dependents = array();				// array of symbols which depend on the symbol and must be declared below us
 	public $deprecated_macro;
-	
+
 	private $tables = array();					// array of symbol tables the symbol belongs to
 	private $declared_scope_uuid;				// uuid of the scope at the time the symbol was declared
 																			// this value is used for comparing scopes in is_declared_in_scope()
@@ -36,7 +36,11 @@ class Symbol extends MemoryManager {
 	/**
 	 * Methods
 	 */
-		
+
+	public function is_fully_defined(): bool {
+		return true;
+	}
+
 	public function set_scope (Scope $scope) {
 		$this->declared_scope_uuid = $scope->get_super_scope()->uuid;
 		$this->scope = &$scope;

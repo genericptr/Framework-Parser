@@ -36,6 +36,22 @@ $standard_c_types = array(	"id", "SEL", "IMP", "unichar", "double",
  * Replacing Utilities
  */
 
+// remove typecast part from constant literal i.e.
+//
+function clean_constant_literal_typecast ($value) {
+	if (preg_match("/^\s*\([a-z0-9_ *]+\)\s*(.*)$/i", $value, $matches)) {
+		return $matches[1];
+	} else {
+		return $value;
+	}
+	
+}
+
+// strips out Objective-C generics, i.e. NSArray<NSValue *> (can be recursive)
+function clean_objc_generics ($string) {
+	return preg_replace("/((\w+)\s*<(.*R?)>)/", "$2", $string);
+}
+
 // master function for formatting a any raw-c type appearing in source
 // to a pascal equivalent.
 //
@@ -147,8 +163,10 @@ function replace_pointer_type ($type, Header $header) {
 		}
 	}
 	
-	// use generic pointer type
-	if (!$found) $type = $type.POINTER_SUFFIX;
+	// use generic pointer type unless the type already has the pointer suffix
+	if (!$found && !preg_match('/'.POINTER_SUFFIX.'$/', $type)) {
+		$type = $type.POINTER_SUFFIX;
+	}
 	
 	return $type;
 }
