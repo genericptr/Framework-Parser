@@ -350,11 +350,6 @@ class HeaderTypedefParser extends HeaderParserModule {
 			SymbolTable::table()->add_implicit_pointer($name);
 		} else {
 			$name = trim($name, "^ ");
-			// TODO: use "reference to" syntax for cblocks (make Cblocks function parser method)
-			// print("name: $name\n");
-			// print("return: $return_type\n");
-			// print("parameters: $parameters\n");
-			// die;
 			$type = OPAQUE_BLOCK_TYPE;
 		}
 				
