@@ -69,7 +69,8 @@ class ErrorReporting {
    * Used in parser output but doesn't affect the program
    */
   public function print_color (int $color, string $message) {
-    passthru('echo "\033[1;'.$color.'m'.addslashes($message).'\033[0m"');
+    echo ansi_string(array($color), $message) . "\n";
+    // passthru('echo "\033[1;'.$color.'m'.addslashes($message).'\033[0m"');
   }
 
   // messages are plain text inserted to the console with no suggestions
@@ -145,6 +146,13 @@ class ErrorReporting {
   private function __construct() {    
   }
 
+}
+
+function ansi_string(array $colors, string $string): string {
+  $ansi_str = "";
+  foreach ($colors as $attr) $ansi_str .= "\033[" . $attr . "m";
+  $ansi_str .= $string . "\033[0m";
+  return $ansi_str;
 }
 
 function print_color ($code, $message) {

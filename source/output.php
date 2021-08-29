@@ -55,7 +55,7 @@ class Output {
 	
 	// close the output file
 	public function close () {
-		if ($this->syntax_coloring) {
+		if ($this->show && $this->syntax_coloring) {
 			$syntax = new SyntaxColor();
 			$syntax->process($this->full_text);
 			print("\n");

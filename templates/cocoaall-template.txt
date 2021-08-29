@@ -1,6 +1,7 @@
 {$mode delphi}
 {$modeswitch objectivec1}
 {$modeswitch cvar}
+{$modeswitch cblocks}
 
 {$ifndef [GROUP]}
 {$error "You must compile with -d[GROUP] to use [GROUP]."}

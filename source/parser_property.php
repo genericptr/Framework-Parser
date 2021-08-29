@@ -133,7 +133,7 @@ class HeaderPropertyParser extends HeaderParserModule {
 	// nested function pointer parameters
 	//
 	// NSUInteger (*hashFunction)(const void *item, NSUInteger (*size)(const void *item))
-	// void (^terminationHandler)(NSTask *);
+	// void (^terminationHandler)(NSTask *)
 	private $pregex_function_pointer = "/(.*?)\s*\(\s*([\^*]+)\s*(\w+)\s*\)\s*\((.*)\)/";
 	
 	private function process_property_attributes (PropertySymbol $property, $attributes) {
@@ -194,16 +194,17 @@ class HeaderPropertyParser extends HeaderParserModule {
 
 			if ($captures[2] == "*") {
 				// build the function pointer from inline pointer type
-				$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[1], null, $captures[4], FUNCTION_SOURCE_TYPE_TYPE);
+				$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[1], NO_FUNCTION_NAME, $captures[4], FUNCTION_SOURCE_TYPE_TYPE);
 
 				// add the function pointer as a callback
 				$callback_name = ucwords($property->name);
 				$property->type = HeaderFunctionParser::add_callback($this->header, $callback_name, $function_pointer);
 			}
 			
-			// the function pointer is a block
+			// the function pointer is a cblock
 			if ($captures[2] == "^") {
-				$property->type = OPAQUE_BLOCK_TYPE;
+				$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[1], NO_FUNCTION_NAME, $captures[4], FUNCTION_SOURCE_TYPE_CBLOCK);
+				$property->type = HeaderFunctionParser::add_callback($this->header, $property->name, $function_pointer);
 			}
 			
 			// print some debug info

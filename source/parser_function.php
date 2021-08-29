@@ -10,6 +10,7 @@ require_once("utilities.php");
 define("FUNCTION_SOURCE_TYPE_EXTERNAL", 1);		// procedure name; cdecl; external;
 define("FUNCTION_SOURCE_TYPE_FIELD", 2);		// name: procedure; cdel;
 define("FUNCTION_SOURCE_TYPE_TYPE", 3);			// name = procedure; cdecl;
+define("FUNCTION_SOURCE_TYPE_CBLOCK", 4);		// name = reference to procedure; cdecl; cblock;
 
 define("FUNCTION_TYPE_PROCEDURE", 1);
 define("FUNCTION_TYPE_FUNCTION", 2);
@@ -48,11 +49,11 @@ class FunctionSymbol extends Symbol {
 					$source = indent_string($indent).$this->name.": ".$source;
 					break;
 				}
-				case FUNCTION_SOURCE_TYPE_TYPE: {
+				case FUNCTION_SOURCE_TYPE_TYPE:
+				case FUNCTION_SOURCE_TYPE_CBLOCK: {
 					$source = indent_string($indent).$this->name." = " .$source;
 					break;
 				}
-				
 				default: {
 					ErrorReporting::errors()->add_exception("Building source with invalid source type.");
 					break;
@@ -60,6 +61,11 @@ class FunctionSymbol extends Symbol {
 			}
 		}
 		
+		// add cblock prefix
+		if ($this->source_type == FUNCTION_SOURCE_TYPE_CBLOCK) {
+			$source = indent_string($indent)."reference to $source";
+		}
+
 		// add parameters
 		if ($this->parameters) $source .= "(".implode("; ", $this->parameters).")";
 		
@@ -72,9 +78,14 @@ class FunctionSymbol extends Symbol {
 		// variable arguments
 		if ($this->varargs) $source .= " varargs;";
 	
+		// add cblock modifier
+		if ($this->source_type == FUNCTION_SOURCE_TYPE_CBLOCK) {
+			$source .= " ".CBLOCK_CALLING_MODIFIER.";";
+		}
+
 		// add calling convention modifier
 		$source .= " ".EXTERNAL_FUNCTION_CALLING_MODIFIER.";";
-	
+
 		// add external modifier
 	  if ($this->source_type == FUNCTION_SOURCE_TYPE_EXTERNAL) $source .= " external;";
 		
@@ -138,7 +149,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 	// $source_type is only required if $name is specified
 	public static function build_function_pointer (&$header, $return_type, $name, $parameters, $source_type) {
 		$function_parser = new HeaderFunctionParser(MODULE_FUNCTION, $header);
-		$function = $function_parser->parse_function_declaration($name, $return_type, $parameters, $source_type);		
+		$function = $function_parser->parse_function_declaration($name, $return_type, $parameters, $source_type);
 		$function->build_source(0);
 		
 		$function_parser->free();
@@ -369,14 +380,14 @@ class HeaderFunctionParser extends HeaderParserModule {
 	public function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);
 		
-		//print("got function $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		// print("got function $id at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
 
 		switch ($id) {
 			
 			// external functions
-			case 1: {				
+			case 1: {
 				if ($function = $this->parse_function($scope->results)) {
 					$function->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
 					$this->symbols->add_symbol($function);
@@ -416,40 +427,6 @@ class HeaderFunctionParser extends HeaderParserModule {
 		if (is_parser_option_enabled(PARSER_OPTION_EXTERNC)) {
 			$blocks = array();
 			
-			// find extern C blocks
-			/*
-			
-			we better ask the list how to indentify these functions
-			
-			while (preg_match("/[\n]+extern\s*\"C\"\s*\{(.*)[\n]+\}[\n]+/is", $contents, $captures, PREG_OFFSET_CAPTURE, $offset)) {
-				$info = array();
-				$info["string"] = $captures[0][0];
-				$info["offset"] = (int)$captures[0][1];
-				$info["length"] = strlen($captures[0][0]);
-				$blocks[] = $info;
-				$offset = $info["offset"] + $info["length"];
-			}
-			
-			print_r($blocks);
-				
-			foreach ($blocks as $block) {
-				$offset = 0;			
-				while (preg_match("/[\n]+\s*(\w+)\s+(\w+)\(([^(]+)\)([^#{;]+);/is", $block["string"], $captures, PREG_OFFSET_CAPTURE, $offset)) {
-					//print_r($captures);
-					$block["string"] = substr_replace($block["string"], "extern ", $captures[0][1] + 1, 0);
-
-					// get the start/end offset and macro captured
-					$result = $captures[0][0];
-					$start = (int)$captures[0][1];
-					$length = strlen($captures[0][0]);
-					$offset = $start + $length;
-				}
-				//print($block);
-				
-				$block["string"] = substr_replace($block["string"], "extern ", $captures[0][1] + 1, 0);
-			}
-			*/
-			
 			$offset = 0;			
 			while (preg_match("/[\n]+\s*(\w+)\s+(\w+)\(([^(]+)\)([^#{;]+);/is", $contents, $captures, PREG_OFFSET_CAPTURE, $offset)) {
 				//print_r($captures);
@@ -480,7 +457,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 		$this->add_pattern($this->pattern_function_external);
 		
 		if (is_parser_option_enabled(PARSER_OPTION_PLAIN_C)) $this->add_pattern($this->pattern_function_plain_c);
-	}		
+	}
 
 }
 

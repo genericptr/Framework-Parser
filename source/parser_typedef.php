@@ -350,14 +350,26 @@ class HeaderTypedefParser extends HeaderParserModule {
 			SymbolTable::table()->add_implicit_pointer($name);
 		} else {
 			$name = trim($name, "^ ");
-			$type = OPAQUE_BLOCK_TYPE;
+
+			$cblock = HeaderFunctionParser::build_function_pointer_symbol($this->header, $return_type, $name, $parameters, FUNCTION_SOURCE_TYPE_CBLOCK);
+
+			// build source without name
+			$cblock->name = null;
+			$cblock->build_source(0);
+			$type = $cblock->source;
+			
+			// add dependencies from function pointer
+			$typedef->dependencies = array_merge($typedef->dependencies, $cblock->dependencies);
+			
+			// add the type as an implicit pointer
+			SymbolTable::table()->add_implicit_pointer($name);
 		}
 				
 		$typedef->name = $name;
 		$typedef->type = $type;
 
 		return $typedef;
-	}		
+	}
 		
 	public function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);

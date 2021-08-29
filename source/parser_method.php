@@ -149,12 +149,17 @@ class HeaderMethodParser extends HeaderParserModule {
 																		"scope" => SCOPE_METHOD, 
 																		"pattern" => "/(-|\+)+\s*\(([^)]*)\)\s*([^;]*)\s*[^:;]*;/is",
 																		);
-	
+
+	private $pattern_method_cblock_return = array(	"id" => 2, 
+																									"scope" => SCOPE_METHOD, 
+																									"pattern" => "/(-|\+)+\s*\(((\w+)\s*[*]*\s*)\(\s*\^\s*\)\s*\((.*?)\)\)\s*([^;]*)\s*[^:;]*;/is",
+																								);
+
 	// NSInteger (*)(id, id, void *)
 	private $pregex_callback_parameter = "/((\w+)\s*[*]*\s*)\(\s*\*\s*\)\s*\((.*?)\)/";
 	
 	// void (^)(id obj, NSUInteger idx, BOOL *stop)
-	private $pregex_block_parameter = "/((\w+)\s*[*]*\s*)\(\s*\^\s*\)\s*\((.*?)\)/";
+	private $pregex_block_parameter = "/((\w+)\s*[*]*\s*)\(\s*\^\s*(?:\w+)*\)\s*\((.*)\)/";
 	
 	// label:(NSString*)name
 	private $pregex_selector = "/(?P<label>\w+)\s*:\s*(\((?P<type>.*?)\)|)\s*(?P<name>\w+)/";
@@ -216,7 +221,7 @@ class HeaderMethodParser extends HeaderParserModule {
 	
 	private function parse_parameter_pair (ParameterPair &$pair, MethodSymbol $method) {
 				
-			// format array from pair type	
+			// format array from pair type
 			format_array_type($pair->type, $array, ucfirst($method->name), $this->header);
 				
 			// format source
@@ -225,7 +230,15 @@ class HeaderMethodParser extends HeaderParserModule {
 
 			// inline block
 			if (preg_match($this->pregex_block_parameter, $pair->type, $captures)) {
-				$pair->type = OPAQUE_BLOCK_TYPE;
+
+				// the parameter could be a nested block but I'm too lazy to fix that now
+				// so we just capture it and return an opaque type
+				if (preg_match($this->pregex_block_parameter, $captures[3], $captures_nested)) {
+					$captures[3] = OPAQUE_BLOCK_TYPE;
+				}
+
+				$pair->function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[2], NO_FUNCTION_NAME, $captures[3], FUNCTION_SOURCE_TYPE_CBLOCK);
+				$pair->type = HeaderFunctionParser::add_callback($this->header, $method->name, $pair->function_pointer);
 			}
 
 			// inline callback
@@ -266,20 +279,25 @@ class HeaderMethodParser extends HeaderParserModule {
 		
 		$method->objective_c_source = $source;
 		$method->prefix = $prefix;
-		$method->return_type = $this->parse_return_type($return_type, $method);
-		
+
+		// if the return type is an array this mean it's a cblock and we need to process it later
+		if (!is_array($return_type)) {
+			$method->return_type = $this->parse_return_type($return_type, $method);
+		}
+
 		$parameters = clean_objc_generics($parameters);
 
 		// parse parameters
 	 	if (preg_match_all($this->pregex_selector, $parameters, $captures)) {
-			//print_r($captures);
+			// print_r($captures);
 			for ($i=0; $i < count($captures[0]); $i++) { 
 				$pair = new ParameterPair();
 				$pair->name = $captures["name"][$i];
 				$pair->type = $captures["type"][$i];
 				$pair->label = $captures["label"][$i];
 				$pair->source = $captures[0][$i];
-				
+				// print_r($pair);
+
 				// name is the first label
 				if (count($method->parameters) == 0) $method->name = trim($pair->label);
 				
@@ -310,19 +328,52 @@ class HeaderMethodParser extends HeaderParserModule {
 		
 		// build the pascal method name
 		$this->build_method_name($method);
-									
+			
+		// process cblock return types
+		if (is_array($return_type)) {
+			$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $return_type['return'], NO_FUNCTION_NAME, $return_type['parameters'], FUNCTION_SOURCE_TYPE_CBLOCK);
+			$method->return_type = HeaderFunctionParser::add_callback($this->header, $method->name, $function_pointer);
+		}
+
 		return $method;
-	}						
+	}
 							
 	function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);
 
-		$results = $scope->results;
-		
-		if ($method = $this->process_method($results[0], $results[1], $results[2], $results[3])) {
-			$method->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
-			$scope->set_symbol($method);
+		// print("got method $id at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
+
+		switch ($id) {
+			// normal method
+			case 1: {
+				$results = $scope->results;
+				if ($method = $this->process_method($results[0], $results[1], $results[2], $results[3])) {
+					$method->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
+					$scope->set_symbol($method);
+				}
+				break;
+			}
+			// method with cblock return type
+			case 2: {
+				$results = $scope->results;
+
+				// rebuild the cblock for the return type
+				$cblock = array(
+					'return' => $results[2], 
+					'parameters' => $results[4]
+				);
+
+				if ($method = $this->process_method($results[0], $results[1], $cblock, $results[5])) {
+					$method->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
+					$scope->set_symbol($method);
+				}
+
+				break;
+			}
 		}
+
 	}
 	
 	public function init () {
@@ -330,8 +381,9 @@ class HeaderMethodParser extends HeaderParserModule {
 
 		$this->name = "method";
 
+		$this->add_pattern($this->pattern_method_cblock_return);
 		$this->add_pattern($this->pattern_method);
-	}		
+	}
 
 }
 		

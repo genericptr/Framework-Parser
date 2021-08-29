@@ -172,7 +172,6 @@ function parse_directory_2 ($directory) {
 }
 
 // parse_test('generics.h', 'macos');
-
 // parse_cocoa_all();
 parse_macos_header();
 // parse_appkit_framework();

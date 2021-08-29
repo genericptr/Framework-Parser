@@ -1,14 +1,21 @@
 
-COCOA_ALL_FRAMEWORKS = Foundation,AppKit
-PHP = php7
+COCOA_ALL_FRAMEWORKS = Foundation, AppKit
+GROUP_FRAMEWORKS = Foundation, CoreImage, QuartzCore, CoreData, AppKit
 
-all: test
+PHP = php7
+CWD = $(shell pwd)
+
+TEST_CBLOCKS = parser.php -header="Foundation:${CWD}/tests/cblocks.h" -macos -unit -show
+TEST_10_15 = parser.php -header="Foundation:${CWD}/tests/changes_10_15.h" -macos -unit -show
+
+TEST_MACOS_11_0 = parser.php -frameworks=\"${COCOA_ALL_FRAMEWORKS}\" -out=~/Desktop/CocoaAll_11_0 -group=CocoaAll -group_frameworks=\"${GROUP_FRAMEWORKS}\" -all_units=\"@/templates/mac-unit-template.txt\" -template=\"@/templates/cocoaall-template.txt\" -skeleton=\"@/skeletons/CocoaAll_11_0\" -sdk=MacOSX11.3.sdk -macos -all -class_definitions -v -safe -build_skeletons
+
+all: build
 
 test:
-	term "${PHP} test.php"
+# 	term "${PHP} test_language_utilities.php"
+# 	term "${PHP} test.php"
+	term "${PHP} ${TEST_CBLOCKS}"
 
-build_10_15:
-	${PHP} parser.php -frameworks="${COCOA_ALL_FRAMEWORKS}" -out=~/Desktop/CocoaAll_10_15 -group=CocoaAll -group_frameworks="Foundation, CoreImage, QuartzCore, CoreData, AppKit" -all_units="@/templates/mac-unit-template.txt" -template="@/templates/cocoaall-template.txt" -skeleton="@/skeletons/CocoaAll_10_15" -sdk=MacOSX10.15.sdk -macos -all -class_definitions -v -safe -build_skeletons
-
-build_11_0:
-	${PHP} parser.php -frameworks="${COCOA_ALL_FRAMEWORKS}" -out=~/Desktop/CocoaAll_11_0 -group=CocoaAll -group_frameworks="Foundation, CoreImage, QuartzCore, CoreData, AppKit" -all_units="@/templates/mac-unit-template.txt" -template="@/templates/cocoaall-template.txt" -skeleton="@/skeletons/CocoaAll_10_0" -sdk=MacOSX11.3.sdk -macos -all -class_definitions -v -safe -build_skeletons
+build:
+	term "${PHP} ${TEST_MACOS_11_0}"

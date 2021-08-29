@@ -308,6 +308,7 @@ define("METHOD_SELECETOR_SEPARATOR", "_");						// the string to use when buildi
 define("OBJC_SELECETOR_SEPARATOR", ":");							// objective-c selector separator character
 define("UNDEFINED_PARAMETER_NAME_PREFIX", "param");		// unnamed parameters will be prefixed and indexed using this word
 define("EXTERNAL_FUNCTION_CALLING_MODIFIER", "cdecl");
+define("CBLOCK_CALLING_MODIFIER", "cblock");
 define("EXTERNAL_VARIABLE_SUFFIX", "cvar; external;");
 define("KEYWORD_PROTECTION_SUFFIX", "_");							// all keywords are protected by suffixing this word
 define("DUPLICATE_CLASS_METHOD_PREFIX", "class");			// class methods that are duplicates of instance methods are prefixed with this word

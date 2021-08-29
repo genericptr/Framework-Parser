@@ -237,7 +237,10 @@ class Header extends MemoryManager {
 		$output->enable_header_sections = false;
 		
 		$output->writeln(0, "{\$mode objfpc}");
-		$output->writeln(0, "{\$modeswitch objectivec2}");
+		$output->writeln(0, "{\$modeswitch objectivec1}");
+		$output->writeln(0, "{\$modeswitch cvar}");
+		$output->writeln(0, "{\$modeswitch cblocks}");
+		$output->writeln(0);
 
 		$output->writeln(0, "unit ".basename_without_extension($path).";");
 		$output->writeln(0, "interface");

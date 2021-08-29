@@ -365,7 +365,7 @@ class Scope extends MemoryManager {
 					}
 				}
 				
-				// recurse into macro		
+				// recurse into macro
 				if ($scope->conforms_to(SCOPE_MACRO)) {
 					if ($symbol->pair) {
 						if ($symbol->contains_printable_symbols()) {

@@ -45,13 +45,6 @@ class SyntaxColor {
 	/*
 	 * Methods
 	 */
-	
-	private function ansi_string(array $colors, string $string): string {
-		$ansi_str = "";
-		foreach ($colors as $attr) $ansi_str .= "\033[" . $attr . "m";
-		$ansi_str .= $string . "\033[0m";
-		return $ansi_str;
-	}
 
 	private function apply_range(string $text, int &$offset): void {
 		/*
@@ -116,7 +109,7 @@ class SyntaxColor {
 
 			// print colored string
 			$colors = is_array($pattern->colors[$i]) ? $pattern->colors[$i] : array($pattern->colors[$i]);
-			print($this->ansi_string($colors, substr($text, $match_offset, $match_len)));
+			print(ansi_string($colors, substr($text, $match_offset, $match_len)));
 		}
 
 		// move offset past match
@@ -167,9 +160,10 @@ class SyntaxColor {
 		));
 
 		// function pointer type
-		$patterns[] = new SyntaxPattern("/(\w+)\s*=\s*(procedure|function)+/", array(
+		$patterns[] = new SyntaxPattern("/(\w+)\s*=\s*(reference\s+to\s*)*(procedure|function)+/", array(
 			1 => $styles['defs'],
 			2 => $styles['keywords'],
+			3 => $styles['keywords'],
 		));
 
 		// pascal type definitions

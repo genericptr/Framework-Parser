@@ -49,7 +49,12 @@ function clean_constant_literal_typecast ($value) {
 
 // strips out Objective-C generics, i.e. NSArray<NSValue *> (can be recursive)
 function clean_objc_generics ($string) {
-	return preg_replace("/((\w+)\s*<(.*R?)>)/", "$2", $string);
+	if (preg_match_all('/(\w+)\s*(<[^>]+[>]+)/', $string, $matches)) {
+		for ($i=0; $i < count($matches[0]); $i++) { 
+			$string = str_replace($matches[0][$i], $matches[1][$i], $string);
+		}
+	}
+	return $string;
 }
 
 // master function for formatting a any raw-c type appearing in source

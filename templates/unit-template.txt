@@ -1,6 +1,8 @@
 {$mode delphi}
 {$modeswitch objectivec1}
 {$modeswitch cvar}
+{$modeswitch cblocks}
+
 [GROUP_CONFLICT]
 [AVAILABILITY_MACROS]
 
