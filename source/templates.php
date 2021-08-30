@@ -187,7 +187,7 @@ $template_availability_macros = <<<TEMPLATE
 
 {\$undef __OBJC2__}
 {\$undef __BLOCKS__}
-{\$undef NS_BLOCKS_AVAILABLE}
+{\$define NS_BLOCKS_AVAILABLE}
 {\$undef NS_BUILD_32_LIKE_64}
 {\$undef NS_NONATOMIC_IOSONLY}
 

@@ -171,6 +171,9 @@ function parse_directory_2 ($directory) {
 	$GLOBALS["argv"][] = "-build_skeletons";
 }
 
+// TODO: can we integrate dispatch into CocoaAll?
+// /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include/dispatch
+
 // parse_test('generics.h', 'macos');
 // parse_cocoa_all();
 parse_macos_header();

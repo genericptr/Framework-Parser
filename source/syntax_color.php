@@ -32,7 +32,7 @@ class SyntaxColor {
 	private const RESERVED_WORDS = 'absolute|and|array|asm|begin|case|const|constructor|destructor|div|do|downto|else|end|file|for|function|goto|if|implementation|in|inherited|inline|interface|label|mod|nil|not|object|of|operator|or|packed|procedure|program|record|reintroduce|repeat|self|set|shl|shr|string|then|to|type|unit|until|uses|var|while|with|as|class|dispinterface|except|exports|finalization|finally|initialization|is|library|on|out|packed|property|raise|resourcestring|threadvar';
 	
 	private const OBJC_KEYWORDS = 'objcclass|objcprotocol|objcategory|objcbool';
-	private const CLASS_SECTIONS = 'strict|public|published|protected|private';
+	private const CLASS_SECTIONS = 'strict|public|published|protected|private|required|optional';
 
 	private const FUNCTION_MODIFIERS = 'external|message|cdecl|cblock';
 

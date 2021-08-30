@@ -146,6 +146,10 @@
 				<replacement></replacement>
 			</macro>
 			<macro>
+				<pattern>/API_DEPRECATED\("",\s*([^)]+)\)/s</pattern>
+				<replacement>deprecated;</replacement>
+			</macro>
+			<macro>
 				<pattern>/API_DEPRECATED\("([^"]+)",\s*([^)]+)\)/s</pattern>
 				<replacement>deprecated '$1';</replacement>
 			</macro>

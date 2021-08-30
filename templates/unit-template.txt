@@ -31,6 +31,10 @@ uses
 [INCLUDE]
 {$undef TYPES}
 
+{$define CALLBACKS}
+[INCLUDE]
+{$undef CALLBACKS}
+
 {$define RECORDS}
 [INCLUDE]
 {$undef RECORDS}

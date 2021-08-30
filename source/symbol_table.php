@@ -236,14 +236,14 @@ class SymbolTable {
 		
 		if (count($callbacks) > 0) {
 			$output->writeln();
-			$output->writeln(0, "{ Callbacks }");
-			$output->print_section("TYPES", true);
+			// $output->writeln(0, "{ Callbacks }");
+			$output->print_section("CALLBACKS", true);
 			$output->writeln(0, "type");
 			foreach ($callbacks as $symbol) {
 				$symbol->build_source(1);
 				$output->writeln(0, $symbol->source);
 			}
-			$output->print_section("TYPES", false);
+			$output->print_section("CALLBACKS", false);
 		}
 	}
 		
