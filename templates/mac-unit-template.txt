@@ -28,6 +28,7 @@ uses
 
 {$define INTERFACE}
 [COMMON_MACROS]
+{$define FRAMEWORK_LOADED_[NAME_UC]}
 
 [COMMON_TYPES]
 

@@ -10,20 +10,26 @@ class ProtocolSymbol extends ClassSymbol {
 	public $external_name;							// name of the protocol in the framework (without protocol suffix)
 	public $super_protocols = array();	// array of protocol names that the protocol extends 
 	
-	public function get_adoptable_methods () {
+	public function get_adoptable_methods (ClassSymbol $class) {
 		$methods = array();
 	
 		// get all method scopes
-		$methods = array_merge($methods, $this->find_methods());
-		
+		$methods = $this->find_methods();
+		foreach ($methods as $method) {
+			if ($method instanceof PropertySymbol) {
+				$methods = array_merge($methods, $method->get_accessor_methods($class));
+			} else {
+				$methods[] = $method;
+			}
+		}
+
 		// recurse into super class if a protocol of the name can be 
 		// found in the symbol table
 		foreach ($this->super_protocols as $protocol) {
 			if ($super = SymbolTable::table()->find_symbol($protocol, "ProtocolSymbol", ANY_HEADER, $this->framework, SEARCH_IMPORTED_FRAMEWORKS)) {
-				$methods = array_merge($methods, $super->get_adoptable_methods());
+				$methods = array_merge($methods, $super->get_adoptable_methods($class));
 			}
 		}
-		
 		return $methods;
 	}
 	
@@ -32,9 +38,7 @@ class ProtocolSymbol extends ClassSymbol {
 	}
 	
 	public function build_source ($indent = 0) {
-		//$source = indent_string($indent)."type\n";
-		//$indent += 1;
-		
+		$source = '';
 		if ($this->super_class) {
 			$protocols = implode(", ", $this->super_protocols);
 			$source .= indent_string($indent).$this->name." = ".DECLARED_PROTOCOL_KEYWORD." name '$this->external_name' ($protocols)\n";

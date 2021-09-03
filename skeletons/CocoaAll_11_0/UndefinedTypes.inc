@@ -20,21 +20,26 @@ type
 	_CGLPBufferObjectPtr = Pointer;
 	__NSOVRowEntryPtr = Pointer;
 	objcboolPtr = ^objcbool;
+	size_tPtr = ^size_t;
 
 { MacOSPosix.pas }
 type
 	dispatch_queue_t = pointer;
   dispatch_semaphore_t = pointer;
 	dispatch_block_t = pointer;
-	pthread_mutex_t = pointer;	
-	pthread_block_t = pointer;	
-	
+	dispatch_group_t = pointer;
+	pthread_mutex_t = pointer;
+	pthread_block_t = pointer;
+
 { Security framework - SecureTransport.h }
 type
 	SSLProtocol = integer;
+	tls_protocol_version_t = integer;
 
+
+{ <mach/machine.h> }
 type
-	size_tPtr = ^size_t;
+	cpu_type_t = integer;
 
 // CGWindowLevel.h constants we can't translate to FPC
 const
@@ -101,10 +106,6 @@ type
 	IOByteCount = UInt32;
 	IOReturn = UInt32;
 
-// OpenGL
-type
-	GLfloatPtr = pointer;
-	
 // CarbonCore/Components.h
 type
   ComponentRecord = record
@@ -134,8 +135,16 @@ type
 type
 	CGLContextObjPtr = ^CGLContextObj;
 	CGLPixelFormatObjPtr = ^CGLPixelFormatObj;
+	GLfloatPtr = pointer;
+
+// XPC
+type
+	xpc_object_t = OpaquePointer;
+	xpc_type_t = OpaquePointer;
 
 // Objective-C runtime
+type
+	NSObjectPtr = ^NSObject;
 
 {$if defined(__LP64__) or (defined(TARGET_OS_EMBEDDED) and not defined(TARGET_OS_IPHONE)) or defined(TARGET_OS_WIN32) or defined(NS_BUILD_32_LIKE_64)}
 type
@@ -156,3 +165,17 @@ const
   NSIntegerMin = LONG_MIN;
   NSUIntegerMax = ULONG_MAX;
 
+const
+  NSEnumerationConcurrent = 1 shl 0;
+  NSEnumerationReverse = 1 shl 1;
+
+const
+  NSSortConcurrent = 1 shl 0;
+  NSSortStable = 1 shl 4;
+  
+const
+  NSQualityOfServiceUserInteractive = $21;
+  NSQualityOfServiceUserInitiated = $19;
+  NSQualityOfServiceUtility = $11;
+  NSQualityOfServiceBackground = $09;
+  NSQualityOfServiceDefault = -1;

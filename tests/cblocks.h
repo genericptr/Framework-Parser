@@ -16,7 +16,7 @@
 
   double (^multiplyTwoValues)(double, double);
 
-  completionHandler:(void (^ _Nullable)(NSDictionary<NSURL *, NSURL *> * newURLs, NSError * _Nullable error))
+  completionHandler:(void (^ )(NSDictionary<NSURL *, NSURL *> * newURLs, NSError *  error))
 */
 
 // typedef void (^AVAudioNodeCompletionHandler)(void);
@@ -30,14 +30,30 @@
 
 // broken c-blocks
 @interface NSWorkspace : NSObject
+
++ (nullable void (^)(void))completionBlock;
++ (void)setCompletionBlock:(nullable void (^)(void))block;
+
+// - (void)recycleURLs:(NSArray<NSURL *> *)URLs completionHandler:(void (^ )(NSDictionary<NSURL *, NSURL *> * newURLs, NSError *  error))handler;
+// - (void)duplicateURLs:(NSArray<NSURL *> *)URLs completionHandler:(void (^ )(NSDictionary<NSURL *, NSURL *> * newURLs, NSError *  error))handler;
+// - (void)registerDataRepresentationForTypeIdentifier:(NSString *)typeIdentifier
+//                                          visibility:(NSItemProviderRepresentationVisibility)visibility
+//                                         loadHandler:(NSProgress * (^)(void (^completionHandler)(NSData * data, NSError * error)))loadHandler;
 @end
 
-// TODO: cblocks in fields are not working but are they in frameworks?
-typedef struct MyStruct {
-    double (^)(double, double) block;
-} MyStruct;
-
-// TODO: cblocks in properties (can these have names?)
-// @interface NSExpression : NSObject
-// @property(copy) double (^name)(double, double) *minificationFilter;
+// TODO: generic token is added into cblock type
+// @interface NSArray<ObjectType> (NSExtendedArray)
+// - (NSArray<ObjectType> *)arrayByAddingObject:(ObjectType)anObject;
+// - (NSArray<ObjectType> *)sortedArrayUsingFunction:(NSInteger (NS_NOESCAPE *)(ObjectType, ObjectType, void * ))comparator context:(nullable void *)context;
+// - (void)enumerateObjectsUsingBlock:(void (NS_NOESCAPE ^)(ObjectType obj, NSUInteger idx, BOOL *stop))block;
 // @end
+
+// TODO: broken c-block in return type
+// @interface NSError : NSObject
+// + (id _Nullable (^ _Nullable)(NSError *err, NSErrorUserInfoKey userInfoKey))userInfoValueProviderForDomain:(NSErrorDomain)errorDomain;
+// @end
+
+// TODO: cblocks in fields are not working but are they in frameworks?
+// typedef struct MyStruct {
+//     double (^)(double, double) block;
+// } MyStruct;

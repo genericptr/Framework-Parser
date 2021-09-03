@@ -131,10 +131,16 @@ class FrameworkLoader {
 		if ($parts = explode(":", $path)) {
 			$original_path = $parts[1];
 			
-			/*
-				we want to allow undefined frameworks 
-				but which do we inherit from
-			*/
+			// TODO: use PARSER_OPTION_DEFAULT_FRAMEWORK with -header 
+			// if ((!$this->is_framework_defined($name)) && (is_parser_option_enabled(PARSER_OPTION_DEFAULT_FRAMEWORK))) {
+			// 	if ($default = $this->find_framework(get_parser_option(PARSER_OPTION_DEFAULT_FRAMEWORK))) {
+			// 		$framework = Framework::clone_existing($name, $default);
+			// 		$this->add_defined_framework($framework);
+			// 	} else {
+			// 		ErrorReporting::errors()->add_fatal("The default framework \"".get_parser_option(PARSER_OPTION_DEFAULT_FRAMEWORK)."\" can not be found.");
+			// 	}
+			// }
+
 			if (!$this->find_framework($parts[0])) {
 				$name = readline("The framework \"$parts[0]\" is not defined. What framework would you like to define from?\n");
 				if ($base = $this->find_framework($name)) {
@@ -593,7 +599,8 @@ TEMPLATE;
 						
 		// replace template macros
 		$template = str_replace(TEMPLATE_KEY_NAME, $group, $template);
-		
+		$template = str_replace(TEMPLATE_KEY_NAME_UPPER_CASE, strtoupper($group), $template);
+
 		// common types/macros
 		$template = str_replace(TEMPLATE_KEY_AVAILABILITY_MACROS, $template_availability_macros, $template);
 		$template = str_replace(TEMPLATE_KEY_COMMON_TYPES, $template_common_types, $template);
@@ -802,7 +809,6 @@ TEMPLATE;
 		// sort frameworks for order
 		$sorter = new FrameworkSorter($this->frameworks_loaded);
 		$order = $sorter->sort();
-		//print_r($order);
 		
 		// rebuild the loaded frameworks in the sorted order
 		$frameworks = array();
@@ -1022,7 +1028,7 @@ TEMPLATE;
 		// input directory 
 		if (!$framework->is_found()) {
 			$framework->set_directory($this->get_input_directory());
-		}		
+		}
 		
 		// attempt to resolve the frameworks path from the search directory
 		// if the framework is still not found
@@ -1336,14 +1342,15 @@ TEMPLATE;
 			
 			ErrorReporting::errors()->add_message("• Loading framework \"$name\" from ".basename($umbrella).".");
 			
-			/*
-				what is "ios" doing as the base framework here??? not sure it can be removed safely...
-			*/
-			$framework = Framework::clone_existing($name, $this->find_framework("ios"));
+			$framework = Framework::clone_existing($name, $this->find_framework("base"));
 			$framework->set_umbrella_header(basename($umbrella));
 			$framework->set_path(dirname($umbrella));
 			$framework->set_headers_directory(null);
 			$this->add_defined_framework($framework);
+
+			if (is_parser_option_enabled(PARSER_OPTION_DIRECTORY)) {
+				$this->frameworks_loaded[] = $framework;	
+			}
 		}
 		
 		// add defined frameworks
@@ -1351,7 +1358,6 @@ TEMPLATE;
 			
 			// show a list of new frameworks search paths
 			if (is_parser_option_enabled(PARSER_OPTION_FRAMEWORK_DIFFS)) {
-				//print_r($frameworks);
 				
 				$paths = $this->get_search_paths();
 				$names = array();
@@ -1380,7 +1386,7 @@ TEMPLATE;
 			$this->load_command_line_frameworks($frameworks);
 			
 			$this->sort_loaded_frameworks();
-			
+
 			// perform post-sorting actions on loaded frameworks
 			foreach ($this->frameworks_loaded as $framework) {
 				

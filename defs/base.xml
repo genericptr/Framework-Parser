@@ -134,11 +134,11 @@
 
 			<!-- Added in 10.15 -->
 			<macro>
-				<pattern>/API_UNAVAILABLE\(([^)]+)\)/</pattern>
+				<pattern>/\w+_UNAVAILABLE\s*\((.*)\)/</pattern>
 				<replacement>{ unavailable in $1 }</replacement>
 			</macro>
 			<macro>
-				<pattern>/API_AVAILABLE\(([^)]+)\)/</pattern>
+				<pattern>/\w+_AVAILABLE\s*\((.*)\)/</pattern>
 				<replacement>{ available in $1 }</replacement>
 			</macro>
 			<macro>
@@ -146,15 +146,16 @@
 				<replacement></replacement>
 			</macro>
 			<macro>
-				<pattern>/API_DEPRECATED\("",\s*([^)]+)\)/s</pattern>
+				<pattern>/\w+_DEPRECATED\s*\("",\s*(.*?)\)/s</pattern>
 				<replacement>deprecated;</replacement>
 			</macro>
 			<macro>
-				<pattern>/API_DEPRECATED\("([^"]+)",\s*([^)]+)\)/s</pattern>
+				<pattern>/\w+_DEPRECATED\s*\("([^"]+)",\s*(.*?)\)/s</pattern>
 				<replacement>deprecated '$1';</replacement>
 			</macro>
+			<!-- NOTE: this was conflicting was another pattern lower down -->
 			<macro>
-				<pattern>/API_DEPRECATED_WITH_REPLACEMENT\("([^"]+)",\s*([^)]+)\)/s</pattern>
+				<pattern>/\w+_DEPRECATED_WITH_REPLACEMENT\s*\("([^"]+)",\s*(.*?)\)/s</pattern>
 				<replacement>deprecated 'replace with $1';</replacement>
 			</macro>
 
@@ -218,7 +219,7 @@
 			<macro>
 				<pattern>/(CF_RETURNS_RETAINED|CF_RETURNS_NOT_RETAINED|CF_RELEASES_ARGUMENT|CF_CONSUMED)+/</pattern>
 				<replacement>{ $1 }</replacement>
-			</macro>			
+			</macro>
 		</availability_macros>
 		
 		<replacement_patterns>
@@ -248,6 +249,19 @@
 			</pattern>
 			<pattern>
 				<pattern>/__attribute__\s*\(\((.*)\)\)/i</pattern>
+				<replacement></replacement>
+			</pattern>
+			<!-- Swift -->
+			<pattern>
+				<pattern>/(NS_SWIFT_NAME\(.*\))/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<pattern>
+				<pattern>/(NS_STRING_ENUM)/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<pattern>
+				<pattern>/\b\w+_SWIFT_BRIDGED_TYPEDEF\b/</pattern>
 				<replacement></replacement>
 			</pattern>
 		</replacement_patterns>		
@@ -321,6 +335,8 @@
 		<name>sdk_macos_latest</name>
 	</framework>
 
+	<!-- Cocoa Base -->
+
 	<framework>
 		<parent>sdk_macos_latest</parent>
 		<name>cocoa_base</name>
@@ -333,7 +349,8 @@
 			%%ABBRV_NAME%%_EXPORT, 
 			%%UC_NAME%%_IMPORT, 
 			%%ABBRV_NAME%%_IMPORT, 
-			%%UC_NAME%%_IVAR
+			%%UC_NAME%%_IVAR,
+			OS_EXPORT
 		</external_macros>
 		<inline_macros>%%ABBRV_NAME%%_INLINE, NS_INLINE</inline_macros>
 		<ignore_types>
@@ -356,7 +373,7 @@
 		</ignore_types>
 		<remove_macros>
 			<value>/\s*(NS_CLASS_AVAILABLE|NS_FORMAT_FUNCTION)\s*\(.*?\)\s*/i</value>
-			<value>/(NS_REQUIRES_NIL_TERMINATION|NS_AUTOMATED_REFCOUNT_UNAVAILABLE|NS_UNAVAILABLE|NS_RETURNS_RETAINED|NS_RETURNS_NOT_RETAINED|NS_RETURNS_INNER_POINTER|NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE|NS_REQUIRES_PROPERTY_DEFINITIONS|NS_REPLACES_RECEIVER|NS_RELEASES_ARGUMENT|NS_VALID_UNTIL_END_OF_SCOPE|NS_ROOT_CLASS|NS_TYPED_EXTENSIBLE_ENUM|NS_SWIFT_BRIDGED_TYPEDEF|UNAVAILABLE_ATTRIBUTE|DEPRECATED_ATTRIBUTE|NS_TYPED_ENUM|NS_NOESCAPE|NS_EXTENSIBLE_STRING_ENUM|CF_STRING_ENUM|CF_EXTENSIBLE_STRING_ENUM|CF_TYPED_ENUM|CF_TYPED_EXTENSIBLE_ENUM|CF_AUTOMATED_REFCOUNT_UNAVAILABLE|CF_IMPLICIT_BRIDGING_ENABLED|CF_IMPLICIT_BRIDGING_DISABLED|CF_ASSUME_NONNULL_BEGIN|CF_ASSUME_NONNULL_END|CF_REFINED_FOR_SWIFT|CF_NOESCAPE|CF_NO_TAIL_CALL|CF_WARN_UNUSED_RESULT)/i</value>
+			<value>/(NS_REQUIRES_NIL_TERMINATION|NS_AUTOMATED_REFCOUNT_UNAVAILABLE|NS_UNAVAILABLE|NS_RETURNS_RETAINED|NS_RETURNS_NOT_RETAINED|NS_RETURNS_INNER_POINTER|NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE|NS_REQUIRES_PROPERTY_DEFINITIONS|NS_REPLACES_RECEIVER|NS_RELEASES_ARGUMENT|NS_VALID_UNTIL_END_OF_SCOPE|NS_ROOT_CLASS|NS_TYPED_EXTENSIBLE_ENUM|NS_SWIFT_BRIDGED_TYPEDEF|UNAVAILABLE_ATTRIBUTE|DEPRECATED_ATTRIBUTE|NS_TYPED_ENUM|NS_NOESCAPE|NS_EXTENSIBLE_STRING_ENUM|CF_STRING_ENUM|CF_EXTENSIBLE_STRING_ENUM|CF_TYPED_ENUM|CF_TYPED_EXTENSIBLE_ENUM|CF_AUTOMATED_REFCOUNT_UNAVAILABLE|CF_IMPLICIT_BRIDGING_ENABLED|CF_IMPLICIT_BRIDGING_DISABLED|CF_ASSUME_NONNULL_BEGIN|CF_ASSUME_NONNULL_END|CF_REFINED_FOR_SWIFT|CF_NOESCAPE|CF_NO_TAIL_CALL|CF_WARN_UNUSED_RESULT|NS_REFINED_FOR_SWIFT)/i</value>
 			<value>/%%PREGEX_NAMES%%_CLASS_AVAILABLE\s*\(.*\)/i</value>
 			<value>/%%PREGEX_NAMES%%_EXTERN_C_(BEGIN|END)/i</value>
 			<value>/\bAVAILABLE_\w+_VERSION_\d+_\d+_AND_LATER\b/i</value>
@@ -365,6 +382,26 @@
 			<!-- clang macros -->
 			<pattern>
 				<pattern>/\b(_)*(nullable|nonnull|null_unspecified|autoreleasing)+\b/i</pattern>
+				<replacement></replacement>
+			</pattern>
+			<!-- Parameter hints for Swift -->
+			<pattern>
+				<pattern>/\b%%ABBRV_NAME%%_(NONNULL|NULLABLE|INLINE|RETURNS_(?:NOT_)*RETAINED(?:_PARAMETER)*|RELEASES_ARGUMENT)+\b/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<!-- Bridging type hints -->
+			<pattern>
+				<pattern>/(%%ABBRV_NAME%%|CF)+_BRIDGED_TYPE\(.*?\)+/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<!-- XX_DEPRECATED framework -->
+			<pattern>
+				<pattern>/\b(\w+)_DEPRECATED\b[^(]/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<!-- Prohibited -->
+			<pattern>
+				<pattern>/\b__(\w+)_PROHIBITED\b/</pattern>
 				<replacement></replacement>
 			</pattern>
 		</replacement_patterns>

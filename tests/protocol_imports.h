@@ -3,15 +3,8 @@
 @protocol NSAccessibilityElement <NSObject>
 @required
 - (NSRect)accessibilityFrame;
-- (nullable id)accessibilityParent;
-
-@protocol NSColorChanging <NSObject>
-- (void)changeColor:(nullable NSColorPanel *)sender;
-@end
-
 @optional
 - (BOOL)isAccessibilityFocused;
-- (NSString *)accessibilityIdentifier;
 @end
 
 @protocol NSAccessibility <NSObject>
@@ -21,6 +14,20 @@
 
 // TODO: both getter and setter aren't being imported for NSAccessibility property
 // because NSAccessibilityElement is implemented first
+/*
+procedure setAccessibilityFrame(newValue: NSRect); message 'setAccessibilityFrame:'; { available in macos  }
+*/
 
-@interface NSWorkspace : NSObject <NSAccessibilityElement, NSAccessibility, NSColorChanging>
+@interface NSWorkspace : NSObject <NSAccessibilityElement, NSAccessibility>
 @end
+
+
+/*
+
+    { Adopted protocols }
+    procedure setAccessibilityFocused(newValue: objcbool); message 'setAccessibilityFocused:'; { available in macos  }
+    function isAccessibilityFocused: objcbool; message 'isAccessibilityFocused'; { available in macos  }
+    function accessibilityFrame: NSRect; message 'accessibilityFrame';
+    function isAccessibilityFocused: objcbool; message 'isAccessibilityFocused';
+
+*/

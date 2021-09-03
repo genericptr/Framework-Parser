@@ -137,6 +137,12 @@ class ParameterPair {
 			return false;
 		}
 	}
+
+	function __construct($name = '', $type = '', $label = '') {
+		$this->name = $name;
+		$this->type = $type;
+		$this->label = $label;
+	}
 }
 
 
@@ -152,7 +158,7 @@ class HeaderMethodParser extends HeaderParserModule {
 
 	private $pattern_method_cblock_return = array(	"id" => 2, 
 																									"scope" => SCOPE_METHOD, 
-																									"pattern" => "/(-|\+)+\s*\(((\w+)\s*[*]*\s*)\(\s*\^\s*\)\s*\((.*?)\)\)\s*([^;]*)\s*[^:;]*;/is",
+																									"pattern" => "/(-|\+)+\s*\(\s*((\w+)\s*[*]*\s*)\(\s*\^\s*\)\s*\((.*?)\s*\)\s*\)\s*([^;]*)\s*[^:;]*;/is",
 																								);
 
 	// NSInteger (*)(id, id, void *)
@@ -192,9 +198,10 @@ class HeaderMethodParser extends HeaderParserModule {
 	} 
 	
 	// build objective-c selector for message keyword
-	private function build_selector (MethodSymbol &$method) {
+	public static function build_selector (MethodSymbol &$method) {
 		
 		if ($method->parameters) {
+			$selector = '';
 			foreach ($method->parameters as $param) { 
 				$selector .= $param->label.OBJC_SELECETOR_SEPARATOR;
 			}
@@ -220,56 +227,57 @@ class HeaderMethodParser extends HeaderParserModule {
 	}
 	
 	private function parse_parameter_pair (ParameterPair &$pair, MethodSymbol $method) {
-				
-			// format array from pair type
-			format_array_type($pair->type, $array, ucfirst($method->name), $this->header);
-				
-			// format source
-			$pair->source = trim($pair->source);
-			$pair->type = format_c_type($pair->type, $this->header);
+		$pair->type = clean_objc_generics($pair->type);
 
-			// inline block
-			if (preg_match($this->pregex_block_parameter, $pair->type, $captures)) {
+		// format array from pair type
+		format_array_type($pair->type, $array, ucfirst($method->name), $this->header);
+			
+		// format source
+		$pair->source = trim($pair->source);
+		$pair->type = format_c_type($pair->type, $this->header);
 
-				// the parameter could be a nested block but I'm too lazy to fix that now
-				// so we just capture it and return an opaque type
-				if (preg_match($this->pregex_block_parameter, $captures[3], $captures_nested)) {
-					$captures[3] = OPAQUE_BLOCK_TYPE;
-				}
+		// inline block
+		if (preg_match($this->pregex_block_parameter, $pair->type, $captures)) {
 
-				$pair->function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[2], NO_FUNCTION_NAME, $captures[3], FUNCTION_SOURCE_TYPE_CBLOCK);
-				$pair->type = HeaderFunctionParser::add_callback($this->header, $method->name, $pair->function_pointer);
+			// the parameter could be a nested block but I'm too lazy to fix that now
+			// so we just capture it and return an opaque type
+			if (preg_match($this->pregex_block_parameter, $captures[3], $captures_nested)) {
+				$captures[3] = OPAQUE_BLOCK_TYPE;
 			}
 
-			// inline callback
-			if (preg_match($this->pregex_callback_parameter, $pair->type, $captures)) {
-				
-				// build the function pointer from inline pointer type
-				$pair->function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[2], NO_FUNCTION_NAME, $captures[3], FUNCTION_SOURCE_TYPE_TYPE);
-				
-				// add the function pointer as a callback
-				$callback_name = ucwords($method->name).ucwords($pair->name);
-				$pair->type = HeaderFunctionParser::add_callback($this->header, $callback_name, $pair->function_pointer);
-			} 
-			
-			// protect against pairs with the same name as the type (boolean: boolean)
-			if (preg_match("!\b$pair->name\b!i", $pair->type)) protect_keyword($pair->name);
-			
-			// protect in reserved namespace
-			reserved_namespace_protect_keyword($pair->name);
-						
-			// parameter without type defaults to id in objective-c
-			if (!$pair->type) $pair->type = DEFAULT_PARAMATER_TYPE;
+			$pair->function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[2], NO_FUNCTION_NAME, $captures[3], FUNCTION_SOURCE_TYPE_CBLOCK);
+			$pair->type = HeaderFunctionParser::add_callback($this->header, $method->name, $pair->function_pointer);
+		}
 
-			// parameters can have duplicate names in objective-c
-			// but we need to label them uniquely for pascal
-			foreach ($method->parameters as $param) {
-				if ($param->name == $pair->name) {
-					$index = count($method->parameters) + 1;
-					$pair->name = $pair->name.$index;
-					break;
-				}
+		// inline callback
+		if (preg_match($this->pregex_callback_parameter, $pair->type, $captures)) {
+			
+			// build the function pointer from inline pointer type
+			$pair->function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[2], NO_FUNCTION_NAME, $captures[3], FUNCTION_SOURCE_TYPE_TYPE);
+			
+			// add the function pointer as a callback
+			$callback_name = ucwords($method->name).ucwords($pair->name);
+			$pair->type = HeaderFunctionParser::add_callback($this->header, $callback_name, $pair->function_pointer);
+		} 
+		
+		// protect against pairs with the same name as the type (boolean: boolean)
+		if (preg_match("!\b$pair->name\b!i", $pair->type)) protect_keyword($pair->name);
+		
+		// protect in reserved namespace
+		reserved_namespace_protect_keyword($pair->name);
+					
+		// parameter without type defaults to id in objective-c
+		if (!$pair->type) $pair->type = DEFAULT_PARAMATER_TYPE;
+
+		// parameters can have duplicate names in objective-c
+		// but we need to label them uniquely for pascal
+		foreach ($method->parameters as $param) {
+			if ($param->name == $pair->name) {
+				$index = count($method->parameters) + 1;
+				$pair->name = $pair->name.$index;
+				break;
 			}
+		}
 	}
 			
 	private function process_method ($source, $prefix, $return_type, $parameters) {
@@ -284,8 +292,6 @@ class HeaderMethodParser extends HeaderParserModule {
 		if (!is_array($return_type)) {
 			$method->return_type = $this->parse_return_type($return_type, $method);
 		}
-
-		$parameters = clean_objc_generics($parameters);
 
 		// parse parameters
 	 	if (preg_match_all($this->pregex_selector, $parameters, $captures)) {
@@ -341,7 +347,7 @@ class HeaderMethodParser extends HeaderParserModule {
 	function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);
 
-		// print("got method $id at $scope->start/$scope->end\n");
+		// print("✅ got method ($id) at $scope->start/$scope->end\n");
 		// print($scope->contents."\n");
 		// print_r($scope->results);
 

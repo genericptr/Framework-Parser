@@ -45,12 +45,8 @@ function find_all_frameworks($sdk_path = '') {
 	if (!$sdk_path)
 		$sdk_path = exec("xcrun --sdk macosx --show-sdk-path");
 
-	// $platform = "/Contents/Developer/Platforms/MacOSX.platform";
-	// $sdk = "MacOSX$version.sdk";
-	// $path = "$xcode/$platform/Developer/SDKs/$sdk";
 	print("Searching for frameworks in '$sdk_path'...\n");
 	$frameworks = find_frameworks_with_objective_c($sdk_path);
-	// $base = "$path/System/Library/Frameworks";
 	$names = array();
 	foreach ($frameworks as $name) {
 		// TODO: can we determine if the framework will not be found?
@@ -59,15 +55,13 @@ function find_all_frameworks($sdk_path = '') {
 		// }
 		$names[] = basename_without_extension($name);
 	}
-	// print("found ".count($frameworks)." frameworks.\n");
 	sort($names);
 	return $names;
 }
 
-// /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk
-
 $names = find_all_frameworks();
-
-print_r($names);
+$names = implode(', ', $names);
+print($names);
+// print_r($names);
 
 ?>

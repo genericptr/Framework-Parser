@@ -27,10 +27,10 @@ class Framework extends MemoryManager {
 	public $replacement_patterns = array();				// replacement patterns by pattern => replacement pattern
 	public $define_replacements = array();				// patterns to replace #define values
 	public $implicit_pointers = array();					// types which are implicit pointers
-	public $uses = array();												
-	public $support_frameworks = array();												
+	public $uses = array();
+	public $support_frameworks = array();
 	public $imports = array();
-	public $include_imported_frameworks = false;												
+	public $include_imported_frameworks = false;
 	public $settings = array();										// raw array of settings from xml node
 	
 	// *** DEPRECATED ***
@@ -43,7 +43,7 @@ class Framework extends MemoryManager {
 	 */
 	
 	public $auto_loaded = false;									// the framework was auto-loaded
-	public $loadable = true;											
+	public $loadable = true;
 	public $dependencies = 0;											// count of dependencies on other frameworks (like reference counted memory for the symbol table)
 	public $finalized = false;										// the framework has been finalized and removed from the symbol table
 	public $header_paths = array();								// array of header paths in the framework
@@ -53,9 +53,9 @@ class Framework extends MemoryManager {
 	 */
 	
 	private $name; 								// name of the framework (as defined in frameworks.xml)	
-	private $parent; 							
+	private $parent;
 	private $root; 
-	private $path; 							
+	private $path;
 	private $umbrella;
 	
 	/**
@@ -386,7 +386,8 @@ class Framework extends MemoryManager {
 				
 		// replace template macros
 		$template = str_replace(TEMPLATE_KEY_NAME, $this->name, $template);
-		
+		$template = str_replace(TEMPLATE_KEY_NAME_UPPER_CASE, strtoupper($this->name), $template);
+
 		// common types/macros
 		$template = str_replace(TEMPLATE_KEY_AVAILABILITY_MACROS, $template_availability_macros, $template);
 		$template = str_replace(TEMPLATE_KEY_COMMON_TYPES, $template_common_types, $template);
@@ -493,7 +494,7 @@ class Framework extends MemoryManager {
 			if (file_exists($path)) {
 				$sorter = new HeaderSorter($path, $this);
 				$headers = $sorter->sort();
-				
+
 				// build headers array with full path
 				//foreach ($sorted_headers as $header) {
 				//	$header_path = dirname($path)."/".$header;
@@ -523,14 +524,10 @@ class Framework extends MemoryManager {
 				}
 			}
 		}
-		
-		/*		
-			if we have -all_headers then recurse and get all files?
-		*/
-		
+				
 		// remove duplicate values
 		$headers = array_unique($headers);
-		
+
 		// set the frameworks header paths for the framework loader
 		$this->header_paths = $headers;
 		
@@ -732,7 +729,7 @@ class Framework extends MemoryManager {
 				$this->settings[$key] = $this->apply_macros($value);
 			}
 		}
-				
+
 		// apply options from framework definition
 		if ($this->settings["external_macros"]) $this->external_macros = array_merge($this->external_macros, preg_split("/\s*,\s*/", $this->settings["external_macros"]));
 		if ($this->settings["inline_macros"]) $this->inline_macros = array_merge($this->inline_macros, preg_split("/\s*,\s*/", $this->settings["inline_macros"]));
@@ -802,11 +799,21 @@ class Framework extends MemoryManager {
 			foreach ($this->external_macros as $key => $value) $this->external_macros[$key] = $this->apply_macros($value);
 			foreach ($this->inline_macros as $key => $value) $this->inline_macros[$key] = $this->apply_macros($value);
 			
+			// replace keys and values for replacement patterns
+			foreach ($this->replacement_patterns as $key => $value) {
+				$old_keys[] = $key;
+				$new_key = $this->apply_macros($key);
+				$this->replacement_patterns[$new_key] = $this->apply_macros($value);
+				// remove the old key if it changed
+				if ($new_key != $key)
+					unset($this->replacement_patterns[$key]);
+			}
+
 			$this->root = $this->apply_macros($this->root);
 			$this->path = $this->apply_macros($this->path);
 			$this->umbrella = $this->apply_macros($this->umbrella);
 		}
-		
+
 		// make values unique
 		$this->external_macros = array_unique($this->external_macros);
 		$this->inline_macros = array_unique($this->inline_macros);

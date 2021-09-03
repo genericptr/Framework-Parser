@@ -1,6 +1,7 @@
 <?php
 
 require_once("settings.php");
+require_once("scanner.php");
 
 /**
  * Global Variables
@@ -47,13 +48,77 @@ function clean_constant_literal_typecast ($value) {
 	
 }
 
+function parse_objc_generic(string $string) {
+  $types = array();
+  $scanner = new Scanner($string);
+
+  $parser = function(bool $generic_param) use ($scanner, &$parser) {
+    $scanner->consume(TOKEN_ID);
+    $type = $scanner->pattern;
+
+    if ($generic_param) $scanner->consume('<');
+
+  	if ($generic_param || $scanner->try_consume('<')) {
+			$parser(false);
+			$scanner->try_consume('*');
+			$scanner->consume('>');
+  	} else {
+  		$scanner->try_consume('*');
+  		// next param
+  		if ($scanner->try_consume(',')) {
+  		  $parser(false);
+  		}
+  	}
+
+    return $type;
+  };
+
+  try {
+  	while ($type = $parser(true)) {
+  	  $types[] = $type;
+  	  // next generic in list
+  	  if ($scanner->try_consume(',')) {
+  	    continue;
+  	  } else {
+  	    break;
+  	  }
+  	}
+  } catch (Exception $e) {
+  	// echo 'Caught exception: ',  $e->getMessage(), "\n";
+  	return null;
+  }
+
+  return $types;
+}
+
 // strips out Objective-C generics, i.e. NSArray<NSValue *> (can be recursive)
 function clean_objc_generics ($string) {
-	if (preg_match_all('/(\w+)\s*(<[^>]+[>]+)/', $string, $matches)) {
+  // print(ansi_string(ANSI_BACK_MAGENTA, $string)."\n");
+  // error_report();
+
+  // note(ryan): this was a failed test to make a proper parser
+  // but it's not flexible enough to handle the chunks of random
+  // text being handed to it so we'll stick with regex
+  // if (preg_match('/(\w+\s*<.*>)/', $string, $matches)) {
+  // 	$string = $matches[1];
+  // 	if ($types = parse_objc_generic($string)) {
+  // 		$string = implode(", ", $types);
+  // 	}
+  // }
+
+	// step 1) remove single parameters like <id> and <id, id *>
+  if (preg_match_all('/(\w+)\s*(<(\w+[,* ]*)+>)/', $string, $matches)) {
+  	for ($i=0; $i < count($matches[0]); $i++) { 
+  		$string = str_replace($matches[0][$i], $matches[1][$i], $string);
+  	}
+  }
+  // step 2) remove any remaining nested parameters like NSDictionary<NString *, NSArray<NSURL *>>
+	if (preg_match_all('/(\w+)\s*(<.*>)/', $string, $matches)) {
 		for ($i=0; $i < count($matches[0]); $i++) { 
 			$string = str_replace($matches[0][$i], $matches[1][$i], $string);
 		}
 	}
+	// print(ansi_string(ANSI_BACK_GREEN, $string)."\n");
 	return $string;
 }
 
@@ -347,6 +412,9 @@ function extract_name_type_pair ($pair, &$name, &$type) {
 	$pair = replace_conforms_to_hint($pair, $null);
 	$pair = replace_unused_keywords($pair);
 	
+	// remove any space from around array brackets
+	$pair = preg_replace("/(\w+)\s*\[\s*(\d)*\s*\]/", " $1[$2] ", $pair);
+
 	// move * in pointers directly after the word to make splitting easier
 	$pair = preg_replace("/(\w+)\s*([*]+)/", " $1$2 " , $pair);
 	$pair = trim($pair);

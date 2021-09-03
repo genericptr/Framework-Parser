@@ -50,8 +50,8 @@ if (count($GLOBALS["argv"]) > 1) {
 	// load input from command file
 	if ($input[PARSER_OPTION_COMMAND]) {
 		$command = $input[PARSER_OPTION_COMMAND];
-		$command = expand_tilde_path($command);		
-		$command = expand_root_path($command);				
+		$command = expand_tilde_path($command);
+		$command = expand_root_path($command);
 		$input = load_input_command($command, $input);
 	}
 	

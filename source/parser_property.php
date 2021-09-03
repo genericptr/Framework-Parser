@@ -9,14 +9,16 @@ require_once("symbol.php");
  */
 class PropertySymbol extends MethodSymbol {
 	public $type;
-	public $remote_messaging_modifier;	
+	public $remote_messaging_modifier;
 	public $garbage_collector_hint;
 	public $list = array();
-	
+	public $function = null;	// FunctionSymbol for properties with inline functions pointers
+	public $callback = null;  // TypedefSymbol for properties which created implicit callback types
 	public $setter = null;
 	public $getter = null;
+
 	private $attributes = array();
-	
+
 	public function set_getter ($name) {
 		$this->getter = $name;
 	}
@@ -31,6 +33,10 @@ class PropertySymbol extends MethodSymbol {
 	
 	public function is_read_only () {
 		return in_array("readonly", $this->attributes);
+	}
+
+	public function is_class () {
+		return in_array("class", $this->attributes);
 	}
 	
 	public function get_getter () {
@@ -50,8 +56,49 @@ class PropertySymbol extends MethodSymbol {
 	}
 	
 	public function added_to_class (ClassSymbol $class) {
+		// if the property has callback typedef then notify that we are
+		// being added to a class so we can clean generic parameters
+		if ($this->callback) {
+			$this->callback->added_to_class($class);
+		}
 	}
 	
+	public function get_accessor_methods(ClassSymbol $class) {
+		$methods = array();
+
+		// getter
+		$getter_method = new MethodSymbol($this->header);
+		$getter_method->parameters = null;
+		$getter_method->return_type = $this->type;
+		$getter_method->name = $this->get_getter();
+		$getter_method->deprecated_macro = $this->deprecated_macro;
+		$getter_method->is_class = $this->is_class();
+		HeaderMethodParser::build_selector($getter_method);
+		$class->namespace->protect_keyword($getter_method->name);
+
+		$methods[] = $getter_method;
+
+		// setter
+		if (!$this->is_read_only()) {
+			$setter_method = new MethodSymbol($this->header);
+			$setter_method->name = $this->get_setter();
+			$setter_method->is_class = $this->is_class();
+			$setter_method->is_procedure = true;
+			$setter_method->parameters = array(
+				new ParameterPair('newValue', $this->type, $setter_method->name)
+			);
+			$setter_method->return_type = PROCEDURE_RETURN_TYPE;
+			$setter_method->deprecated_macro = $this->deprecated_macro;
+
+			HeaderMethodParser::build_selector($setter_method);
+			$class->namespace->protect_keyword($setter_method->name);
+
+			$methods[] = $setter_method;
+		}
+
+		return $methods;
+	}
+
 	public function finalize (ClassSymbol $class) {
 		
 		// properties only need to be protected in the current class namespace
@@ -74,7 +121,7 @@ class PropertySymbol extends MethodSymbol {
 		// protect setter
 		if (!$this->is_read_only()) {
 			$setter = $this->get_setter();
-			$class->namespace->protect_keyword($setter);		
+			$class->namespace->protect_keyword($setter);
 			$class->namespace->add_keyword($setter);
 			global_namespace_protect_keyword($setter);
 			$this->setter = $setter;
@@ -88,13 +135,15 @@ class PropertySymbol extends MethodSymbol {
 	}
 	
 	public function build_source ($indent = 0) {
-		
+		$source = '';
+
 		// add setter
 		if (!$this->is_read_only()) {
 			$name = $this->get_setter();
 			$message = trim($name, KEYWORD_PROTECTION_SUFFIX);
 			$type = $this->type;
-			$source = indent_string($indent)."procedure $name(newValue: $type); message '$message:';";
+			$class_prefix = $this->is_class() ? "class " : "";
+			$source = indent_string($indent).$class_prefix."procedure $name(newValue: $type); message '$message:';";
 			if ($this->deprecated_macro) $source .= " ".$this->deprecated_macro;
 			$source .= "\n";
 		}
@@ -103,7 +152,8 @@ class PropertySymbol extends MethodSymbol {
 		$name = $this->get_getter();
 		$message = trim($name, KEYWORD_PROTECTION_SUFFIX);
 		$type = $this->type;
-		$source .= indent_string($indent)."function $name: $type; message '$message';";
+		$class_prefix = $this->is_class() ? "class " : "";
+		$source .= indent_string($indent).$class_prefix."function $name: $type; message '$message';";
 		if ($this->deprecated_macro) $source .= " ".$this->deprecated_macro;
 		
 		// add dependents
@@ -194,17 +244,22 @@ class HeaderPropertyParser extends HeaderParserModule {
 
 			if ($captures[2] == "*") {
 				// build the function pointer from inline pointer type
-				$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[1], NO_FUNCTION_NAME, $captures[4], FUNCTION_SOURCE_TYPE_TYPE);
+				$function_pointer = HeaderFunctionParser::build_function_pointer_symbol($this->header, $captures[1], NO_FUNCTION_NAME, $captures[4], FUNCTION_SOURCE_TYPE_TYPE);
+				$function_pointer->build_source(0);
 
 				// add the function pointer as a callback
 				$callback_name = ucwords($property->name);
-				$property->type = HeaderFunctionParser::add_callback($this->header, $callback_name, $function_pointer);
+				$property->function = &$function_pointer;
+				$property->type = HeaderFunctionParser::add_callback($this->header, $callback_name, $function_pointer, $property->callback);
 			}
 			
 			// the function pointer is a cblock
 			if ($captures[2] == "^") {
-				$function_pointer = HeaderFunctionParser::build_function_pointer($this->header, $captures[1], NO_FUNCTION_NAME, $captures[4], FUNCTION_SOURCE_TYPE_CBLOCK);
-				$property->type = HeaderFunctionParser::add_callback($this->header, $property->name, $function_pointer);
+				$function_pointer = HeaderFunctionParser::build_function_pointer_symbol($this->header, $captures[1], NO_FUNCTION_NAME, $captures[4], FUNCTION_SOURCE_TYPE_CBLOCK);
+
+				$function_pointer->build_source(0);
+				$property->function = &$function_pointer;
+				$property->type = HeaderFunctionParser::add_callback($this->header, $property->name, $function_pointer, $property->callback);
 			}
 			
 			// print some debug info

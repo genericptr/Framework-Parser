@@ -143,12 +143,13 @@ class ErrorReporting {
     throw new Exception($message);
   }
   
-  private function __construct() {    
+  private function __construct() {
   }
 
 }
 
-function ansi_string(array $colors, string $string): string {
+function ansi_string($colors, string $string): string {
+  if (!is_array($colors)) $colors = array($colors);
   $ansi_str = "";
   foreach ($colors as $attr) $ansi_str .= "\033[" . $attr . "m";
   $ansi_str .= $string . "\033[0m";
@@ -159,5 +160,23 @@ function print_color ($code, $message) {
   ErrorReporting::errors()->print_color($code, $message);
 }
 
+function error_report(string $error = 'Error', bool $show_back_trace = true, bool $fatal = false) {
+  $back_trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+  for ($i=1; $i < count($back_trace); $i++) { 
+    $frame = $back_trace[$i];
+    $file = basename($back_trace[$i - 1]['file']);
+    $line = $back_trace[$i - 1]['line'];
+    $context = $frame['function'];
+
+    // main error
+    if ($i == 1)
+      echo ansi_string(ANSI_BACK_RED, "🔴 $error at $file:$line")."\n";
+
+    // don't show any stack frames
+    if (!$show_back_trace) return;
+
+    echo " #$i ".ansi_string(ANSI_FORE_CYAN, $context)." at $file:$line\n";
+  }
+}
 
 ?>

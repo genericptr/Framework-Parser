@@ -18,18 +18,6 @@ function is_verbose (): bool {
 
 function get_verbosity (): int {
 	return (int)get_parser_option(PARSER_OPTION_VERBOSE);
-	// global $command_line_options;	
-	// $level = 0;
-	// $flag = PARSER_OPTION_VERBOSE;
-	// while (true) {
-	// 	if (is_parser_option_enabled($flag)) {
-	// 		$level++;
-	// 		$flag .= 'v';
-	// 	} else {
-	// 		break;
-	// 	}
-	// }
-	// return $level;
 }
 
 function is_parser_option_enabled ($option) {
@@ -147,6 +135,15 @@ $sdk_framework_directories = array(	// as of Xcode 4.3 SDK's are stored in the a
 // all system defined directories which contain frameworks
 $system_framework_directories = array("/System/Library/Frameworks", "/Library/Frameworks");
 
+// returns the system SDK path where all SDKs are stored
+function get_sdk_root(string $platform = 'macosx') {
+	if ($path = exec("xcrun --sdk $platform --show-sdk-path")) {
+		return dirname($path);
+	} else {
+		return '';
+	}
+}
+
 // returns the full path for an sdk by searching
 // the availble list of system framework directories
 function framework_directory_for_sdk ($sdk, $xcode) {
@@ -159,7 +156,6 @@ function framework_directory_for_sdk ($sdk, $xcode) {
 	foreach ($sdk_framework_directories as $path) {
 		$path = str_replace(FRAMEWORK_XML_MACRO_SDK, $sdk, $path);
 		$path = str_replace(FRAMEWORK_XML_MACRO_XCODE, $xcode, $path);
-		//print("  searching: $path\n");
 		if (file_exists($path)) return $path;
 	}
 }
@@ -279,7 +275,6 @@ define("MODULE_IVAR", "ivar");
 define("MODULE_MACRO", "macro");
 define("MODULE_METHOD", "method");
 define("MODULE_PROPERTY", "property");
-define("MODULE_PROTOCOL", "protocol");
 define("MODULE_STRUCT", "struct");
 define("MODULE_TYPEDEF", "typedef");
 define("MODULE_VARIABLE", "variable");
@@ -302,8 +297,8 @@ define("DECLARED_PROTOCOL_KEYWORD", "objcprotocol external");
 define("SOURCE_INDENT", "  ");
 define("TYPDEF_ENUM_TYPE", "clong");									// named typedef enums will use this type when declared in pascal
 define("OPAQUE_BLOCK_TYPE", "OpaqueCBlock");					// blocks will declared using this opaque type until they are supported in FPC
-define("INLINE_ARRAY_SUFFIX", "Array");								// arrays which are defined inline parameters (like foo[]) will prefix their type with this word						
-define("DEFAULT_PARAMATER_TYPE", "id");								// if not type is defined (in objective-c methods) this type is substituted
+define("INLINE_ARRAY_SUFFIX", "Array");								// arrays which are defined inline parameters (like foo[]) will prefix their type with this word
+define("DEFAULT_PARAMATER_TYPE", "id");								// if no type is defined (in objective-c methods) this type is substituted
 define("METHOD_SELECETOR_SEPARATOR", "_");						// the string to use when building method names from objective-c selector (like : in objective-c)
 define("OBJC_SELECETOR_SEPARATOR", ":");							// objective-c selector separator character
 define("UNDEFINED_PARAMETER_NAME_PREFIX", "param");		// unnamed parameters will be prefixed and indexed using this word

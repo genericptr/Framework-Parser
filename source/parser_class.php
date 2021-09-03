@@ -17,7 +17,7 @@ class ClassSymbol extends Symbol {
 																			// these are added to the class symbol by calling SymbolTable::adopt_class_protocols
 																			// after all headers have been parsed
 	public $categories = array();				// array of CategorySymbol categories which extend the class
-	private $generic_params = array();  // generic parameters in class name, i.e NSDictionary<KeyObject, ValueObject>
+	public $generic_params = array();  // generic parameters in class name, i.e NSDictionary<KeyObject, ValueObject>
 
 	public $protecting_category_keywords = false;
 	private $protecting_keyword = false;
@@ -590,8 +590,17 @@ class HeaderClassParser extends HeaderParserModule {
 		// add methods from the scope
 		if ($symbols = $scope->find_sub_scopes(array(SCOPE_METHOD, SCOPE_PROPERTY, SCOPE_MACRO), true, false)) {
 			$class->methods = $symbols;
-		}		
+		}
 		
+		// add typedef from the scope
+		if ($symbols = $scope->find_sub_scopes(array(SCOPE_TYPE), true, false)) {
+			foreach ($symbols as $symbol) {
+				if ($symbol instanceof TypedefSymbol) {
+					$symbol->added_to_class($class);
+				}
+			}
+		}
+
 		// set the scope symbol
 		$class->set_scope($scope);
 		
@@ -603,7 +612,7 @@ class HeaderClassParser extends HeaderParserModule {
 		}
 
 		return $class;
-	}						
+	}
 		
 	function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);

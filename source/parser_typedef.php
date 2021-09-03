@@ -25,7 +25,9 @@ class TypedefSymbol extends Symbol {
 	public $type;
 	public $array_elements = 0;
 	public $implicit_type_pointer = false;
-	
+	public $function = null;	// FunctionSymbol if the typedef is a function
+	public $class = null;			// Class the typedef was added to (if applicable)
+
 	public $is_array = false;
 	public $is_pointer = false;
 	public $is_block = false;
@@ -78,9 +80,21 @@ class TypedefSymbol extends Symbol {
 		return true;
 	}
 	
+	// called on typedefs which are declared inside classes
+	public function added_to_class($class) {
+		$this->class = $class;
+		// if the typedef has callback then replace generic params in all the parameter names
+		// and rebuild the source which can be used for the typedef type name
+		if ($this->function) {
+			$this->function->parameters = $class->replace_generic_params($this->function->parameters);
+			$this->function->build_source(0);
+			$this->type = $this->function->source;
+		}
+	}
+
 	public function finalize () {
 		if ($this->is_free()) return;
-		
+
 		// if the type has not been defined as either a typedef or struct we assume 
 		// the type is opaque to protect against missing types later
 		if ($this->is_struct || $this->is_union) {
@@ -193,7 +207,6 @@ class HeaderTypedefParser extends HeaderParserModule {
 			$typedef->is_array = true;
 		}
 	}
-	
 			
 	// parses a typedef by contents which is all text between "typedef" and ";"
 	private function parse_typedef ($contents, Scope $scope) {	
@@ -231,31 +244,9 @@ class HeaderTypedefParser extends HeaderParserModule {
 		if (preg_match("/(\w+$)/", $contents, $matches, PREG_OFFSET_CAPTURE)) {
 			$list[] .= $matches[1][0];
 			$type = substr($contents, 0, $matches[1][1]);
+			$type = clean_objc_generics($type);
 			$type = format_c_type($type, $this->header);
 		}
-		
-		/*
-
-		$parts = preg_split("/\s+(?=(\w+$))/", $contents);
-		// print("$contents\n");
-		// print_r($parts);
-
-		// the name is the last indentifier
-		$list[] = array_pop($parts);
-		
-		// pop off additional names in list
-		foreach ($parts as $key => $value) {
-			if (preg_match("/([*]*\w+),$/", $value, $captures)) {
-				$list[] = $captures[1];
-				unset($parts[$key]);
-			}
-		}
-		print_r($list);
-		
-		// rebuild the type from the remaining parts
-		$type = implode(" ", $parts);
-		$type = format_c_type($type, $this->header);
-		*/
 
 		// make a typedef for each available name
 		foreach ($list as $name) {
@@ -320,7 +311,7 @@ class HeaderTypedefParser extends HeaderParserModule {
 	// parses a typedef function type or pointer pattern
 	private function parse_typedef_function ($name, $return_type, $parameters, Scope $scope) {	
 		$typedef = new TypedefSymbol($this->header);
-		
+
 		// if not return type was specified attempt to extract name/type
 		// from the name
 		if (!$return_type) {
@@ -343,6 +334,8 @@ class HeaderTypedefParser extends HeaderParserModule {
 			$function->build_source(0);
 			$type = $function->source;
 			
+			$typedef->function = &$function;
+
 			// add dependencies from function pointer
 			$typedef->dependencies = array_merge($typedef->dependencies, $function->dependencies);
 			
@@ -357,7 +350,9 @@ class HeaderTypedefParser extends HeaderParserModule {
 			$cblock->name = null;
 			$cblock->build_source(0);
 			$type = $cblock->source;
-			
+
+			$typedef->function = &$cblock;
+
 			// add dependencies from function pointer
 			$typedef->dependencies = array_merge($typedef->dependencies, $cblock->dependencies);
 			
@@ -374,7 +369,7 @@ class HeaderTypedefParser extends HeaderParserModule {
 	public function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);
 
-		// print("** got typedef at $scope->start/$scope->end\n");
+		// print("✅ got typedef($id) at $scope->start/$scope->end\n");
 		// print($scope->contents."\n");
 		// print_r($scope->results);
 

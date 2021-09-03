@@ -141,10 +141,10 @@ class SyntaxColor {
 		);
 
 		// comments
-		$patterns[] = new SyntaxPattern("/(\{[^}]+\})/", array(1 => ANSI_FORE_GREEN));
+		$patterns[] = new SyntaxPattern("/(\{[^}]*\})/", array(1 => ANSI_FORE_GREEN));
 
 		// strings
-		$patterns[] = new SyntaxPattern("/('[^']+')/", array(1 => ANSI_FORE_RED));
+		$patterns[] = new SyntaxPattern("/('[^']*')/", array(1 => ANSI_FORE_RED));
 
 		// methods
 		$patterns[] = new SyntaxPattern("/(class\s+)*(procedure|function)+\s+(\w+)/", array(

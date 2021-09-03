@@ -575,14 +575,22 @@ class SymbolTable {
 			foreach ($class->protocols as $conforms_to) {
 				if (get_verbosity() > 1) ErrorReporting::errors()->add_message("class $class->name conforms to $conforms_to");
 				if ($protocol = $this->find_symbol($conforms_to, "ProtocolSymbol", ANY_HEADER, $framework, SEARCH_IMPORTED_FRAMEWORKS)) {
-					$class->adopted_methods = array_merge($class->adopted_methods, $protocol->get_adoptable_methods());
+					$class->adopted_methods = array_merge($class->adopted_methods, $protocol->get_adoptable_methods($class));
 				}
 			}
 												
+			// remove property symbols because their accessor methods have
+			// already been added in ProtocolSymbol::get_adoptable_methods
+			// NOTE: in the future when Objective-C supports properties
+			// we can remove the accessor methods and include the properties
+			$class->adopted_methods = array_filter($class->adopted_methods, function($method) {
+				return !($method instanceof PropertySymbol);
+			});
+
 			// remove duplicates and sort
 			$class->adopted_methods = array_unique($class->adopted_methods, SORT_STRING);
 			sort($class->adopted_methods, SORT_STRING);
-			//foreach ($class->adopted_methods as $method) print("    + $method in $class\n");
+			// foreach ($class->adopted_methods as $method) print("    ✅ ".$method->name.' -> '.get_class($method)." in $class\n");
 			
 			// remove adopted methods that are duplicates
 			// of existing methods in current class

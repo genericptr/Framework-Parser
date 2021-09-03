@@ -171,12 +171,19 @@ class HeaderFunctionParser extends HeaderParserModule {
 	
 	// adds a function callback type with name $name, and returns
 	// the name of the callback type
-	public static function add_callback(&$header, $name, $function_pointer) {
+	public static function add_callback(&$header, $name, &$function_pointer, &$callback = null) {
 		$callback = new TypedefSymbol($header);
 		$callback->name = ucwords($header->get_actual_name()).ucwords($name).CALLBACK_SUFFIX;
-		$callback->type = $function_pointer;
 		$callback->is_callback = true;
-		
+
+		// the function pointer can be a symbol or a string
+		if ($function_pointer instanceof FunctionSymbol) {
+			$callback->function = &$function_pointer;
+			$callback->type = null;
+		} else {
+			$callback->type = $function_pointer;
+		}
+
 		// the type has already been declared, return the name
 		// but don't add the symbol to the table
 		if (SymbolTable::table()->is_type_declared($callback->name)) return $callback->name;
@@ -192,10 +199,9 @@ class HeaderFunctionParser extends HeaderParserModule {
 	
 	/**
 	 * Methods
-	 */			
+	 */
 		
 	private function convert_generic_parameter ($param, &$index, FunctionSymbol &$function) {
-		
 		// the parameter is marked const in c so we need to 
 		// make note before it's removed in extract_name_type_pair()
 		if (preg_match("/^\s*const/", $param)) $is_const = true;
@@ -206,10 +212,10 @@ class HeaderFunctionParser extends HeaderParserModule {
 			$type = trim($param);
 			$name = UNDEFINED_PARAMETER_NAME_PREFIX.$index;
 		}
-		
+
 		// format array from pair type
 		format_array_pair($name, $type, $array, "", $this->header);
-				
+
 		// format c type
 		$type = format_c_type($type, $this->header);
 							
@@ -271,7 +277,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 				
 	// Converts a C parameter string to Pascal
 	private function convert_parameters (FunctionSymbol $function, $string) {
-		// print("convert params for $function->name: $string\n");
+		// print("convert params for $function->name -> $string\n");
 		
 		// remove line breaks in parameters
 		$string = str_remove_lines($string);
@@ -336,8 +342,10 @@ class HeaderFunctionParser extends HeaderParserModule {
 		$function = new FunctionSymbol($this->header);
 		$function->name = $name;
 		$function->source_type = $source_type;
-		$function->return_type = format_c_type($return_type, $this->header);
-		
+		$return_type = clean_objc_generics($return_type);
+		$return_type = format_c_type($return_type, $this->header);
+		$function->return_type = $return_type;
+
 		global_namespace_protect_keyword($function->name);
 		
 		// get function kind
@@ -380,7 +388,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 	public function process_scope ($id, Scope $scope) {
 		parent::process_scope($id, $scope);
 		
-		// print("got function $id at $scope->start/$scope->end\n");
+		// print("got function ($id) at $scope->start/$scope->end\n");
 		// print($scope->contents."\n");
 		// print_r($scope->results);
 
@@ -408,7 +416,7 @@ class HeaderFunctionParser extends HeaderParserModule {
 			}
 			
 			// plain-c functions
-			case 3: {				
+			case 3: {
 				if ($function = $this->parse_function($scope->results, true)) {
 					$function->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
 					$this->symbols->add_symbol($function);

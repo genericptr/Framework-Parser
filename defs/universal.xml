@@ -66,7 +66,12 @@
 	<framework>
 		<parent>cocoa_base</parent>
 		<name>CoreVideo</name>
-		<ignore_types>COREVIDEO_SUPPORTS_DIRECT3D, CV_INLINE, snprintf</ignore_types>
+		<replacement_patterns>
+			<pattern>
+				<pattern>/(COREVIDEO_SUPPORTS_DIRECT3D|snprintf)+/</pattern>
+				<replacement></replacement>
+			</pattern>
+		</replacement_patterns>
 	</framework>
 		
 	<framework>
@@ -87,7 +92,13 @@
 		<external_macros>GK_EXTERN_WEAK</external_macros>
 		<ignore_types>GK_EXTERN_WEAK</ignore_types>
 	</framework>
-	
+		<framework>
+
+		<parent>cocoa_base</parent>
+		<name>SceneKit</name>
+		<external_macros>SCN_EXPORT</external_macros>
+	</framework>
+
 	<framework>
 		<parent>cocoa_base</parent>
 		<name>CoreLocation</name>
@@ -113,7 +124,14 @@
 		<name>CoreAudio</name>
 		<imports>CoreAudioTypes.h</imports>
 	</framework>
-		
+
+	<framework>
+		<parent>cocoa_base</parent>
+		<name>CoreHaptic</name>
+	</framework>
+
+	CF_SWIFT_BRIDGED_TYPEDEF
+
 	<!--
 	<framework>
 		<parent>cocoa_base</parent>
@@ -138,5 +156,10 @@
 			gl.h, gl3.h, gl3ext.h, glext.h, gliContext.h, gliDispatch.h, gltypes.h, glu.h, gluContext.h, gluMacro.h
 		</imports>
 	</framework>
-							
+	
+	<framework>
+		<parent>carbon_base</parent>
+		<name>Dispatch</name>
+	</framework>
+
 </frameworks>

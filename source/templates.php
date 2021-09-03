@@ -5,6 +5,7 @@ define("TEMPLATE_FILE_UNDEFINED_TYPES", "UndefinedTypes");
 define("TEMPLATE_FILE_INLINE_FUNCTIONS", "InlineFunctions");
 
 define("TEMPLATE_KEY_NAME", "[NAME]");
+define("TEMPLATE_KEY_NAME_UPPER_CASE", "[NAME_UC]");
 define("TEMPLATE_KEY_LINK_FRAMEWORK", "[LINK_FRAMEWORK]");
 define("TEMPLATE_KEY_USES", "[USES]");
 define("TEMPLATE_KEY_USES_MINIMAL", "[USES_MINIMAL]");
@@ -59,7 +60,8 @@ $template_availability_macros = <<<TEMPLATE
 {\$define MAC_OS_X_VERSION_10_13 := 1130}
 {\$define MAC_OS_X_VERSION_10_14 := 1140}
 {\$define MAC_OS_X_VERSION_10_15 := 1150}
-{\$define MAC_OS_X_VERSION_LATEST := MAC_OS_X_VERSION_10_15}
+{\$define MAC_OS_X_VERSION_11_3 := 1230}
+{\$define MAC_OS_X_VERSION_LATEST := MAC_OS_X_VERSION_11_3}
 
 // System Versions iPhoneOS SDK
 {\$define __MAC_10_0 := 1000}
@@ -186,7 +188,7 @@ $template_availability_macros = <<<TEMPLATE
 {\$define TARGET_RT_MAC_MACHO}
 
 {\$undef __OBJC2__}
-{\$undef __BLOCKS__}
+{\$define __BLOCKS__}
 {\$define NS_BLOCKS_AVAILABLE}
 {\$undef NS_BUILD_32_LIKE_64}
 {\$undef NS_NONATOMIC_IOSONLY}

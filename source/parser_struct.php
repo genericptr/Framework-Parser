@@ -306,17 +306,17 @@ class HeaderStructParser extends HeaderParserModule {
 	}
 	
 	public function process_scope ($id, Scope $scope) {
-		//print("got struct $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		// print("✅ got struct ($id) at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
 		
 		switch ($id) {
-			case 1: {		
+			case 1: {
 				if ($struct = $this->process_struct($scope)) {
 					$scope->set_symbol($struct);
 				}
 				break;
-			}			
+			}
 		}
 	}
 					
