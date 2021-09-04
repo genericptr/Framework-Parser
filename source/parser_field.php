@@ -136,9 +136,12 @@ class HeaderFieldParser extends HeaderParserModule {
 	private function process_generic_field (Scope $scope) {		
 		$field = new FieldSymbol($this->header);
 		$contents = trim($scope->contents, ";");
-			
+
+		// clean generics before extracting name/type
+		$contents = clean_objc_generics($contents);
+
 		extract_name_type_list($contents, $list, $type);
-		
+
 		foreach ($list as $key => $value) {
 			format_name_type_pair($value, $type, $this->header, true);
 			$list[$key] = reserved_namespace_protect_keyword($value);
@@ -149,7 +152,7 @@ class HeaderFieldParser extends HeaderParserModule {
 		$field->names = $list;
 		
 		$field->contents = $scope->contents;
-		
+
 		// bit field
 		if (preg_match("/:\s*(\d+)\s*$/", $scope->results[3], $captures)) {
 			$field->bit_field = (int)$captures[1];
@@ -180,13 +183,13 @@ class HeaderFieldParser extends HeaderParserModule {
 	}
 	
 	public function process_scope ($id, Scope $scope) {
-		// print("+ got field $id in ".$scope->get_super_scope()->name."\n");
+		// print("✅ got field ($id) in ".$scope->get_super_scope()->name."\n");
 		// print($scope->contents."\n");
 		// print_r($scope->results);
 		
 		switch ($id) {
 			
-			case 1: {		
+			case 1: {
 				if ($field = $this->process_generic_field($scope)) {
 					$field->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
 					$scope->set_symbol($field);

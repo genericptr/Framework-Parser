@@ -1,6 +1,6 @@
 
 
-// TOOD: pointers in generic params needs to be cleaned
+// ✅ TOOD: pointers in generic params needs to be cleaned
 // typedef NSArray<NSCollectionLayoutGroupCustomItem*> MyArray;
 // typedef NSArray<NSDictionary<NSString *, id> *> ArrayOfDict;
 // typedef NSArray<NSCollectionLayoutGroupCustomItem*> * _Nonnull(^NSCollectionLayoutGroupCustomItemProvider)(id<NSCollectionLayoutEnvironment> layoutEnvironment);
@@ -11,7 +11,16 @@
 // @end
 
 
-// TODO: broken bit field struct
+// ✅ TODO: generics in private fields
+@interface GKGameSession : NSObject {
+    // note the scope pattern is the problem here!
+    NSMutableDictionary<NSString*, NSArray<NSNumber*> *> *_playerStates;
+}
+@end
+
+/*
+
+// ✅ TODO: broken bit field struct
 @interface AMWorkflowView : NSView {
     @private
     struct __AMWorkflowViewFlags
@@ -27,36 +36,6 @@
 }
 @end
 
-
-// TODO: generics in private fields
-@interface GKGameSession : NSObject {
-    NSArray<GKCloudPlayer *> *_players;
-    NSMutableDictionary<NSString*, NSArray<NSNumber*> *> *_playerStates;
-}
-// TODO: id conforms to hint is broken with protocols
-@property (nonatomic, weak, nullable) id<RPPreviewViewControllerDelegate>previewControllerDelegate;
-@end
-
-@interface CoreHaptic : NSObject
-
-typedef void (^CHHapticCompletionHandler)(NSError *_Nullable error);
-typedef NS_ENUM(NSInteger, CHHapticEngineFinishedAction) {
-    CHHapticEngineFinishedActionStopEngine  = 1,
-    CHHapticEngineFinishedActionLeaveEngineRunning  = 2
-};
-typedef CHHapticEngineFinishedAction (^CHHapticEngineFinishedHandler)(NSError *_Nullable error) CF_SWIFT_BRIDGED_TYPEDEF;
-typedef void (^CHHapticEngineStoppedHandler)(CHHapticEngineStoppedReason stoppedReason);
-typedef NS_ENUM(NSInteger, CHHapticEngineStoppedReason) {
-    CHHapticEngineStoppedReasonAudioSessionInterrupt    = 1,
-    CHHapticEngineStoppedReasonApplicationSuspended     = 2,
-    CHHapticEngineStoppedReasonIdleTimeout              = 3,
-    CHHapticEngineStoppedReasonNotifyWhenFinished       = 4,
-    CHHapticEngineStoppedReasonEngineDestroyed          = 5,
-    CHHapticEngineStoppedReasonGameControllerDisconnect = 6,
-    CHHapticEngineStoppedReasonSystemError              = -1
-};
-
-@end
 /*
 
 // TODO: SKColor is a typedef to a defined class so "SKColor *" should not be SKColorPtr
@@ -70,7 +49,7 @@ typedef NS_OPTIONS(NSUInteger, SCNPhysicsCollisionCategory) {
     SCNPhysicsCollisionCategoryAll     = ~0UL       // default for collision mask
 } API_AVAILABLE(macos(10.10));
 
-// TODO: nested structs/enums in classes and categories aren't included in unit
+// ✅ TODO: nested structs/enums in classes and categories aren't included in unit
 @interface NSNestedStructs : NSObject {
 @private
     AVSampleCursorInternal  *_sampleCursor;
@@ -129,7 +108,7 @@ typedef NS_ENUM(NSInteger, CBManagerAuthorization) {
 
 
 /*
-// TODO: generic token is added into cblock type
+// ✅ TODO: generic token is added into cblock type
 @interface NSArray<ObjectType> (NSExtendedArray)
 - (NSOrderedCollectionDifference<id> *)differenceByTransformingChangesWithBlock:(NSOrderedCollectionChange<id> *(^)(NSOrderedCollectionChange<ObjectType> *))block;
 // - (NSArray<ObjectType> *)arrayByAddingObject:(ObjectType)anObject;
@@ -150,7 +129,7 @@ typedef NS_ENUM(NSInteger, CBManagerAuthorization) {
 @interface NSError : NSObject <NSCopying, NSSecureCoding>
 @end
 
-// TODO: generic param in callback params
+// ✅ TODO: generic param in callback params
 @interface NSCollectionViewDiffableDataSource<SectionIdentifierType,ItemIdentifierType> : NSObject
 + (void)setUserInfoValueProviderForDomain:(NSErrorDomain)errorDomain provider:(id _Nullable (^ _Nullable)(NSError *err, NSErrorUserInfoKey userInfoKey))provider;
 typedef NSCollectionViewItem *  (^NSCollectionViewDiffableDataSourceItemProvider)(NSCollectionView * , NSIndexPath * , ItemIdentifierType);
@@ -159,7 +138,7 @@ typedef NSCollectionViewItem *  (^NSCollectionViewDiffableDataSourceItemProvider
 // - (NSRange)spellServer:(NSSpellServer *)sender details:(NSArray<SectionIdentifierType *>) details;
 @end
 
-// TODO: generic param in callback params
+// ✅ TODO: generic param in callback params
 @interface NSCallback<CandidateType> : NSObject
 // typedef NSCollectionViewItem *  (^NSCollectionViewDiffableDataSourceItemProvider)(NSCollectionView * , NSIndexPath * , ItemIdentifierType);
 // @property(nonatomic,readonly) NSArray<SectionIdentifierType> *sectionIdentifiers;

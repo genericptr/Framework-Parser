@@ -208,7 +208,7 @@ class HeaderPropertyParser extends HeaderParserModule {
 	private function process_property_name_type (PropertySymbol $property, $contents) {
 		$contents = replace_remote_messaging_modifiers($contents, $property->remote_messaging_modifier);	
 		$contents = replace_garbage_collector_hints($contents, $property->garbage_collector_hint);
-		
+
 		// separate conforms to hints from property name so the identifiers don't
 		// get merged in extract_name_type_list
 		// example: id<AVPlayerItemOutputPullDelegate>delegate;
@@ -223,8 +223,12 @@ class HeaderPropertyParser extends HeaderParserModule {
 		array_shift($property->list);
 		format_name_type_pair($property->name, $property->type, $this->header);
 	}
-										
+	
 	function process_scope ($id, Scope $scope) {
+		// print("✅ got property ($id) in ".$scope->get_super_scope()->name."\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
+
 		parent::process_scope($id, $scope);
 		
 		$property = new PropertySymbol($this->header);

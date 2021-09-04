@@ -1,2 +1,5 @@
+
+Makefile
+.gitignore
 *.sublime-project
 *.sublime-workspace

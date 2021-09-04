@@ -181,6 +181,11 @@ function parse_directory ($directory) {
 // parse_external_framework();
 // parse_unit();
 // parse_header_external_directory();
+
+// TODO: this should be easy: 
+// 1) specify a framework def
+// 2) specify directory
+// 3) specifiy umbrella OR manually enter headers in framework def <imports>
 parse_directory('/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/dispatch');
 
 print(implode(" ", $GLOBALS["argv"])."\n");

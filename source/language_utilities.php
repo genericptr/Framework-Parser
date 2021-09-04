@@ -109,13 +109,13 @@ function clean_objc_generics ($string) {
 	// step 1) remove single parameters like <id> and <id, id *>
   if (preg_match_all('/(\w+)\s*(<(\w+[,* ]*)+>)/', $string, $matches)) {
   	for ($i=0; $i < count($matches[0]); $i++) { 
-  		$string = str_replace($matches[0][$i], $matches[1][$i], $string);
+  		$string = str_replace($matches[0][$i], $matches[1][$i].' ', $string);
   	}
   }
   // step 2) remove any remaining nested parameters like NSDictionary<NString *, NSArray<NSURL *>>
 	if (preg_match_all('/(\w+)\s*(<.*>)/', $string, $matches)) {
 		for ($i=0; $i < count($matches[0]); $i++) { 
-			$string = str_replace($matches[0][$i], $matches[1][$i], $string);
+			$string = str_replace($matches[0][$i], $matches[1][$i].' ', $string);
 		}
 	}
 	// print(ansi_string(ANSI_BACK_GREEN, $string)."\n");

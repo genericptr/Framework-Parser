@@ -202,9 +202,6 @@ class HeaderFunctionParser extends HeaderParserModule {
 	 */
 		
 	private function convert_generic_parameter ($param, &$index, FunctionSymbol &$function) {
-		// the parameter is marked const in c so we need to 
-		// make note before it's removed in extract_name_type_pair()
-		if (preg_match("/^\s*const/", $param)) $is_const = true;
 		
 		// extract the name/type pair or auto-index if the 
 		// pair is invalid (an inline callback)
@@ -342,19 +339,21 @@ class HeaderFunctionParser extends HeaderParserModule {
 		$function = new FunctionSymbol($this->header);
 		$function->name = $name;
 		$function->source_type = $source_type;
+
+		// get function kind
+		$return_type = trim($return_type);
+		if ($return_type == PROCEDURE_RETURN_TYPE) {
+			$function->kind = FUNCTION_TYPE_PROCEDURE;
+		} else {
+			$function->kind = FUNCTION_TYPE_FUNCTION;
+		}
+
 		$return_type = clean_objc_generics($return_type);
 		$return_type = format_c_type($return_type, $this->header);
 		$function->return_type = $return_type;
 
 		global_namespace_protect_keyword($function->name);
-		
-		// get function kind
-		if (trim($return_type) == PROCEDURE_RETURN_TYPE) {
-			$function->kind = FUNCTION_TYPE_PROCEDURE;
-		} else {
-			$function->kind = FUNCTION_TYPE_FUNCTION;
-		}
-		
+
 		// convert parameters to pascal string
 		$function->parameters = $this->convert_parameters($function, $parameters);
 			  
