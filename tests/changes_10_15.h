@@ -10,6 +10,14 @@
 // @interface NSLayoutXAxisAnchor : NSLayoutAnchor<NSLayoutXAxisAnchor *>
 // @end
 
+// ✅ TODO: generics stripped out protocol hints on id<>!
+@protocol NSUserInterfaceValidations
+
+- (NSArray<Some> *)arrayByAddingObject:(Some)anObject;
+- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)item;
+@property (nonatomic, weak, nullable) id<RPPreviewViewControllerDelegate>previewControllerDelegate;
+
+@end
 
 // ✅ TODO: generics in private fields
 @interface GKGameSession : NSObject {

@@ -1,5 +1,5 @@
 FPC=/usr/local/lib/fpc/3.3.1/ppcx64
-OUTPUT=__output
+OUTPUT=units
 OPTS=-vbr -dMACOSALL -FU${OUTPUT}
 
 all:

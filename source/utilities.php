@@ -6,6 +6,11 @@
 		return "/Users/$user";
 	}
 
+	function change_working_directory(string $directory): void {
+		$directory = expand_path($directory);
+		chdir($directory);
+	}
+
 	function expand_tilde_path ($path) {
 		return str_replace("~", user_directory(), $path);
 	}
@@ -20,6 +25,9 @@
 	function expand_path ($path) {
 		$path = expand_tilde_path($path);
 		$path = expand_root_path($path);
+		if ($new_path = realpath($path)) {
+			$path = $new_path;
+		}
 		return $path;
 	}
 
@@ -71,7 +79,26 @@
 		$path = basename($path);
 		return remove_file_extension($path);
 	}
-	
+
+	function directory_contents_recursive ($directory, $include_directories = false) {
+		$directories = array();
+		if ($handle = @opendir($directory)) {
+			while (($file = readdir($handle)) !== false) {
+				if (($file != '.') && ($file != '..') && ($file[0] != '.')) {
+					$path = "$directory/$file";
+					if (is_dir($path)) {
+						if ($include_directories) $directories[] = $path;
+						$directories = array_merge($directories, directory_contents_recursive($path, $include_directories));
+					} else {
+						$directories[] = $path;
+					}
+				}
+			}
+			closedir($handle);
+		}
+	return $directories;
+}
+
 	function directory_contents ($directory, $include_directories = false, $recursive = false, $filter = null) {
 		$contents = array();
 		if ($handle = @opendir($directory)) {

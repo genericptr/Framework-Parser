@@ -1,5 +1,11 @@
 <?php
 
+// require the correct PHP version
+$version = explode('.', PHP_VERSION);
+if ($version[0] != 7) {
+	die("⚠️ Requires PHP 7.x.\n");
+}
+
 // ignore notices since they've gotten noisy in later versions of PHP
 ini_set("error_reporting", E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
 
