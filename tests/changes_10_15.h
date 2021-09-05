@@ -10,20 +10,16 @@
 // @interface NSLayoutXAxisAnchor : NSLayoutAnchor<NSLayoutXAxisAnchor *>
 // @end
 
-// ✅ TODO: generics stripped out protocol hints on id<>!
-@protocol NSUserInterfaceValidations
-
-- (NSArray<Some> *)arrayByAddingObject:(Some)anObject;
-- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)item;
-@property (nonatomic, weak, nullable) id<RPPreviewViewControllerDelegate>previewControllerDelegate;
-
-@end
 
 // ✅ TODO: generics in private fields
 @interface GKGameSession : NSObject {
     // note the scope pattern is the problem here!
     NSMutableDictionary<NSString*, NSArray<NSNumber*> *> *_playerStates;
 }
+
+// ✅ TODO: this has 2 blocks but only one is printed! probably because of a name conflict
+- (void)performBatchUpdates:(void (^)(void))updates completionHandler:(void (^)(BOOL finished))completionHandler;
+
 @end
 
 /*
@@ -43,8 +39,6 @@
     id _future[4];
 }
 @end
-
-/*
 
 // TODO: SKColor is a typedef to a defined class so "SKColor *" should not be SKColorPtr
 #define SKColor NSColor
@@ -82,40 +76,6 @@ typedef NS_ENUM(NSInteger, CBManagerAuthorization) {
 
 @end
 
-// typedef void (*CVPixelBufferReleasePlanarBytesCallback)( void * CV_NULLABLE releaseRefCon, const void * CV_NULLABLE dataPtr, size_t dataSize, size_t numberOfPlanes, const void * CV_NULLABLE planeAddresses[CV_NULLABLE ] );
-
-// APPKIT_EXTERN void NSDrawBitmap(NSRect rect, NSInteger width, NSInteger height, NSInteger bps, NSInteger spp, NSInteger bpp, NSInteger bpr, BOOL isPlanar, BOOL hasAlpha, NSColorSpaceName colorSpaceName, const unsigned char *const _Nullable data[_Nonnull 5]);
-
-// // TODO: these fail to import in in the SDK but work just fine in this file. order of files error?
-// @protocol NSAccessibilityElement <NSObject>
-// @required
-// - (NSRect)accessibilityFrame;
-// - (id)accessibilityParent;
-// @optional
-// - (BOOL)isAccessibilityFocused;
-// - (NSString *)accessibilityIdentifier;
-// @end
-
-// @protocol NSAccessibilityButton <NSAccessibilityElement>
-// @required
-// - (NSString *)accessibilityLabel;
-// - (BOOL)accessibilityPerformPress;
-// @end
-
-// @protocol NSAccessibilitySwitch <NSAccessibilityButton>
-// @required
-// - (NSString *)accessibilityValue;
-// @optional
-// - (BOOL)accessibilityPerformIncrement;
-// - (BOOL)accessibilityPerformDecrement;
-// @end
-
-// @interface NSSwitch : NSControl <NSAccessibilitySwitch>
-// @property NSControlStateValue state;
-// @end
-
-
-/*
 // ✅ TODO: generic token is added into cblock type
 @interface NSArray<ObjectType> (NSExtendedArray)
 - (NSOrderedCollectionDifference<id> *)differenceByTransformingChangesWithBlock:(NSOrderedCollectionChange<id> *(^)(NSOrderedCollectionChange<ObjectType> *))block;
@@ -182,4 +142,5 @@ typedef NSCollectionViewItem *  (^NSCollectionViewDiffableDataSourceItemProvider
 // typedef NS_OPTIONS(uint64_t, NSActivityOptions) {
 //     NSActivityUserInitiatedAllowingIdleSystemSleep = (NSActivityUserInitiated & ~NSActivityIdleSystemSleepDisabled),
 // } NS_ENUM_AVAILABLE(10_9, 7_0);
+
 */

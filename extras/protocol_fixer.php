@@ -12,7 +12,7 @@ if ($version[0] != 8) {
  * Post-fix hack to add protocol hints to "id" which were
  * removed by accident by generic type cleaning.
  */
-function fix_protocols(string $src_sdk_path, string $dst_sdk_path): int {
+function fix_protocols(string $src_sdk_path, string $dst_sdk_path, bool $write_changes): int {
 	$src_sdk_path = expand_path($src_sdk_path);
 	$dst_sdk_path = expand_path($dst_sdk_path);
 
@@ -67,21 +67,25 @@ function fix_protocols(string $src_sdk_path, string $dst_sdk_path): int {
 				if (isset($changes[$j])) {
 					foreach ($changes[$j] as $change) {
 						// $line = str_replace($change['pattern'], ansi_string(ANSI_BACK_RED, $change['replace']), $line);
-						$line = str_replace($change['pattern'], $change['replace'], $line);
+						if (preg_match('/'.$change['pattern'].'/', $line)) {
+							$line = str_replace($change['pattern'], $change['replace'], $line);
+							echo ansi_string(ANSI_FORE_RED, $line)."\n";
+							$total_changes++;
+						}
 					}
 				}
 				$dst_text .= $line;
 			}
 			// print($dst_text);
-			file_put_contents($dst_path, $dst_text);
-			$total_changes++;
+			if ($write_changes) file_put_contents($dst_path, $dst_text);
 		}
 	}
 
 	return $total_changes;
 }
 
-$total_changes = fix_protocols('~/Desktop/MacOS_11_0', '~/Desktop/MacOS_11_0_old');
-print("🔥 $total_changes files were changed.\n");
+// $total_changes = fix_protocols('~/Desktop/MacOS_11_0', '~/Desktop/MacOS_11_0_old', true);
+$total_changes = fix_protocols('~/Desktop/MacOS_11_0', '~/Desktop/CocoaAll', true);
+print("🔥 $total_changes changes were found.\n");
 
 ?>
