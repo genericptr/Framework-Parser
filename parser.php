@@ -138,6 +138,11 @@ if (is_parser_option_enabled(PARSER_OPTION_CLEAN)) {
 // create framework loader
 $loader = new FrameworkLoader();
 
+// preload frameworks and headers using directory
+if (is_parser_option_enabled(PARSER_OPTION_DIRECTORY)) {
+	$loader->process_directory(get_parser_option(PARSER_OPTION_DIRECTORY));
+}
+
 // batch process or process single header
 if (is_parser_option_enabled(PARSER_OPTION_ALL)) {
 	$loader->process_batch(get_parser_option(PARSER_OPTION_IGNORE), get_parser_option(PARSER_OPTION_ONLY));

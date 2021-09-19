@@ -1,6 +1,7 @@
 COCOA_ALL_FRAMEWORKS = Foundation, CoreImage, QuartzCore, CoreData, AppKit
 GROUP_FRAMEWORKS = Foundation, CoreImage, QuartzCore, CoreData, AppKit
 
+UNIVERSAL_FRAMEWORKS = CoreFoundation, CoreGraphics
 SUPPORT_FRAMEWORKS = ^Foundation, AddressBook
 MACOS_11_0_ALL_FRAMEWORKS = ${COCOA_ALL_FRAMEWORKS},AddressBook,UserNotifications,UserNotificationsUI,Contacts,ContactsUI,CoreAudioKit,SensorKit,QuickLook,QuickLookUI,CoreML,CoreBluetooth,CoreHaptics,CoreWLAN,PrintCore,PushKit,MetricKit,ReplayKit,EventKit,AppleScriptObjC,Automator,CloudKit,StoreKit,CoreLocation,ImageCaptureCore,ImageKit,PDFKit,MapKit,SceneKit,SpriteKit,GameKit,GameplayKit,WebKit,AVFAudio,Photos,PhotosUI,ModelIO,Metal,MetalKit,CalendarStore,AVFoundation,QuartzCore,CoreAudio,CoreData,CoreMedia,CoreVideo,
 
@@ -15,22 +16,30 @@ PHP = php7
 CWD = $(shell pwd)
 
 TEST_CBLOCKS = parser.php -header="Foundation:${CWD}/tests/cblocks.h" -macos -unit -show
-TEST_10_15 = parser.php -header="CoreVideo:${CWD}/tests/changes_10_15.h" -default_framework=cocoa_base -macos -unit -show
+TEST_10_15 = parser.php -header="CoreVideo:${CWD}/tests/changes_10_15.h" -default_framework=cocoa_base -macos -unit -show -pre
 TEST_PROTOCOL_IMPORTS = parser.php -header="Foundation:${CWD}/tests/protocol_imports.h" -macos -unit -show
+TEST_DISPATCH = parser.php -header="Dispatch:${CWD}/tests/dispatch.h" -macos -unit -show -pre
 
 # macOS 11 SDK
 MACOS_11_0_CORE = parser.php -frameworks=\"${COCOA_ALL_FRAMEWORKS}\" -out=~/Desktop/MacOS_11_0 -group=CocoaAll -group_frameworks=\"${GROUP_FRAMEWORKS}\" -all_units=\"@/templates/mac-unit-template.txt\" -template=\"@/templates/cocoaall-template.txt\" -skeleton=\"@/skeletons/CocoaAll_11_0\" -sdk=MacOSX11.3.sdk -default_framework=cocoa_base -macos -all -class_definitions -v -safe -build_skeletons
 MACOS_11_0_SUPPORT = parser.php -frameworks=\"${SUPPORT_FRAMEWORKS}\" -out=~/Desktop/MacOS_11_0 -all_units=\"@/templates/mac-unit-template.txt\" -template=\"@/templates/cocoaall-template.txt\" -skeleton=\"@/skeletons/CocoaAll_11_0\" -sdk=MacOSX11.3.sdk -default_framework=cocoa_base -group=CocoaAll -macos -all -class_definitions -v -safe -build_skeletons
 MACOS_11_0_UNIVERSAL = parser.php -frameworks=\"${UNIVERSAL_FRAMEWORKS}\" -out=~/Desktop/11_0_Universal -group=CocoaAll -all_units=\"@/templates/mac-unit-template.txt\" -template=\"@/templates/mac-unit-template.txt\" -skeleton=\"@/skeletons/CoreFoundation_11_0\" -sdk=MacOSX11.3.sdk -default_framework=carbon_base -macos -all -class_definitions -v -safe -build_skeletons
-MACOS_11_0_ALL = parser.php -frameworks=\"${MACOS_11_0_ALL_FRAMEWORKS}\" -out=~/Desktop/MacOS_11_0 -group=CocoaAll -group_frameworks=\"${GROUP_FRAMEWORKS}\" -all_units=\"@/templates/mac-unit-template.txt\" -template=\"@/templates/cocoaall-template.txt\" -skeleton=\"@/skeletons/CocoaAll_11_0\" -sdk=MacOSX11.3.sdk -default_framework=cocoa_base -macos -all -class_definitions -v -safe -build_skeletons
+MACOS_11_0_ALL = parser.php -frameworks=\"${MACOS_11_0_ALL_FRAMEWORKS}\" -out=~/Desktop/MacOS_11_0 -group=CocoaAll -group_frameworks=\"${GROUP_FRAMEWORKS}\" -all_units=\"@/templates/mac-unit-template.txt\" -template=\"@/templates/cocoaall-template.txt\" -skeleton=\"@/skeletons/CocoaAll_11_0\" -sdk=MacOSX11.3.sdk -default_framework=cocoa_base -macos -all -class_definitions -v -safe -build_skeletons -all
 
+
+TEST_DIRECTORY = parser.php -dir=\"Dispatch:/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include/dispatch\" -out=\"/Users/ryanjoseph/Desktop/dispatch\" -v+ -safe -build_skeletons -plain_c
+
+# -all_units="@/templates/mac-unit-template.txt" -template="@/templates/mac-unit-template.txt" -skeleton="@/skeletons/CoreFoundation_11_0"
 
 all:
 # 	term "${PHP} extras/test.php"
 # 	term "${PHP} extras/parser_tests.php"
 # 	term "php8 extras/sdk_merger.php"
-	term "php8 extras/protocol_fixer.php"
-# 	term "${PHP} ${TEST_10_15}"
+# 	term "php8 extras/protocol_fixer.php"
+# 	term "${PHP} ${TEST_DISPATCH}"
+	term "${PHP} ${TEST_10_15}"
+# 	term "${PHP} ${MACOS_11_0_CORE}"
 # 	term "${PHP} ${MACOS_11_0_ALL}"
 # 	term "${PHP} ${MACOS_11_0_SUPPORT}";
 # 	term "${PHP} ${MACOS_11_0_UNIVERSAL}"
+# 	term "${PHP} ${TEST_DIRECTORY}"

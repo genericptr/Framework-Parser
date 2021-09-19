@@ -158,8 +158,46 @@
 	</framework>
 	
 	<framework>
-		<parent>carbon_base</parent>
+		<parent>cocoa_base</parent>
 		<name>Dispatch</name>
+		<replacement_patterns>
+			<pattern>
+				<pattern>/DISPATCH_OPTIONS\((\w+),\s*([^,]+),(.*)\);/s</pattern>
+				<replacement>typedef enum { $3 } $1 $1_t;</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_DECL\((\w+)\)/</pattern>
+				<replacement>typedef struct $1s $1_t</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_(?:DATA|SOURCE)+_DECL\((\w+)\)/</pattern>
+				<replacement>typedef struct $1s $1_t</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_DECL_SUBCLASS\((\w+),\s*(\w+)\)/</pattern>
+				<replacement>typedef struct $2_t $1_t</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_DATA_DESTRUCTOR_TYPE_DECL\((\w+)\)/</pattern>
+				<replacement>DISPATCH_EXPORT const dispatch_function_t _dispatch_data_destructor_$1</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_SOURCE_TYPE_DECL\((\w+)\)/</pattern>
+				<replacement>DISPATCH_EXPORT struct dispatch_source_type_s _dispatch_source_type_$1</replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_ALIAS_\w+\(.*?\)/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_\w+_UNAVAILABLE\(.*?\)/</pattern>
+				<replacement></replacement>
+			</pattern>
+			<pattern>
+				<pattern>/DISPATCH_(?!EXPORT)\w+/</pattern>
+				<replacement></replacement>
+			</pattern>
+		</replacement_patterns>
 	</framework>
 
 </frameworks>

@@ -10,6 +10,13 @@
 // @interface NSLayoutXAxisAnchor : NSLayoutAnchor<NSLayoutXAxisAnchor *>
 // @end
 
+// ✅ TODO: API_AVAILABLE/API_UNAVAILABLE overwrite each other
+
+typedef NS_OPTIONS(NSUInteger, NSURLBookmarkCreationOptions) {
+    NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess API_AVAILABLE(macos(10.7), macCatalyst(13.0)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1 << 12 ),
+} API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
+
+/*
 
 // ✅ TODO: generics in private fields
 @interface GKGameSession : NSObject {
@@ -22,7 +29,7 @@
 
 @end
 
-/*
+
 
 // ✅ TODO: broken bit field struct
 @interface AMWorkflowView : NSView {

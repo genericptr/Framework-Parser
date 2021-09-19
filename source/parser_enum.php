@@ -57,7 +57,7 @@ class HeaderEnumFieldParser extends HeaderParserModule {
 		$field->name = $name;
 		
 		// the identifier has already been declared
-		if (!$field->verify_scope_availability($scope->get_super_scope())) return;		
+		if (!$field->verify_scope_availability($scope->get_super_scope())) return;
 		
 		$value = trim($value);
 		$field->value = convert_assigned_value($value, $field->bitwise_or);

@@ -153,7 +153,13 @@ class HeaderParser extends MemoryManager {
 		// apply replacement patterns for the framework
 		$contents = $this->apply_replacement_patterns($contents);
 
-		// file_put_contents("/Users/ryanjoseph/Desktop/changes_10_15.h", $contents);
+		if (get_parser_option(PARSER_OPTION_PRINT_PREPROCESSOR)) {
+			print("\n===========================================\n");
+			print("=== ".basename($file)." ===\n");
+			print("===========================================\n");
+			print($contents);
+			print("\n===========================================\n");
+		}
 
 		//die($contents);
 		return $contents;

@@ -866,8 +866,8 @@ class Framework extends MemoryManager {
 			SymbolTable::table()->add_implicit_pointer($type);
 		}
 		
-		
-		//print_r($this);
+		// TODO: print framework but in some readable
+		// print_r($this);
 	}
 	
 	// prints some info about the framework for debugging

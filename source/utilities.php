@@ -96,8 +96,8 @@
 			}
 			closedir($handle);
 		}
-	return $directories;
-}
+		return $directories;
+	}
 
 	function directory_contents ($directory, $include_directories = false, $recursive = false, $filter = null) {
 		$contents = array();

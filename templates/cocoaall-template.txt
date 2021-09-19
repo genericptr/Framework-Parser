@@ -3,6 +3,8 @@
 {$modeswitch cvar}
 {$modeswitch cblocks}
 
+{$packrecords c}
+
 {$ifndef [GROUP]}
 {$error "You must compile with -d[GROUP] to use [GROUP]."}
 {$endif}

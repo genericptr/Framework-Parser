@@ -134,11 +134,11 @@
 
 			<!-- Added in 10.15 -->
 			<macro>
-				<pattern>/\w+_UNAVAILABLE\s*\((.*)\)/</pattern>
+				<pattern>/\w+_UNAVAILABLE\s*\(([^)]+)\)/</pattern>
 				<replacement>{ unavailable in $1 }</replacement>
 			</macro>
 			<macro>
-				<pattern>/\w+_AVAILABLE\s*\((.*)\)/</pattern>
+				<pattern>/\w+_AVAILABLE\s*\(([^)]+)\)/</pattern>
 				<replacement>{ available in $1 }</replacement>
 			</macro>
 			<macro>
@@ -225,11 +225,11 @@
 		<replacement_patterns>
 			<!-- API_DEPRECATED_XXX platform macros -->
 			<pattern>
-				<pattern>/(ios|macos|macosx|watchos|tvos|macCatalyst)+\([0-9.]+\,\s*[a-zA-Z0-9._]+\)/</pattern>
-				<replacement></replacement>
+				<pattern>/(ios|macos|macosx|watchos|tvos|macCatalyst)+\(([0-9.]+\,\s*[a-zA-Z0-9._]+)\)/</pattern>
+				<replacement>$1 $2</replacement>
 			</pattern>
 			<pattern>
-				<pattern>/(ios|macos|macosx|watchos|tvos|macCatalyst)+\([0-9.]+\)/</pattern>
+				<pattern>/(ios|macos|macosx|watchos|tvos|macCatalyst)+\(([0-9.]+)\)/</pattern>
 				<replacement>$1 $2</replacement>
 			</pattern>
 			<!-- NS_ENUM macro from NSObjCRuntime.h starting in the 10.8 SDK -->
@@ -264,7 +264,7 @@
 				<pattern>/\b\w+_SWIFT_BRIDGED_TYPEDEF\b/</pattern>
 				<replacement></replacement>
 			</pattern>
-		</replacement_patterns>		
+		</replacement_patterns>
 	</framework>
 	
 	<framework>

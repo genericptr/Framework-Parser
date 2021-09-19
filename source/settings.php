@@ -88,6 +88,7 @@ define("PARSER_OPTION_FRAMEWORK_DIFFS", "framework_diffs");						// shows a list
 define("PARSER_OPTION_VERBOSE", "v");																	// enables all extra messages (see list of defines prefixed MESSAGE_)
 define("PARSER_OPTION_PLAIN_C", "plain_c");														// enables plain-c compability mode (don't use for Objective-C)
 define("PARSER_OPTION_SAFE_WRITE", "safe");														// don't overwrite files if the modification date has changed since first parser
+define("PARSER_OPTION_PRINT_PREPROCESSOR", "pre");										// print the pre-processed version of a header (for testing framework definition replacement patterns)
 
 // options which can be passed when specifying
 // frameworks with the -all switch

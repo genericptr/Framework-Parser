@@ -124,24 +124,19 @@ class FrameworkLoader {
 	// available
 	//
 	// $path = absolute path to the .h header file
-	public function process_header ($path) {
+	public function process_header ($path, $finalize_framework = true) {
 		global $system_framework_directories;
 		
 		// break the path into 2 components
 		if ($parts = explode(":", $path)) {
-			$original_path = $parts[1];
-			
-			// TODO: use PARSER_OPTION_DEFAULT_FRAMEWORK with -header 
-			// if ((!$this->is_framework_defined($name)) && (is_parser_option_enabled(PARSER_OPTION_DEFAULT_FRAMEWORK))) {
-			// 	if ($default = $this->find_framework(get_parser_option(PARSER_OPTION_DEFAULT_FRAMEWORK))) {
-			// 		$framework = Framework::clone_existing($name, $default);
-			// 		$this->add_defined_framework($framework);
-			// 	} else {
-			// 		ErrorReporting::errors()->add_fatal("The default framework \"".get_parser_option(PARSER_OPTION_DEFAULT_FRAMEWORK)."\" can not be found.");
-			// 	}
-			// }
+			if (count($parts) != 2) {
+				ErrorReporting::errors()->add_fatal("The header path \"$path\" must have a framework prefix such as \"AppKit:/path/to/header.h\".");
+			}
 
-			if (!$this->find_framework($parts[0])) {
+			$original_path = $parts[1];
+			$framework = $this->find_framework($parts[0]);
+
+			if (!$framework) {
 				$name = readline("The framework \"$parts[0]\" is not defined. What framework would you like to define from?\n");
 				if ($base = $this->find_framework($name)) {
 					$framework = Framework::clone_existing($parts[0], $base);
@@ -149,12 +144,9 @@ class FrameworkLoader {
 					//$framework->print_info();
 					$parts[0] = $framework->get_name();
 				} else {
-					die("The framework \"$name\" is not defined.\n");
+					ErrorReporting::errors()->add_fatal("The framework \"$name\" has not been defined.");
 				}
-			}
-			
-			if ($framework = $this->find_framework($parts[0])) {
-				
+			} else {
 				// get the path component
 				$path = expand_tilde_path($parts[1]);
 				
@@ -178,8 +170,6 @@ class FrameworkLoader {
 					$path = $this->find_header($parts[1]);
 				}
 							
-			} else {
-				ErrorReporting::errors()->add_fatal("The framework \"".$parts[0]."\" has not been defined.");
 			}
 		}
 		
@@ -187,23 +177,67 @@ class FrameworkLoader {
 		if (!file_exists($path)) {
 			if (!$path) $path = $original_path;
 			ErrorReporting::errors()->add_fatal("The header at \"$path\" can't be found for processing.");
-		}		
+		}
 		
 		// add the framework to the loaded array so it
 		// can be freed in finalize_framework()
-		$this->frameworks_loaded[] = &$framework;
+		if (!in_array($framework, $this->frameworks_loaded))
+			$this->frameworks_loaded[] = &$framework;
 				
 		// make header
-		$header = new Header($path, $framework);	
+		$header = new Header($path, $framework);
 		
 		// process header
 		ErrorReporting::errors()->add_message("Processing header ".$header->get_name()." (".$framework->get_name().")...");	
 		$header->parse();
 		
 		// finalize
-		$this->finalize_framework($framework);
+		if ($finalize_framework)
+			$this->finalize_framework($framework);
+
+		// return the framework used to process the header
+		return $framework;
 	}
-							
+	
+	public function process_directory ($directory) {
+		if ($parts = explode(FRAMEWORK_BASE_SEPARATOR, $directory)) {
+			$files = directory_contents($parts[1]);
+			$paths = array();
+			foreach ($files as $file) {
+				$paths[] = $file;
+			}
+
+			$framework = $this->find_framework($parts[0]);
+			$framework->header_paths = $paths;
+
+			// TODO: do a preprocess phase to find #defines and seach #includes
+			// $framework->analyze_headers();
+
+			if (!in_array($framework, $this->frameworks_loaded))
+				$this->frameworks_loaded[] = &$framework;
+
+			if (get_parser_option(PARSER_OPTION_BUILD_SKELETONS)) $framework->build_skeleton();
+			
+			//get_parser_option(PARSER_OPTION_GROUP)
+			$this->build_group_unit($parts[0], $this->frameworks_loaded, null);
+
+		} else {
+			ErrorReporting::errors()->add_fatal("The directory \"$directory\" must have a framework prefix such as \"AppKit:/path/to/directory\".");
+		}
+	}
+
+	// process an array of header paths
+	public function process_headers ($paths) {
+		$frameworks = [];
+		foreach ($paths as $path) {
+			$frameworks[] = &$this->process_header($path, false);
+		}
+		$frameworks = array_unique($frameworks);
+		foreach ($frameworks as $framework) {
+			$this->finalize_framework($framework);
+		}
+	}
+
 	// process all loaded frameworks in batch
 	public function process_batch ($ignore = null, $only = null) {
 		$time_start = microtime_float();
@@ -238,7 +272,7 @@ class FrameworkLoader {
 					// main header
 					$header = null;
 					if ($only) {
-						if (@in_array($name, $only)) {								
+						if (@in_array($name, $only)) {
 							$header = new Header($path, $framework);
 							$header->parse();
 							$header_count += 1;
@@ -747,13 +781,13 @@ TEMPLATE;
 		// the framework being freed
 		foreach ($free->get_imported_frameworks() as $import) {
 			$import->dependencies -= 1;
-		}			
+		}
 		
 		//$this->print_framework_dependencies();
 		
 		// conclude frameworks that have no dependencies left
 		foreach ($this->frameworks_loaded as $framework) {
-			if (($framework->dependencies <= 0) && (!$framework->finalized)) {				
+			if (($framework->dependencies <= 0) && (!$framework->finalized)) {
 				$this->conclude_framework($framework);
 			}
 		}
@@ -1257,10 +1291,7 @@ TEMPLATE;
 				
 				$this->add_defined_framework($framework);
 
-				// remove the base framework for easy access
-				set_parser_option(PARSER_OPTION_DIRECTORY, $path);
-
-				$this->load_framework($framework);				
+				$this->load_framework($framework);
 			} else {
 				ErrorReporting::errors()->add_fatal("The base framework \"".$parts[0]."\" can not be found.");
 			}
@@ -1316,7 +1347,7 @@ TEMPLATE;
 				}
 			}
 		}
-	
+
 		// load defined frameworks from xml
 		$this->load_frameworks_xml();
 		
@@ -1333,28 +1364,28 @@ TEMPLATE;
 		} else {
 			$frameworks = get_parser_option(PARSER_OPTION_FRAMEWORKS);
 		}
-		
-		// load framework from umbrella
-		if (is_parser_option_enabled(PARSER_OPTION_UMBRELLA)) {
-			$umbrella = get_parser_option_path(PARSER_OPTION_UMBRELLA);
-			$name = basename_without_extension($umbrella);
-			$name = ucfirst($name);
-			
-			ErrorReporting::errors()->add_message("• Loading framework \"$name\" from ".basename($umbrella).".");
-			
-			$framework = Framework::clone_existing($name, $this->find_framework("base"));
-			$framework->set_umbrella_header(basename($umbrella));
-			$framework->set_path(dirname($umbrella));
-			$framework->set_headers_directory(null);
-			$this->add_defined_framework($framework);
 
-			if (is_parser_option_enabled(PARSER_OPTION_DIRECTORY)) {
-				$this->frameworks_loaded[] = $framework;	
-			}
-		}
+		// load framework from umbrella
+		// if (is_parser_option_enabled(PARSER_OPTION_UMBRELLA)) {
+		// 	$umbrella = get_parser_option_path(PARSER_OPTION_UMBRELLA);
+		// 	$name = basename_without_extension($umbrella);
+		// 	$name = ucfirst($name);
+			
+		// 	ErrorReporting::errors()->add_message("• Loading framework \"$name\" from ".basename($umbrella).".");
+			
+		// 	$framework = Framework::clone_existing($name, $this->find_framework("base"));
+		// 	$framework->set_umbrella_header(basename($umbrella));
+		// 	$framework->set_path(dirname($umbrella));
+		// 	$framework->set_headers_directory(null);
+		// 	$this->add_defined_framework($framework);
+
+		// 	if (is_parser_option_enabled(PARSER_OPTION_DIRECTORY)) {
+		// 		$this->frameworks_loaded[] = $framework;
+		// 	}
+		// }
 		
 		// add defined frameworks
-		if (($frameworks) || (is_parser_option_enabled(PARSER_OPTION_DIRECTORY))) {
+		if ($frameworks) {
 			
 			// show a list of new frameworks search paths
 			if (is_parser_option_enabled(PARSER_OPTION_FRAMEWORK_DIFFS)) {

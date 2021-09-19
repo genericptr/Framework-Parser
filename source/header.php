@@ -99,28 +99,31 @@ class Header extends MemoryManager {
 	
 	// returns the availability macro which is at the line contained in the range
 	public function find_availability_macro ($start, $end) {
+		$names = array();
+
 		foreach ($this->availability_macros as $macro) {
 			
 			// macro is within the scope range
 			if (($macro["start"] >= $start) && ($macro["end"] <= $end)) {
-				$name = $macro["name"];
-				break;
+				$names[] = $macro["name"];
+				continue;
 			}
 			
 			// macro is after scope range
 			if (($start >= $macro["start"]) && ($end <= $macro["end"])) {
-				$name = $macro["name"];
-				break;
+				$names[] = $macro["name"];
+				continue;
+			}
+		}
+		foreach ($names as $name) {
+			// escape single quote in deprecated statments
+			if (preg_match("/^deprecated\s+'(.*)'/", $name, $matches)) {
+				$contents = str_replace("'", "''", $matches[1]);
+				$name = "deprecated '$contents';";
 			}
 		}
 
-		// escape single quote in deprecated statments
-		if (preg_match("/^deprecated\s+'(.*)'/", $name, $matches)) {
-			$contents = str_replace("'", "''", $matches[1]);
-			$name = "deprecated '$contents';";
-		}
-
-		return $name;
+		return implode(" ", $names);
 	}
 
 	public function get_actual_name () {
@@ -289,7 +292,7 @@ class Header extends MemoryManager {
 
 		// in safe mode only print files if the file doesn't already exist or the modification
 		// date is the same as the original date of the umbrella unit
-		if (is_parser_option_enabled(PARSER_OPTION_SAFE_WRITE) && file_exists($path)) {
+		if (is_parser_option_enabled(PARSER_OPTION_SAFE_WRITE) && file_exists($path) && file_exists($umbrella)) {
 			if (filemtime($path) > filemtime($umbrella)) {
 				ErrorReporting::errors()->add_note(basename($path)." has been changed, ignoring.");
 				return;
@@ -297,7 +300,7 @@ class Header extends MemoryManager {
 		} 
 
 		ErrorReporting::errors()->add_message("  Printing ".basename($path));
-		
+
 		// load the output file
 		$output = new HeaderOutput($this, $path, $show);
 		

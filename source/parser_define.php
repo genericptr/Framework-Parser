@@ -63,14 +63,13 @@ class HeaderDefineParser extends HeaderParserModule {
 	// $2 = value
 	private $pattern_define = array(	"id" => 1, 
 																		"scope" => SCOPE_CONST, 
-																		"pattern" => "/#\s*define\s+(\w+)\s+([^\n]+)\s*[\n]/i",																		
+																		"pattern" => "/#\s*define\s+(\w+)\s+([^\n]+)\s*[\n]/i",
 																		);
 	
 	// function like define with parameter list
 	// #define <identifier>(<parameter list>) <replacement token list>
 	private $pattern_define_function = array(	"id" => 2, 
 																						"scope" => SCOPE_CONST, 
-																						//"pattern" => "/#\s*define\s+(\w+)\s*\(([^)]+)\)\s+([^\n]+)\s*[\n]/i",
 																						"pattern" => "/#\s*define\s+(\w+)\s*\((.*?)\)\s+(.*?)\s*[\n]/i",
 																						);
 	
@@ -83,7 +82,7 @@ class HeaderDefineParser extends HeaderParserModule {
 	// define which specifies a macro like {$define FOO}
 	private $pattern_define_macro = array(	"id" => 4, 
 																					"scope" => SCOPE_CONST, 
-																					"pattern" => "/#\s*define\s+(\w+)\s*[\n]/i",																		
+																					"pattern" => "/#\s*define\s+(\w+)\s*[\n]/i",
 																					);
 		
 	/**
@@ -144,15 +143,15 @@ class HeaderDefineParser extends HeaderParserModule {
 		}
 		
 		return $define;
-	}						
+	}
 							
 	function process_scope ($id, Scope $scope) {
-		//print("got define $id at $scope->start/$scope->end\n");
-		//print($scope->contents."\n");
-		//print_r($scope->results);
+		// print("✅ got define ($id) at $scope->start/$scope->end\n");
+		// print($scope->contents."\n");
+		// print_r($scope->results);
 		
 		switch ($id) {
-			case 1: {		
+			case 1: {
 				if ($define = $this->parse_define($scope->results[1], $scope->results[2], $id, $scope)) {
 					$define->deprecated_macro = $this->header->find_availability_macro($scope->start, $scope->end);
 					$scope->set_symbol($define);

@@ -120,7 +120,7 @@ class SorterNode {
 	
 	// override to populate the tree with nodes
 	public function build_tree () {
-	}		
+	}	
 	
 }
 
@@ -143,12 +143,7 @@ class TreeSorter {
 				break;
 			}
 		}
-		//$this->root->print_tree();
-		
-		// add remaining nodes
-		//foreach ($this->root as $node) $order[] = $node->get_value();
-		
-		//print_r($order);
+
 		return $order;
 	}
 
